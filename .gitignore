@@ -1,0 +1,9 @@
+# nbfx build outputs (per module)
+/*/build/
+/*/*/build/
+# generated at bootstrap (own cluster configuration)
+/build/
+# local overrides
+/nbfx-local.properties
+# the netbeans submodule keeps its own ignore rules; the overlay entries are
+# written to the submodule's info/exclude by `ant overlay`

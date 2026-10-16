@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "https://netbeans.org/dtds/filesystem-1_2.dtd">
+<!--
+    Masks for layer entries of the Swing window system, which is not in the nbfx clusters
+    (core.windows, see docs/MVP.md 21.2). The keymap shadows of ide/defaults for Go to Recent
+    Document compute their originalFile by calling RecentViewListAction.getStringRep4Unixes, so
+    NbKeymap logs a ClassNotFoundException for each of them at start-up; the other shadows of that
+    layer that point at core.windows actions only dangle, silently. This module depends on
+    org.netbeans.modules.defaults so that its layer is ordered above that one and the masks apply.
+-->
+<filesystem>
+    <folder name="Keymaps">
+        <folder name="Emacs">
+            <file name="D-BACK_QUOTE.shadow_hidden"/>
+        </folder>
+        <folder name="NetBeans">
+            <file name="D-BACK_QUOTE.shadow_hidden"/>
+        </folder>
+        <folder name="NetBeans55">
+            <file name="D-BACK_QUOTE.shadow_hidden"/>
+        </folder>
+    </folder>
+</filesystem>

@@ -1,0 +1,14 @@
+diff --git a/nb/ide.launcher/netbeans.clusters b/nb/ide.launcher/netbeans.clusters
+index 343c4c8aba..3d5ed0218a 100644
+--- a/nb/ide.launcher/netbeans.clusters
++++ b/nb/ide.launcher/netbeans.clusters
+@@ -19,6 +19,9 @@
+ platform
+ # application cluster second
+ nb
++nbfx-platform
++nbfx-ide
++nbfx-java
+ # ergonomics cluster if present
+ ergonomics
+ # and now the rest

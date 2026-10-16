@@ -1,0 +1,79 @@
+
+# =============================================================================
+# nbfx clusters (appended to nbbuild/cluster.properties by `ant cluster-config`)
+#
+# The FX replacements parallel the NetBeans platform/ide/java clusters; the
+# dependency direction is nb.cluster.platform -> nbfx-platform -> nbfx-ide ->
+# nbfx-java. Only the dedicated `nbfx` cluster config pulls these in.
+# =============================================================================
+
+clusters.config.nbfx.list=\
+        nb.cluster.platform,\
+        nb.cluster.nbfx-platform,\
+        nb.cluster.nbfx-ide,\
+        nb.cluster.nbfx-java,\
+        nb.cluster.java,\
+        nb.cluster.ide,\
+        nb.cluster.extide,\
+        nb.cluster.apisupport
+
+# --- nbfx-platform: FX replacements for platform/ -----------------------------
+nb.cluster.nbfx-platform.dir=nbfx-platform
+nb.cluster.nbfx-platform.depends=\
+        nb.cluster.platform
+nb.cluster.nbfx-platform=\
+        c.gluonhq.netbeans.nbfx.actions,\
+        c.gluonhq.netbeans.nbfx.annotations,\
+        c.gluonhq.netbeans.nbfx.api,\
+        c.gluonhq.netbeans.nbfx.context,\
+        c.gluonhq.netbeans.nbfx.docking,\
+        c.gluonhq.netbeans.nbfx.lib.javafx,\
+        c.gluonhq.netbeans.nbfx.macos,\
+        c.gluonhq.netbeans.nbfx.menus,\
+        c.gluonhq.netbeans.nbfx.options,\
+        c.gluonhq.netbeans.nbfx.output,\
+        c.gluonhq.netbeans.nbfx.statusbar,\
+        c.gluonhq.netbeans.nbfx.windows,\
+        c.gluonhq.netbeans.nbfx.wizard
+
+# --- nbfx-ide: FX replacements for ide/ + the app shell -----------------------
+nb.cluster.nbfx-ide.dir=nbfx-ide
+nb.cluster.nbfx-ide.depends=\
+        nb.cluster.nbfx-platform,\
+        nb.cluster.ide,\
+        nb.cluster.java
+nb.cluster.nbfx-ide=\
+        c.gluonhq.netbeans.nbfx.debug,\
+        c.gluonhq.netbeans.nbfx.editor,\
+        c.gluonhq.netbeans.nbfx.editor.actions,\
+        c.gluonhq.netbeans.nbfx.file.actions,\
+        c.gluonhq.netbeans.nbfx.findinprojects,\
+        c.gluonhq.netbeans.nbfx.findusages,\
+        c.gluonhq.netbeans.nbfx.launcher,\
+        c.gluonhq.netbeans.nbfx.plugins,\
+        c.gluonhq.netbeans.nbfx.project,\
+        c.gluonhq.netbeans.nbfx.project.actions,\
+        c.gluonhq.netbeans.nbfx.project.context,\
+        c.gluonhq.netbeans.nbfx.project.customizer,\
+        c.gluonhq.netbeans.nbfx.project.ui,\
+        c.gluonhq.netbeans.nbfx.project.ui.api,\
+        c.gluonhq.netbeans.nbfx.propertysheet,\
+        c.gluonhq.netbeans.nbfx.run,\
+        c.gluonhq.netbeans.nbfx.structure,\
+        c.gluonhq.netbeans.nbfx.ui,\
+        c.gluonhq.netbeans.nbfx.vcs
+
+# --- nbfx-java: FX replacements for java/ + extide/ project types -------------
+nb.cluster.nbfx-java.dir=nbfx-java
+nb.cluster.nbfx-java.depends=\
+        nb.cluster.nbfx-ide,\
+        nb.cluster.java,\
+        nb.cluster.extide,\
+        nb.cluster.apisupport
+nb.cluster.nbfx-java=\
+        c.gluonhq.netbeans.nbfx.build.ant,\
+        c.gluonhq.netbeans.nbfx.project.ui.ant,\
+        c.gluonhq.netbeans.nbfx.project.ui.gradle,\
+        c.gluonhq.netbeans.nbfx.project.ui.java,\
+        c.gluonhq.netbeans.nbfx.project.ui.maven,\
+        c.gluonhq.netbeans.nbfx.structure.java

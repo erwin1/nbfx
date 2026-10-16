@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  nbfx build harness.
+
+  Hosts the pure-JavaFX nbfx clusters and consumes apache/netbeans as a git
+  submodule, applying a small patch set (friend declarations + build/packaging
+  hooks) and generating an own cluster configuration from the submodule's
+  nbbuild/cluster.properties.
+
+  Everything is Ant so the build works on macOS, Linux and Windows.
+
+  Typical use:
+      ant bootstrap      # submodule + patches + cluster config + overlay
+      ant build          # build the nbfx cluster config
+      ant run            # launch the FX app on the lean cluster set
+      ant check-purity   # guardrails
+      ant update-upstream -Dnbfx.submodule.commit=<sha>
+      ant clean
+-->
+<project name="nbfx" default="help" basedir=".">
+
+    <property file="nbfx.properties"/>
+    <property file="nbfx-local.properties"/>
+
+    <!-- ==== derived properties ==== -->
+    <property name="nbfx.sub.dir" location="${nbfx.submodule.dir}"/>
+    <property name="nbfx.patches.dir" location="patches"/>
+    <property name="nbfx.fragment" location="${nbfx.fragment.file}"/>
+    <property name="nbfx.cluster.file" location="${nbfx.cluster.properties}"/>
+    <property name="nbfx.patch.stamp" location="${nbfx.build.dir}/patches-${nbfx.submodule.commit}.stamp"/>
+
+    <condition property="nbfx.os.windows">
+        <os family="windows"/>
+    </condition>
+    <condition property="nbfx.overlay.symlink">
+        <equals arg1="${nbfx.overlay}" arg2="symlink"/>
+    </condition>
+
+    <!-- list of the cluster dirs, also as ${nbfx.cluster.1}..${nbfx.cluster.N} is not
+         available in plain Ant, so the macros below are invoked explicitly. -->
+
+    <!-- ======================================================================== -->
+    <!-- macros                                                                   -->
+    <!-- ======================================================================== -->
+
+    <macrodef name="nbfx-overlay-sync-one">
+        <attribute name="cluster"/>
+        <sequential>
+            <sync todir="${nbfx.sub.dir}/@{cluster}" includeEmptyDirs="false">
+                <!-- only exclude the per-module output dirs (<module>/build, <module>/dist);
+                     a bare **/build/** would also drop source packages named ".../build/..." -->
+                <fileset dir="@{cluster}" excludes="*/build/**,*/dist/**"/>
+            </sync>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="nbfx-overlay-symlink-one">
+        <attribute name="cluster"/>
+        <sequential>
+            <delete file="${nbfx.sub.dir}/@{cluster}" quiet="true"/>
+            <symlink link="${nbfx.sub.dir}/@{cluster}"
+                     resource="${basedir}/@{cluster}" overwrite="true"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="nbfx-unoverlay-one">
+        <attribute name="cluster"/>
+        <sequential>
+            <!-- removes the overlay whether it is a synced copy or a symlink; safe for
+                 symlinks because git clean unlinks the link, not the target -->
+            <exec executable="git" dir="${nbfx.sub.dir}" failonerror="false">
+                <arg value="clean"/>
+                <arg value="-Xdff"/>
+                <arg value="--"/>
+                <arg value="@{cluster}"/>
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <!-- ======================================================================== -->
+    <!-- submodule                                                                -->
+    <!-- ======================================================================== -->
+
+    <target name="-submodule-present">
+        <condition property="nbfx.submodule.present">
+            <available file="${nbfx.sub.dir}/.git"/>
+        </condition>
+    </target>
+
+    <target name="-submodule-init" depends="-submodule-present" unless="nbfx.submodule.present">
+        <exec executable="git" dir="${basedir}" failonerror="true">
+            <arg value="submodule"/>
+            <arg value="update"/>
+            <arg value="--init"/>
+        </exec>
+    </target>
+
+    <target name="submodule" depends="-submodule-init"
+            description="Check out the pinned netbeans revision (initialises the submodule if needed)">
+        <exec executable="git" dir="${nbfx.sub.dir}" failonerror="true">
+            <arg value="checkout"/>
+            <arg value="--quiet"/>
+            <arg value="${nbfx.submodule.commit}"/>
+        </exec>
+        <echo message="[nbfx] submodule ${nbfx.submodule.dir} @ ${nbfx.submodule.commit}"/>
+    </target>
+
+    <!-- ======================================================================== -->
+    <!-- patches                                                                  -->
+    <!-- ======================================================================== -->
+
+    <target name="-patches-check-stamp">
+        <condition property="patches.uptodate">
+            <and>
+                <available file="${nbfx.patch.stamp}"/>
+                <not><isset property="force.patches"/></not>
+            </and>
+        </condition>
+    </target>
+
+    <target name="patches" depends="submodule,-patches-check-stamp,-patches-apply"
+            description="Apply the upstream patch set (friend declarations + build hooks)"/>
+
+    <target name="-patches-apply" unless="patches.uptodate">
+        <mkdir dir="${nbfx.build.dir}"/>
+        <echo message="[nbfx] applying ${nbfx.patches.dir}/*.patch to the submodule"/>
+        <apply executable="git" dir="${nbfx.sub.dir}" failonerror="true" parallel="false">
+            <arg value="apply"/>
+            <arg value="--3way"/>
+            <arg value="--whitespace=nowarn"/>
+            <fileset dir="${nbfx.patches.dir}" includes="*.patch"/>
+        </apply>
+        <touch file="${nbfx.patch.stamp}"/>
+    </target>
+
+    <target name="patches-check" depends="submodule"
+            description="Verify every patch still applies cleanly (used after an upstream bump)">
+        <apply executable="git" dir="${nbfx.sub.dir}" failonerror="true" parallel="false">
+            <arg value="apply"/>
+            <arg value="--check"/>
+            <arg value="--3way"/>
+            <fileset dir="${nbfx.patches.dir}" includes="*.patch"/>
+        </apply>
+        <echo message="[nbfx] all patches apply cleanly"/>
+    </target>
+
+    <!-- ======================================================================== -->
+    <!-- cluster configuration                                                    -->
+    <!-- ======================================================================== -->
+
+    <target name="cluster-config" depends="submodule"
+            description="Generate the nbfx cluster configuration and install it into the submodule">
+        <mkdir dir="${nbfx.build.dir}"/>
+        <!-- The harness reads ${nb_all}/nbbuild/cluster.properties directly in several places
+             (-define-cluster-path builds cluster.path from it; ModuleListParser scans the dirs of
+             the clusters in clusters.config.full.list; packaging targets). An external
+             -Dclusters.list.file is therefore not enough, so we install the generated file there.
+             We always start from the pristine upstream file so re-runs are idempotent. -->
+        <exec executable="git" dir="${nbfx.sub.dir}" failonerror="true">
+            <arg value="checkout"/>
+            <arg value="--"/>
+            <arg value="nbbuild/cluster.properties"/>
+        </exec>
+        <loadfile property="nbfx.base.cluster" srcFile="${nbfx.sub.dir}/nbbuild/cluster.properties"/>
+        <condition property="nbfx.base.token.found">
+            <contains string="${nbfx.base.cluster}" substring="clusters.config.full.list=\"/>
+        </condition>
+        <fail unless="nbfx.base.token.found"
+              message="clusters.config.full.list= not found in ${nbfx.sub.dir}/nbbuild/cluster.properties; upstream layout changed, update build.xml:cluster-config"/>
+        <copy file="${nbfx.sub.dir}/nbbuild/cluster.properties" tofile="${nbfx.cluster.file}" overwrite="true"/>
+        <!-- register the nbfx cluster dirs so ModuleListParser finds their modules -->
+        <replace file="${nbfx.cluster.file}"
+                 token="clusters.config.full.list=\"
+                 value="clusters.config.full.list=\&#10;        nb.cluster.nbfx-platform,\&#10;        nb.cluster.nbfx-ide,\&#10;        nb.cluster.nbfx-java,\"/>
+        <!-- pure-JavaFX: the Swing window system (core.windows) is dropped from the platform
+             cluster, as in the nbfx source configuration (remove the module + its line ending so
+             the backslash-continued property stays valid) -->
+        <replace file="${nbfx.cluster.file}" token="core.windows,\&#10;" value=""/>
+        <concat destfile="${nbfx.cluster.file}" append="true" fixlastline="yes">
+            <fileset file="${nbfx.fragment}"/>
+        </concat>
+        <!-- install it as the submodule's cluster.properties -->
+        <copy file="${nbfx.cluster.file}" tofile="${nbfx.sub.dir}/nbbuild/cluster.properties" overwrite="true"/>
+        <echo message="[nbfx] generated + installed ${nbfx.cluster.file} (cluster.config=${nbfx.cluster.config})"/>
+    </target>
+
+    <!-- ======================================================================== -->
+    <!-- overlay                                                                  -->
+    <!-- ======================================================================== -->
+
+    <target name="-overlay-exclude" depends="submodule,-overlay-exclude-check,-overlay-exclude-append"/>
+
+    <target name="-overlay-exclude-check">
+        <exec executable="git" dir="${nbfx.sub.dir}" outputproperty="nbfx.sub.gitdir" failonerror="true">
+            <arg value="rev-parse"/>
+            <arg value="--absolute-git-dir"/>
+        </exec>
+        <mkdir dir="${nbfx.sub.gitdir}/info"/>
+        <touch file="${nbfx.sub.gitdir}/info/exclude"/>
+        <loadfile property="nbfx.sub.exclude" srcFile="${nbfx.sub.gitdir}/info/exclude" failonerror="false"/>
+        <condition property="nbfx.exclude.need">
+            <not><contains string="${nbfx.sub.exclude}" substring="nbfx-platform/"/></not>
+        </condition>
+    </target>
+
+    <target name="-overlay-exclude-append" if="nbfx.exclude.need">
+        <echo file="${nbfx.sub.gitdir}/info/exclude" append="true">nbfx-platform/
+nbfx-ide/
+nbfx-java/</echo>
+    </target>
+
+    <target name="overlay" depends="submodule,-overlay-exclude,-overlay-sync,-overlay-symlink"
+            description="Make the nbfx cluster dirs visible to the netbeans build (sync|symlink)"/>
+
+    <target name="-overlay-sync" unless="nbfx.overlay.symlink">
+        <nbfx-unoverlay-one cluster="nbfx-platform"/>
+        <nbfx-unoverlay-one cluster="nbfx-ide"/>
+        <nbfx-unoverlay-one cluster="nbfx-java"/>
+        <nbfx-overlay-sync-one cluster="nbfx-platform"/>
+        <nbfx-overlay-sync-one cluster="nbfx-ide"/>
+        <nbfx-overlay-sync-one cluster="nbfx-java"/>
+        <echo message="[nbfx] overlay=sync"/>
+    </target>
+
+    <target name="-overlay-symlink" if="nbfx.overlay.symlink">
+        <nbfx-overlay-symlink-one cluster="nbfx-platform"/>
+        <nbfx-overlay-symlink-one cluster="nbfx-ide"/>
+        <nbfx-overlay-symlink-one cluster="nbfx-java"/>
+        <echo message="[nbfx] overlay=symlink"/>
+    </target>
+
+    <target name="unoverlay" depends="submodule"
+            description="Remove the overlay from the submodule">
+        <nbfx-unoverlay-one cluster="nbfx-platform"/>
+        <nbfx-unoverlay-one cluster="nbfx-ide"/>
+        <nbfx-unoverlay-one cluster="nbfx-java"/>
+    </target>
+
+    <!-- ======================================================================== -->
+    <!-- main targets                                                             -->
+    <!-- ======================================================================== -->
+
+    <target name="bootstrap" depends="submodule,patches,cluster-config,overlay"
+            description="Bring a clean checkout to a buildable state"/>
+
+    <target name="build" depends="bootstrap" description="Build the nbfx cluster config">
+        <ant antfile="${nbfx.sub.dir}/nbbuild/build.xml" dir="${nbfx.sub.dir}/nbbuild"
+             target="build" inheritall="false">
+            <property name="cluster.config" value="${nbfx.cluster.config}"/>
+            <property name="clusters.list.file" location="${nbfx.cluster.file}"/>
+        </ant>
+    </target>
+
+    <target name="run" depends="bootstrap" description="Launch the FX app on the lean nbfx cluster set">
+        <ant antfile="${nbfx.sub.dir}/nbbuild/build.xml" dir="${nbfx.sub.dir}/nbbuild"
+             target="tryme" inheritall="false">
+            <property name="cluster.config" value="${nbfx.cluster.config}"/>
+            <property name="clusters.list.file" location="${nbfx.cluster.file}"/>
+        </ant>
+    </target>
+
+    <target name="check-purity" description="Run the nbfx purity/guardrail checks">
+        <ant antfile="${basedir}/check-purity.xml" dir="${basedir}"
+             target="check-purity" inheritall="false">
+            <property name="nbfx.dist.dir" location="${nbfx.sub.dir}/nbbuild/netbeans"/>
+        </ant>
+    </target>
+
+    <target name="update-upstream"
+            description="Bump the submodule revision and re-apply/verify the patches (set -Dnbfx.submodule.commit)">
+        <exec executable="git" dir="${nbfx.sub.dir}" failonerror="true">
+            <arg value="fetch"/>
+            <arg value="origin"/>
+        </exec>
+        <!-- discard the previously applied patches + generated cluster.properties so the new
+             revision can be checked out cleanly; untracked build outputs are kept -->
+        <exec executable="git" dir="${nbfx.sub.dir}" failonerror="true">
+            <arg value="reset"/>
+            <arg value="--hard"/>
+        </exec>
+        <exec executable="git" dir="${nbfx.sub.dir}" failonerror="true">
+            <arg value="checkout"/>
+            <arg value="--quiet"/>
+            <arg value="${nbfx.submodule.commit}"/>
+        </exec>
+        <delete quiet="true">
+            <fileset dir="${nbfx.build.dir}" includes="patches-*.stamp"/>
+        </delete>
+        <nbfx-unoverlay-one cluster="nbfx-platform"/>
+        <nbfx-unoverlay-one cluster="nbfx-ide"/>
+        <nbfx-unoverlay-one cluster="nbfx-java"/>
+        <antcall target="patches-check"/>
+        <antcall target="bootstrap"/>
+        <echo message="[nbfx] upstream bumped to ${nbfx.submodule.commit}; update nbfx.properties + the submodule gitlink and commit"/>
+    </target>
+
+    <target name="clean" description="Remove the overlay, generated cluster config and submodule build outputs">
+        <antcall target="unoverlay"/>
+        <delete dir="${nbfx.build.dir}"/>
+        <exec executable="git" dir="${nbfx.sub.dir}" failonerror="false">
+            <arg value="clean"/>
+            <arg value="-Xdf"/>
+        </exec>
+        <exec executable="git" dir="${nbfx.sub.dir}" failonerror="false">
+            <arg value="checkout"/>
+            <arg value="--"/>
+            <arg value="nbbuild/cluster.properties"/>
+        </exec>
+    </target>
+
+    <target name="print-config" description="Print the effective configuration">
+        <echo message="nbfx.submodule.dir      = ${nbfx.submodule.dir}"/>
+        <echo message="nbfx.submodule.commit   = ${nbfx.submodule.commit}"/>
+        <echo message="nbfx.overlay            = ${nbfx.overlay}"/>
+        <echo message="nbfx.clusters           = ${nbfx.clusters}"/>
+        <echo message="nbfx.cluster.config     = ${nbfx.cluster.config}"/>
+        <echo message="nbfx.cluster.file       = ${nbfx.cluster.file}"/>
+        <echo message="nbfx.patches.dir        = ${nbfx.patches.dir}"/>
+    </target>
+
+    <target name="help" description="Show the available targets">
+        <echo>
+nbfx build harness — targets:
+
+  bootstrap        submodule + patches + cluster config + overlay
+  build            build the '${nbfx.cluster.config}' cluster config
+  run              launch the FX app (lean cluster set)
+  check-purity     purity/guardrail checks
+  submodule        init/update the netbeans submodule at the pinned revision
+  patches          apply the upstream patch set (patches/*.patch)
+  patches-check    verify the patches still apply (after an upstream bump)
+  cluster-config   regenerate build/cluster.properties
+  overlay          sync/symlink the nbfx clusters into the submodule
+  unoverlay        remove the overlay
+  update-upstream  fetch a new submodule revision and re-apply patches
+  clean            remove overlay + generated files + submodule build outputs
+  print-config     print the effective configuration
+
+Override properties on the command line, e.g.
+  ant build -Dnbfx.overlay=symlink -Dnbfx.submodule.commit=&lt;sha&gt;
+</echo>
+    </target>
+
+</project>

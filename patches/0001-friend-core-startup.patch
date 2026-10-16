@@ -1,0 +1,12 @@
+diff --git a/platform/core.startup/nbproject/project.xml b/platform/core.startup/nbproject/project.xml
+index 825b6b5d75..f3e29d4ad9 100644
+--- a/platform/core.startup/nbproject/project.xml
++++ b/platform/core.startup/nbproject/project.xml
+@@ -170,6 +170,7 @@
+                 <friend>org.netbeans.modules.modulemanager</friend>
+                 <friend>org.netbeans.modules.options.api</friend>
+                 <friend>org.netbeans.modules.settings</friend>
++                <friend>com.gluonhq.netbeans.nbfx.launcher</friend>
+                 <friend>com.oracle.jdeveloper.extcache</friend>
+                 <package>org.netbeans.core.startup</package>
+                 <package>org.netbeans.core.startup.layers</package>

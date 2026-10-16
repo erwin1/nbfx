@@ -1,0 +1,14 @@
+diff --git a/nbbuild/rat-exclusions.txt b/nbbuild/rat-exclusions.txt
+index 34b8e86d44..0cf7769ab0 100644
+--- a/nbbuild/rat-exclusions.txt
++++ b/nbbuild/rat-exclusions.txt
+@@ -260,3 +260,8 @@ nbbuild/installer/engine/src/org/netbeans/installer/product/components/netbeans-
+ 
+ ###### GitHub Issue tooling
+ .github/**
++
++# NetBeansFX modules ported from github.com/gluonhq/NetBeansFX (Gluon sources, no ASF headers)
++nbfx-platform/**
++nbfx-ide/**
++nbfx-java/**
+\ No newline at end of file

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xml" href="../../nbbuild/javadoctools/apichanges.xsl"?>
+<!DOCTYPE apichanges PUBLIC "-//NetBeans//DTD API changes list 1.0//EN" "../../nbbuild/javadoctools/apichanges.dtd">
+<apichanges>
+    <apidefs>
+        <apidef name="netbeansfx_api">NetBeansFX API</apidef>
+    </apidefs>
+    <changes>
+        <change id="actionlayer.reader">
+            <api name="netbeansfx_api"/>
+            <summary>Layer-driven action references and JavaFX menu presentation.</summary>
+            <version major="1" minor="0"/>
+            <date day="8" month="10" year="2026"/>
+            <author login="sven"/>
+            <compatibility addition="yes" semantic="compatible"/>
+            <description>
+                Adds <code>FxActionRef</code>, <code>ActionLayerReader</code> and
+                <code>LayerMenuBuilder</code>, so menus can be assembled from the action references
+                the nbfx annotations write under <code>NbFx/Menus</code>, <code>NbFx/Toolbars</code>
+                and <code>NbFx/ContextMenus</code> instead of hard-coded id lists. The API is under
+                development until the MVP freeze.
+            </description>
+            <class package="com.gluonhq.netbeans.nbfx.api.actions" name="FxActionRef"/>
+            <class package="com.gluonhq.netbeans.nbfx.api.actions" name="ActionLayerReader"/>
+            <class package="com.gluonhq.netbeans.nbfx.api.actions" name="LayerMenuBuilder"/>
+        </change>
+        <change id="keymap.spi">
+            <api name="netbeansfx_api"/>
+            <summary>User-configurable keyboard map for commands.</summary>
+            <version major="1" minor="0"/>
+            <date day="9" month="10" year="2026"/>
+            <author login="sven"/>
+            <compatibility addition="yes" semantic="compatible"/>
+            <description>
+                Adds <code>KeyMap</code>, letting the user override the accelerator of a command;
+                <code>LayerMenuBuilder</code> applies the override when building menu items. Under
+                development until the MVP freeze.
+            </description>
+            <class package="com.gluonhq.netbeans.nbfx.api.actions" name="KeyMap"/>
+        </change>
+        <change id="view.provider.lookup">
+            <api name="netbeansfx_api"/>
+            <summary>ViewProvider is a Lookup.Provider.</summary>
+            <version major="1" minor="0"/>
+            <date day="10" month="10" year="2026"/>
+            <author login="sven"/>
+            <compatibility addition="yes" semantic="compatible"/>
+            <description>
+                <code>ViewProvider</code> now extends <code>Lookup.Provider</code> and adds a default
+                <code>getLookup()</code> returning <code>Lookup.EMPTY</code>, so the active view's
+                lookup can be published as the global action context (the nbfx replacement for the
+                activated <code>TopComponent</code>'s lookup). Existing implementations are
+                unaffected; the default is empty.
+            </description>
+            <class package="com.gluonhq.netbeans.nbfx.api.view" name="ViewProvider"/>
+        </change>
+        <change id="editor.document.lookup">
+            <api name="netbeansfx_api"/>
+            <summary>EditorDocument is a Lookup.Provider.</summary>
+            <version major="1" minor="0"/>
+            <date day="10" month="10" year="2026"/>
+            <author login="sven"/>
+            <compatibility addition="yes" semantic="compatible"/>
+            <description>
+                <code>EditorDocument</code> now extends <code>Lookup.Provider</code> and adds a
+                default <code>getLookup()</code> carrying the document and its file, so the active
+                editor's lookup can be published as the global action context (the nbfx replacement
+                for the editor <code>TopComponent</code>'s lookup). Existing implementations are
+                unaffected.
+            </description>
+            <class package="com.gluonhq.netbeans.nbfx.api.editor" name="EditorDocument"/>
+        </change>
+        <change id="file.selection.context.focus-only">
+            <api name="netbeansfx_api"/>
+            <summary>FileSelectionContext keeps only the navigator focus signal.</summary>
+            <version major="1" minor="0"/>
+            <date day="10" month="10" year="2026"/>
+            <author login="sven"/>
+            <compatibility deletion="yes" semantic="incompatible"/>
+            <description>
+                Removes <code>FileSelectionContext.selectedFiles()</code> and
+                <code>setSelectedFiles(List)</code>. The navigator selection is now published by each
+                navigator through its own <code>ViewProvider.getLookup()</code>, since the global
+                action context follows the active component; only the navigator-focused signal, which
+                is shell state rather than selection, remains. Under development until the MVP freeze.
+            </description>
+            <class package="com.gluonhq.netbeans.nbfx.api.file" name="FileSelectionContext"/>
+        </change>
+        <change id="navigator.provider.removed">
+            <api name="netbeansfx_api"/>
+            <summary>NavigatorProvider removed; navigator concerns on ViewProvider.</summary>
+            <version major="1" minor="0"/>
+            <date day="14" month="10" year="2026"/>
+            <author login="sven"/>
+            <compatibility deletion="yes" semantic="incompatible"/>
+            <description>
+                Removes <code>NavigatorProvider</code>. The project views are now plain
+                <code>ViewProvider</code>s (marked as navigators by their view registration) and
+                observe <code>ProjectRegistry</code> instead of being fed. The shell-facing navigator
+                concerns move to <code>ViewProvider</code> defaults (<code>revealFile</code>,
+                <code>restoreExpandedPaths</code>/<code>restoreSelectedPath</code>,
+                <code>getExpandedPaths</code>/<code>getSelectedPath</code>,
+                <code>setOnProjectLoaded</code>/<code>setOnProjectLoadFailed</code>,
+                <code>selectedFile</code>); project-type icons and file reveal become the targeted
+                services <code>ProjectIconProvider</code> and <code>NavigatorRevealer</code>. Under
+                development until the MVP freeze.
+            </description>
+            <class package="com.gluonhq.netbeans.nbfx.api" name="NavigatorProvider"/>
+            <class package="com.gluonhq.netbeans.nbfx.api.view" name="ViewProvider"/>
+            <class package="com.gluonhq.netbeans.nbfx.api.project" name="ProjectIconProvider"/>
+            <class package="com.gluonhq.netbeans.nbfx.api.view" name="NavigatorRevealer"/>
+        </change>
+        <change id="editor.navigation.spi">
+            <api name="netbeansfx_api"/>
+            <summary>Editor hyperlinks, gutter annotations and element context menus for Java navigation.</summary>
+            <version major="1" minor="0"/>
+            <date day="14" month="10" year="2026"/>
+            <author login="jpereda"/>
+            <compatibility addition="yes" semantic="compatible"/>
+            <description>
+                Adds the SPIs the Java structure module (<code>nbfx.structure.java</code>) implements
+                for the editor: <code>HyperlinkProvider</code> (Shortcut+Click goes to the declaration,
+                Alt+Shortcut+Click to the implementations), <code>EditorAnnotationProvider</code> with
+                <code>EditorAnnotation</code> (the gutter glyphs of overriding and overridden methods),
+                <code>ElementContextMenuContributor</code> (items for a source element shown outside the
+                editor, such as a row of the Navigator) and <code>SourceLocation</code>; the Navigate
+                command ids in <code>ActionIds</code>; <code>EditorDocument.textVersionProperty()</code>
+                and <code>getCaretScreenPosition()</code>; <code>Command.getIcon()</code> for a command
+                that brings its own icon to the menus the shell builds; and <code>CellBreadth</code>,
+                the shared cell width that keeps a tree's horizontal scroll bar from oscillating.
+                Under development until the MVP freeze.
+            </description>
+            <class package="com.gluonhq.netbeans.nbfx.api.actions" name="ActionIds"/>
+            <class package="com.gluonhq.netbeans.nbfx.api.actions" name="Command"/>
+            <class package="com.gluonhq.netbeans.nbfx.api.actions" name="ElementContextMenuContributor"/>
+            <class package="com.gluonhq.netbeans.nbfx.api.editor" name="EditorAnnotation"/>
+            <class package="com.gluonhq.netbeans.nbfx.api.editor" name="EditorAnnotationProvider"/>
+            <class package="com.gluonhq.netbeans.nbfx.api.editor" name="EditorDocument"/>
+            <class package="com.gluonhq.netbeans.nbfx.api.editor" name="HyperlinkProvider"/>
+            <class package="com.gluonhq.netbeans.nbfx.api.elements" name="SourceLocation"/>
+            <class package="com.gluonhq.netbeans.nbfx.api.view" name="CellBreadth"/>
+        </change>
+        <change id="active.component.context">
+            <api name="netbeansfx_api"/>
+            <summary>ActiveComponentContext replaces ViewSelectionContext; editors are active components.</summary>
+            <version major="1" minor="0"/>
+            <date day="14" month="10" year="2026"/>
+            <author login="sven"/>
+            <compatibility addition="yes" semantic="incompatible"/>
+            <description>
+                Adds <code>ActiveComponent</code> (a sealed <code>Lookup.Provider</code> with
+                <code>ViewComponent</code> and <code>EditorComponent</code>) and
+                <code>ActiveComponentContext</code>, the active component of the focused pane - a tool
+                view <em>or</em> an editor. The global action context follows it, so selecting an editor
+                makes the context carry that editor's document instead of leaving it on the previously
+                active view. Removes <code>ViewSelectionContext</code>, which only ever carried a
+                <code>ViewProvider</code> and left editors to a separate document property. Under
+                development until the MVP freeze.
+            </description>
+            <class package="com.gluonhq.netbeans.nbfx.api.view" name="ActiveComponent"/>
+            <class package="com.gluonhq.netbeans.nbfx.api.view" name="ActiveComponentContext"/>
+            <class package="com.gluonhq.netbeans.nbfx.api.view" name="ViewSelectionContext"/>
+        </change>
+    </changes>
+    <htmlcontents>
+        <head>
+            <title>Change History for the NetBeansFX API</title>
+        </head>
+        <body>
+            <p class="overviewlink"><a href="overview-summary.html">Overview</a></p>
+            <h1>Introduction</h1>
+            <p>This document lists changes made to the <a href="@TOP@">NetBeansFX API</a>.</p>
+            <hr/><standard-changelists module-code-name="com.gluonhq.netbeans.nbfx.api"/>
+            <hr/><p>@FOOTER@</p>
+        </body>
+    </htmlcontents>
+</apichanges>
