@@ -75,3 +75,13 @@ The output/execution/terminal stack follows the same split:
   (`ide/terminal.nb`, `lib.terminalemulator`'s `Term`/`Screen`) is not reusable; the emulator core is
   ported piecewise into `nbfx.terminal.model`. PTY via **JLine 3** (BSD-3). See
   [`plan/15-output-and-terminal.md`](plan/15-output-and-terminal.md).
+
+## Debugging
+
+Same split: `nbfx.debug.core` (headless — session/launch/attach, view models, breakpoints, source paths;
+JavaFX-free, `check-models`) and `nbfx.debug` (JavaFX views, actions, breakpoint customizers, editor
+annotations). Reuse the headless NetBeans core (`org.netbeans.api.debugger`, `org.netbeans.api.debugger.jpda`,
+`org.netbeans.modules.debugger.jpda`, `org.netbeans.modules.debugger.jpda.projects`); the Swing UI modules
+(`org.netbeans.spi.debugger.ui`, `org.netbeans.spi.viewmodel`, `org.netbeans.modules.debugger.jpda.ui`) are
+unusable (forbidden `openide.awt/nodes/windows/explorer` deps) and are ported. See
+[`plan/16-debugging.md`](plan/16-debugging.md).

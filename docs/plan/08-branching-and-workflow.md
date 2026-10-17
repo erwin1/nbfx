@@ -50,6 +50,15 @@ recorded in the PR body for traceability.
 | Run/build output integration (Terminal default; Maven as a process) | `feature/run-output-integration` |
 | Terminal/Output options | `feature/terminal-options` |
 | Remote terminal (later) | `feature/terminal-remote` |
+| Debug foundation (JPDA session + launch/attach + FX renderer) | `feature/debug-foundation` |
+| Debug views (sessions, threads, call stack, variables, watches, sources) | `feature/debug-views` |
+| Debug breakpoints (view, types, customizers, editor glyphs) | `feature/debug-breakpoints` |
+| Debug stepping & editor integration | `feature/debug-stepping-editor` |
+| Debug evaluate (expression, watches, value editors) | `feature/debug-evaluate` |
+| Debug attach & monitors | `feature/debug-attach-monitors` |
+| Debug build integration (Debug Project/Test; Ant/Maven/Gradle) | `feature/debug-build-integration` |
+| Debug options (Java Debugger panel) | `feature/debug-options` |
+| Debug remote (later) | `feature/debug-remote` |
 | Nodes & views API (NodeModel/ChildrenModel/PropertyModel + FX views) | `feature/nodes-api` |
 | Property sheet & editors (PropertyModel, editor SPI, outline columns) | `feature/property-sheet-editors` |
 | Views on nodes (migration) | `refactor/views-on-nodes` |
@@ -91,7 +100,11 @@ while `java` depends on the platforms/build steps. The output/terminal chain is
 `feature/output-window` + `feature/execution-service` + `feature/terminal-model` in parallel →
 `feature/terminal-pty` → `feature/terminal-view` → `feature/run-output-integration` (Terminal default,
 Maven as a process), with `feature/terminal-options` after the options foundation; the run integration
-also touches the build providers and should not overlap with concurrent build/Maven work.
+also touches the build providers and should not overlap with concurrent build/Maven work. The debugger
+chain is `feature/debug-foundation` (after the execution service) → `debug-views` → `debug-breakpoints` /
+`debug-stepping-editor` / `debug-evaluate` / `debug-attach-monitors` → `debug-build-integration`
+(after Run configurations) → `debug-options` (after the options foundation); it splits the existing
+`nbfx.debug` into `nbfx.debug.core` (headless) + `nbfx.debug` (UI).
 
 ### Current local stack (history condensed by concern)
 

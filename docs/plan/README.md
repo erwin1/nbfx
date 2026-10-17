@@ -37,6 +37,7 @@ is backed by a file/class reference in the upstream submodule or in this reposit
 | [13-property-sheet-and-editors.md](13-property-sheet-and-editors.md) | Property model contract, multi-selection aggregation, editor SPI/built-ins, property sheet, outline/tree-table columns and inline editing |
 | [14-options.md](14-options.md) | Porting the NetBeans Options system: SPI/registrations, containers/search/change-validity, `nbfx.settings`, advanced browser, parity matrix and per-category steps, export/import |
 | [15-output-and-terminal.md](15-output-and-terminal.md) | Output window (`api.io` + ANSI + FX view), execution service, VT/xterm terminal model, JLine PTY backend, terminal view, run/build integration (Terminal default, Maven as a process) |
+| [16-debugging.md](16-debugging.md) | JVM debugging: headless core reuse vs JavaFX UI port, launch/attach, view models, breakpoints, stepping/editor, evaluate, attach/monitors, build integration, options |
 
 Repo-wide docs referenced here: [`../architecture-rules.md`](../architecture-rules.md) (the model/UI
 split rule), [`../repo-and-build.md`](../repo-and-build.md) (harness, clusters, patches),
@@ -59,6 +60,7 @@ split rule), [`../repo-and-build.md`](../repo-and-build.md) (harness, clusters, 
 | Options categories (Appearance/Editor/Java/Misc) + browser/export/Quick Search | `feature/options-*` | planned |
 | Output window + execution service + terminal (VT model, JLine PTY, view) | `feature/output-window`, `feature/execution-service`, `feature/terminal-*` | planned, parallel start |
 | Run/build output integration (Terminal default, Maven as a process) | `feature/run-output-integration` | planned |
+| Debugger (foundation, views, breakpoints, stepping/editor, evaluate, attach, build integration, options) | `feature/debug-*` | planned |
 | Nodes & views API (node model + FX views) | `feature/nodes-api` | planned, parallel |
 | Property sheet & editors (editors, sheet, outline columns) | `feature/property-sheet-editors` | planned |
 | Views on nodes (migration) | `refactor/views-on-nodes` | planned |

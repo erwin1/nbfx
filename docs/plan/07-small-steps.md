@@ -369,6 +369,98 @@ Legend per step: **Scope**, **Steps**, **Acceptance**, **Depends**.
 - **Depends**: Terminal view.
 - **Landed**: n/a.
 
+## Debug foundation (JPDA session + launch/attach + FX renderer)
+→ detail: [`16-debugging.md`](16-debugging.md) · branch: `feature/debug-foundation`
+- **Scope**: split the debugger into a headless model and a JavaFX UI. New `nbfx.debug.core` (JavaFX-free,
+  `check-models`): `DebugLaunchRequest`/`LaunchResolver` (port of `DebugLauncher`), `DebuggerSession`
+  (states `STARTING/RUNNING/STOPPED/DISCONNECTED`, `JPDADebugger.attach(host, port, services)` with the
+  documented `name`/`sourcepath`/`jdksources`/`baseDir` map, listeners, dedicated executor),
+  `DebuggerSessions`, `JdwpAddress` (JDWP args + `Listening on …` parsing with a free-port fallback),
+  `DebugActions` (`ActionsManager` `ACTION_*` → nbfx `Command`s + enablement). Debuggee launched with
+  `nbfx.execution` (Terminal default), engine only attaches. `nbfx.debug` gets an FX
+  `DebugOutlineView` renderer over the new view models; migrate `DebugView`.
+- **Acceptance**: Debug File starts a JVM in the Terminal, attaches, hits a caret breakpoint, shows
+  threads/call stack/variables, steps and stops; `nbfx.debug.core` has no JavaFX.
+- **Depends**: Output window + Execution service (doc 15), Theming (styles).
+- **Ordering / parallel**: first debug step; can start once the execution seam exists (doc 15).
+- **Landed**: n/a.
+
+## Debug views (sessions, threads, call stack, variables, watches, sources)
+→ detail: [`16-debugging.md`](16-debugging.md) · branch: `feature/debug-views`
+- **Scope**: the nbfx-native view-model layer (`DebugNode`/`DebugTreeModel`/`DebugTableModel`/
+  `DebugAsynchronousModel`) and the models (threads with groups and lazy children, call stack, variables —
+  lazy this/args/locals/fields/statics/arrays — watches, sources, sessions, results), plus the FX views
+  with columns, context menus, lazy expansion and copy; view state persisted.
+- **Acceptance**: all views render and update on stop/thread/frame change; watches add/remove/reorder;
+  values expand lazily; no FX-thread blocking.
+- **Depends**: Debug foundation.
+- **Landed**: n/a.
+
+## Debug breakpoints (view, types, customizers, editor glyphs)
+→ detail: [`16-debugging.md`](16-debugging.md) · branch: `feature/debug-breakpoints`
+- **Scope**: `BreakpointManager` + descriptors for line/method/exception/field/class-load/thread
+  breakpoints with the full field set (condition, hit count, suspend policy, filters, print text, group,
+  enabled, hidden) and engine persistence; FX customizers per type; the Breakpoints view (grouping, hit
+  counts, enable/disable, go-to) and editor annotations (enabled/disabled/conditional/invalid) + gutter
+  toggle.
+- **Acceptance**: create/disable/delete each type from the editor and the view; conditions and hit counts
+  work; breakpoints survive restart; `breakpoints active` toggles.
+- **Depends**: Debug views, editor annotation SPI.
+- **Landed**: n/a.
+
+## Debug stepping & editor integration
+→ detail: [`16-debugging.md`](16-debugging.md) · branch: `feature/debug-stepping-editor`
+- **Scope**: all stepping actions (step over/into/out, step operation, run into method, run to cursor,
+  pop topmost call, make caller/callee current) with smart stepping; current-line/current-frame highlight;
+  source navigation (frame → editor, caret ↔ frame via `DebugContext`/`ContextProvider`); JDK-sources
+  resolution for stepping into libraries.
+- **Acceptance**: stepping follows source; the highlight moves; pop/run-to-cursor work; the call-stack
+  context menu matches NetBeans.
+- **Depends**: Debug views, editor.
+- **Landed**: n/a.
+
+## Debug evaluate (expression, watches, value editors)
+→ detail: [`16-debugging.md`](16-debugging.md) · branch: `feature/debug-evaluate`
+- **Scope**: evaluate window (`JPDADebugger.evaluate`, completion), watches from selection, variable
+  formatters, value editors (string/number/boolean/char/array/object `toString`), multiline/big strings,
+  numeric display filter, value tooltips.
+- **Acceptance**: evaluating an expression returns a value; editing a primitive/string writes back;
+  formatters apply.
+- **Depends**: Debug views.
+- **Landed**: n/a.
+
+## Debug attach & monitors
+→ detail: [`16-debugging.md`](16-debugging.md) · branch: `feature/debug-attach-monitors`
+- **Scope**: attach dialog (host/port) + "Debugging by socket"; monitors view + deadlock detection
+  ("Check Deadlocks"); suspend/resume; session restart.
+- **Acceptance**: attach to a running JVM; monitors list; deadlock check reports.
+- **Depends**: Debug foundation.
+- **Landed**: n/a.
+
+## Debug build integration (Debug Project/Test; Ant/Maven/Gradle)
+→ detail: [`16-debugging.md`](16-debugging.md) · branch: `feature/debug-build-integration`
+- **Scope**: Debug Project/File/Test via run configurations; Ant/Maven/Gradle debug goals through
+  `nbfx.execution` (doc 15, Terminal default); JUnit debug; stop (process tree) and relaunch; debuggee
+  output in Terminal/Output.
+- **Acceptance**: "Debug Project"/"Debug Test" launch and break for Ant, Maven and Gradle projects; stop
+  kills the process tree.
+- **Depends**: Debug foundation, Run configurations, Maven/Gradle/Ant project support, Java Platforms.
+- **Landed**: n/a.
+
+## Debug options (Java Debugger panel)
+→ detail: [`16-debugging.md`](16-debugging.md) · branch: `feature/debug-options`
+- **Scope**: the Java Debugger options panel (transport/launcher defaults, step filters, formatters) via
+  the Options system (doc 14).
+- **Acceptance**: the panel persists and affects new sessions.
+- **Depends**: Options system infrastructure + example.
+- **Landed**: n/a.
+
+## Debug remote (later)
+→ detail: [`16-debugging.md`](16-debugging.md) · branch: `feature/debug-remote`
+- **Scope**: remote/SSH debug sessions (`dlight`-style).
+- **Depends**: Debug attach & monitors.
+- **Landed**: n/a.
+
 ## Nodes & views API (NodeModel/ChildrenModel/PropertyModel + FX views)
 → detail: [`12-nodes-and-views.md`](12-nodes-and-views.md) · branch: `feature/nodes-api`
 - **Scope**: the headless node model behind trees, tables and the Properties window — `NodeModel`,
@@ -672,6 +764,8 @@ the semantic colour token names and the dialogs chrome, and the node model must 
 node factories); the **Property sheet & editors** step follows `nodes-api` and must land before the views
 migration; the **Options** category/browser/export/Quick Search steps follow the options foundation; the
 **Terminal PTY backend** needs the execution service, the **Terminal view** needs the model + PTY, and the
-**run/build output integration** (Terminal default, Maven as a process) comes last; the **FxProject
-model** is scheduled later, before project-type-aware template filtering. Then Part 2. Each step is sized
-to be reviewable on its own.
+**run/build output integration** (Terminal default, Maven as a process) comes last; the **Debug** steps
+start after the Output/Execution work (foundation → views/breakpoints/stepping/evaluate/attach, with
+build integration after Run configurations and the debug options panel after the options foundation); the
+**FxProject model** is scheduled later, before project-type-aware template filtering. Then Part 2. Each
+step is sized to be reviewable on its own.
