@@ -31,6 +31,8 @@ is backed by a file/class reference in the upstream submodule or in this reposit
 | [09-fx-dialogs-and-notifications.md](09-fx-dialogs-and-notifications.md) | FX dialog/notification infrastructure, exception reporting, chrome ideas |
 | [10-theming-and-branding.md](10-theming-and-branding.md) | Light/dark themes, editor colour profiles, CSS via the NetBeans branding mechanism |
 | [11-project-state.md](11-project-state.md) | Current branches/commits/PRs, verification, backups, clean-ups |
+| [12-nodes-and-views.md](12-nodes-and-views.md) | Nodes & views API (`NodeModel`/`ChildrenModel`/`ChildFactory`/`ExplorerContext`), mapping from `org.openide.nodes`, migration |
+| [13-property-sheet-and-editors.md](13-property-sheet-and-editors.md) | Property model contract, multi-selection aggregation, editor SPI/built-ins, property sheet, outline/tree-table columns and inline editing |
 
 Repo-wide docs referenced here: [`../architecture-rules.md`](../architecture-rules.md) (the model/UI
 split rule), [`../repo-and-build.md`](../repo-and-build.md) (harness, clusters, patches),
@@ -49,6 +51,9 @@ split rule), [`../repo-and-build.md`](../repo-and-build.md) (harness, clusters, 
 | New File: per-template wizard panels | `feature/newfile-template-panels` | next |
 | FX dialogs & notifications (UI) | `feature/fx-dialogs` | planned, parallel |
 | Theming & branding (light/dark, CSS) | `feature/theming` | planned, parallel |
+| Nodes & views API (node model + FX views) | `feature/nodes-api` | planned, parallel |
+| Property sheet & editors (editors, sheet, outline columns) | `feature/property-sheet-editors` | planned |
+| Views on nodes (migration) | `refactor/views-on-nodes` | planned |
 | New Project templates | `feature/newproject-templates` | planned |
 | FxProject model | `feature/fxproject-model` | planned (later) |
 | Project problems UI (FX) | `feature/project-problems-ui` | planned |

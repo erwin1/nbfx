@@ -34,6 +34,9 @@ recorded in the PR body for traceability.
 | Wizard framework (**incl. the themed dialog/makeover**) | `feature/wizard-framework` |
 | FX dialogs & notifications (UI) | `feature/fx-dialogs` |
 | Theming & branding (light/dark, CSS via branding) | `feature/theming` |
+| Nodes & views API (NodeModel/ChildrenModel/PropertyModel + FX views) | `feature/nodes-api` |
+| Property sheet & editors (PropertyModel, editor SPI, outline columns) | `feature/property-sheet-editors` |
+| Views on nodes (migration) | `refactor/views-on-nodes` |
 | Project modularity refactoring | `refactor/project-modularity` |
 | New File templates | `feature/newfile-templates` |
 | New File: per-template wizard panels | `feature/newfile-template-panels` |
@@ -58,10 +61,14 @@ recorded in the PR body for traceability.
 The planning set lives in **`docs/plan/`** on the `planning/javafx-support` branch; it is the
 communication base for the plan (see [`README.md`](README.md)).
 
-**Parallelism:** `feature/fx-dialogs` and `feature/theming` can be developed alongside the wizard/New
-File topics — they add separate modules (`nbfx.dialogs`, `nbfx.theme`) and do not touch `nbfx.wizard` or
-the project/template files. The project-problems UI depends on `fx-dialogs`; `fx-dialogs` and
-`theming` share the semantic colour token names.
+**Parallelism:** `feature/fx-dialogs`, `feature/theming` and `feature/nodes-api` can be developed
+alongside the wizard/New File topics — they add separate modules (`nbfx.dialogs`, `nbfx.theme`,
+`nbfx.nodes`/`nbfx.nodes.ui`) and do not touch `nbfx.wizard` or the project/template files. The
+project-problems UI depends on `fx-dialogs`; `fx-dialogs` and `theming` share the semantic colour token
+names; the node model must land before the FxProject node factories. `feature/property-sheet-editors`
+follows `nodes-api` (it extends `nbfx.nodes`/`nbfx.nodes.ui` and rewrites `nbfx.propertysheet`) and must
+land before the views migration. The `refactor/views-on-nodes` migration is a follow-up to both and
+rewrites working views, so it should not overlap with concurrent navigator/Structure/Properties work.
 
 ### Current local stack (history condensed by concern)
 

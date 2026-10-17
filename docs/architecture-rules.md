@@ -31,3 +31,20 @@ its Swing chooser).
 **Example.** `com.gluonhq.netbeans.nbfx.templates` is the model (template discovery + creation, no
 JavaFX); the New File wizard UI that consumes it lives in the project UI module, mirroring NetBeans'
 `ide/projectui` (where the original New File action, wizard and chooser live).
+
+## Observability in models
+
+Model modules must not use `javafx.beans.*` / `javafx.collections.*`: those are JavaFX, so they would
+break the core-only chain and the `check-models` guardrail. Model state is observable through **JDK
+mechanisms** instead — `java.beans.PropertyChangeSupport` plus explicit nbfx listener/event types, the
+way `org.openide.nodes.Node` / `Children` are modelled — and a small **UI adapter** wraps the model in
+JavaFX `ObservableList` / `ObservableValue` for binding.
+
+`org.openide.util.Lookup` is fine in a model: it is part of the NetBeans core, and it **replaces the
+legacy `Node.Cookie` extension mechanism** (a node's lookup is the extension point; the old
+`Node.getCookie(type)` already delegates to it).
+
+**Reference example (planned).** The nodes/views split: `nbfx.nodes` (model — `NodeModel`,
+`ChildrenModel`, `ChildFactory<T>`, `PropertyModel`, `PropertySetModel`, `ExplorerContext`; `java.beans`
+events, `Lookup` for content, no JavaFX) and `nbfx.nodes.ui` (JavaFX views over the model, FX observable
+adapters, property editors). See [`plan/12-nodes-and-views.md`](plan/12-nodes-and-views.md).

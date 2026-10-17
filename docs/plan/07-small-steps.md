@@ -174,6 +174,65 @@ Legend per step: **Scope**, **Steps**, **Acceptance**, **Depends**.
   claiming an app-wide dark theme and before the dialogs stylesheet is finalised.
 - **Landed**: n/a.
 
+## Nodes & views API (NodeModel/ChildrenModel/PropertyModel + FX views)
+→ detail: [`12-nodes-and-views.md`](12-nodes-and-views.md) · branch: `feature/nodes-api`
+- **Scope**: the headless node model behind trees, tables and the Properties window — `NodeModel`,
+  `ChildrenModel` + `ChildFactory<T>` (lazy/async children), `PropertyModel`/`PropertySetModel`
+  (promoted from the existing `FxProperty`/`FxPropertySet`, with the full contract in
+  [`13`](13-property-sheet-and-editors.md)), `ExplorerContext` (root + selection) — plus FX view
+  components over it. Replaces the per-view models of the project navigators, the Structure view and the
+  property provider, mirroring NetBeans' `org.openide.nodes`/`openide.explorer` split.
+- **Parts**: `nbfx.nodes` (model, JavaFX-free: `java.beans` events + `Lookup` for content, no Cookie API);
+  `nbfx.nodes.ui` (tree/tree-table/table/list views over `ExplorerContext`, FX observable adapters,
+  node actions/context menu). Action/new-type references are plain ids the UI resolves. Property editors,
+  the property sheet and the outline columns are the **next step**.
+- **Acceptance**: model unit tests green; `nbfx.nodes` passes the `check-models` guardrail (no JavaFX);
+  one model drives several views; guardrails green.
+- **Depends**: none.
+- **Ordering / parallel**: **can start in parallel** with the wizard/theming/dialogs/New File topics — it
+  only adds two new modules. It must land **before** the property-sheet step, the `FxProject` node
+  factories (`@FxProjectNodeFactory`) and the navigator/Structure/Properties parity work, so nodes are
+  written once.
+- **Landed**: n/a.
+
+## Property sheet & editors (PropertyModel, editor SPI, outline columns)
+→ detail: [`13-property-sheet-and-editors.md`](13-property-sheet-and-editors.md) · branch: `feature/property-sheet-editors`
+- **Scope**: make the property sheet **and** the outline/tree-table columns work off one property model.
+  Includes: the `PropertyModel`/`PropertySetModel` contract completion (identity, editor id,
+  `format`/`parse`, sort key, allowed values, async `LOADING`/`ERROR` states, error contract),
+  multi-selection aggregation (`AggregatePropertyModel`/`AggregatePropertySetModel`), the editor SPI +
+  built-ins (text, boolean, number, enum/combo, file/folder, color, custom) with the commit/revert and
+  `PropertyEnv` validity protocol, the property sheet (sets as groups, expert, `"<mixed>"`, persistence,
+  keyboard), `PropertyColumn` + the outline cell binding/inline editing, and the migration of
+  `nbfx.propertysheet`'s `FxProperty*`/`FxPropertyEditor*`/`FxPropertySheet` onto the node model.
+- **Acceptance**: editing a cell in the outline updates the property sheet and vice versa; multi-node
+  selection aggregates correctly; invalid input keeps the old value; light/dark; `nbfx.nodes` still
+  JavaFX-free; tests: model, aggregation, editors, sheet, outline (see doc 13 §8).
+- **Depends**: Nodes & views API.
+- **Ordering / parallel**: additive (extends `nbfx.nodes`/`nbfx.nodes.ui`, rewrites
+  `nbfx.propertysheet`); do it **before** `refactor/views-on-nodes` so the navigators and Structure use
+  the final editor/column stack. It does not touch the navigator/Structure sources, so it can run in
+  parallel with unrelated feature work.
+- **Landed**: n/a.
+
+## Views on nodes (migration)
+→ detail: [`12-nodes-and-views.md`](12-nodes-and-views.md) · branch: `refactor/views-on-nodes`
+- **Scope**: migrate the existing views onto the node model and delete the parallel models:
+  1. the **project navigators** (`ProjectNavigatorImpl`, `FileNavigatorImpl`) — `ProjectKindProvider`
+     produces children/child factories, the view becomes generic, and the **Files view columns** use
+     `PropertyColumn` + the shared cell editors (from the property-sheet step);
+  2. the **Structure view** — the language providers produce nodes;
+  3. **node actions / new-types / preferred action**, then operations (rename/delete/copy/paste, DnD).
+  The Properties window itself is migrated in the property-sheet step (doc 13); this step removes the
+  remaining callers of the old `FxProperty*` model.
+- **Acceptance**: navigator, Structure and Properties behave identically to today; the Properties window
+  shows node property sets; context menus come from node actions; one model drives several views;
+  navigator columns are editable and stay in sync with the sheet.
+- **Depends**: Nodes & views API, Property sheet & editors.
+- **Ordering**: before the `FxProject` node factories and the navigator/Structure/Properties parity work;
+  migrate view by view (keep the old view until its replacement is proven).
+- **Landed**: n/a.
+
 ## Project modularity refactoring
 → branch: `refactor/project-modularity`
 - **Scope**: mirror `ide/projectui`'s layout so the New File/New Project wizards have a clean home
@@ -410,8 +469,10 @@ Legend per step: **Scope**, **Steps**, **Acceptance**, **Depends**.
 status-elements registration fix, then the Wizard framework, then the **project modularity refactoring**
 (so the New File/New Project UI lands directly in `nbfx.project.ui`), then the Part 1 steps roughly in
 order. Several steps are independent: **Java Platforms** can run in parallel with the wizard/template
-steps; **FX dialogs & notifications (UI)** and **Theming & branding** can start in parallel with the
-wizard/New File topics (separate modules, no file overlap — the project-problems UI depends on the
-dialogs step, and both foundations share the semantic colour token names); the **FxProject model** is
-scheduled later, before project-type-aware template filtering. Then Part 2. Each step is sized to be
-reviewable on its own.
+steps; **FX dialogs & notifications (UI)**, **Theming & branding** and **Nodes & views API** can start in
+parallel with the wizard/New File topics (separate modules, no file overlap — the project-problems UI
+depends on the dialogs step, the two style foundations share the semantic colour token names, and the
+node model must land before the FxProject node factories); the **Property sheet & editors** step follows
+`nodes-api` and must land before the views migration; the **FxProject model** is scheduled later,
+before project-type-aware template filtering. Then Part 2. Each step is sized to be reviewable on its
+own.
