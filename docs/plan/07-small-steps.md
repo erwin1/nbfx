@@ -174,6 +174,98 @@ Legend per step: **Scope**, **Steps**, **Acceptance**, **Depends**.
   claiming an app-wide dark theme and before the dialogs stylesheet is finalised.
 - **Landed**: n/a.
 
+## Options system: infrastructure + example
+→ detail: [`14-options.md`](14-options.md) · branch: `feature/options-foundation`
+- **Scope**: complete the FX Options system on the existing `nbfx.options` stub — an nbfx-native SPI on
+  the NetBeans `OptionsPanelController` contract (`getComponent(masterLookup)`, `update`, `applyChanges`,
+  `cancel`, `isValid`, `isChanged`, `getLookup`, `getHelpCtx`, `handleSuccessfulSearch`,
+  `PROP_CHANGED`/`PROP_VALID`), containers/sub-panels + `@FxOptionsKeywords`, a registry that reads
+  `NbFx/Options` (single panels, containers, sub-panels), the window (category list, tabs, keyword
+  search, change/validity with error markers, OK/Apply/Cancel, deep links) and a new `nbfx.settings`
+  model module (typed `Settings` over `NbPreferences` + a JavaFX binding helper in `nbfx.options`).
+- **Examples** (infrastructure with an example first): `Editor` as a **container** with a `General`
+  sub-panel (line numbers, breadcrumbs, caret, wrap) and `Keymaps` as a top-level panel, both migrated to
+  the new contract and bound through `Settings`.
+- **Acceptance**: the window opens from Tools ▸ Options / `Shortcut+,`; tabs switch; search finds and
+  selects; a change enables Apply; an invalid panel blocks OK with an error marker; values persist via
+  `nbfx.settings` and are read back; `nbfx.settings` passes `check-models`; purity green.
+- **Depends**: FX dialogs & notifications (chrome), Theming & branding (styles) — usable without them
+  meanwhile (plain dialog).
+- **Ordering / parallel**: **foundation first**; can run in parallel with the wizard/nodes/New File
+  topics. The category steps below follow it; the parity work is sliced stepwise (see doc 14 §7).
+- **Landed**: n/a.
+
+## Options: settings/preferences browser (debug aid)
+→ detail: [`14-options.md`](14-options.md) · branch: `feature/options-settings-browser`
+- **Scope**: a preferences browser (`TreeView` over the `NbPreferences` tree: node/key/value/type,
+  filter, add/edit/remove, live refresh) in the Advanced category — a development aid to inspect and
+  debug the option panels and their keys; also lists the registered categories/panels/keywords.
+- **Show/hide**: hidden by default; shown by `-Jnbfx.options.debug=true` or a persisted "Show advanced
+  preferences" toggle; the Advanced category appears when it has panels or the browser is enabled.
+- **Acceptance**: browse/filter/edit/remove preferences; toggle works; hidden by default; purity green.
+- **Depends**: Options system infrastructure + example.
+- **Landed**: n/a.
+
+## Options: Appearance category
+→ detail: [`14-options.md`](14-options.md) · branch: `feature/options-appearance`
+- **Scope**: the `Appearance` container contributed by `nbfx.theme`, with the `Theme` sub-panel
+  (System/Light/Dark, live switch, persisted) — `View ▸ Theme` remains a shortcut to the same state.
+- **Acceptance**: the panel switches the theme and persists; it reflects `View ▸ Theme`.
+- **Depends**: Theming & branding, Options infrastructure.
+- **Landed**: n/a.
+
+## Options: Editor + Fonts & Colors categories
+→ detail: [`14-options.md`](14-options.md) · branch: `feature/options-editor`
+- **Scope**: the `Editor` container tabs that have an effect in the nbfx JavaFX editor, in order:
+  General (extend the example), Formatting/Indentation (tab size, expand tabs, indent), Code Templates,
+  Folding, On Save, Hints/MarkOccurrences/InlineHints, Code Completion, Macros, AutoSave, Language
+  Servers — each only once the editor feature exists; plus **Fonts & Colors** profiles (light/dark) over
+  the `-code-*` tokens of `nbfx.theme`, selectable independently.
+- **Acceptance**: each ported panel persists and visibly affects the editor; panels for editor features
+  that do not exist yet are not listed (no dead panels); see doc 14's parity matrix.
+- **Depends**: Options infrastructure, editor features.
+- **Landed**: n/a.
+
+## Options: Java/JavaFX category
+→ detail: [`14-options.md`](14-options.md) · branch: `feature/options-java`
+- **Scope**: the `Java` container — Java Platform (add/remove/rename, sources/javadoc, JavaFX home),
+  Maven (home, settings.xml, offline), Gradle (home, JDK), Ant (home, properties), SceneBuilder
+  (kit/home). Debugger/JShell/Form Editor/Nashorn stay out (later/dropped).
+- **Acceptance**: each panel persists into the same storage the headless module reads (platform storage,
+  Maven/Gradle settings).
+- **Depends**: Java Platforms, build modules, Options infrastructure.
+- **Landed**: n/a.
+
+## Options: Miscellaneous/Advanced + Team categories
+→ detail: [`14-options.md`](14-options.md) · branch: `feature/options-misc`
+- **Scope**: the Advanced container with the settings browser and contributed tabs (Output, Diff,
+  Terminal, GoTo, File Associations, Janitor, Versioning, Spellchecker, …) as those features land, plus
+  the `Team` container (Versioning, ToDo, Issue Tracking).
+- **Acceptance**: contributed tabs appear from their modules; the Advanced container only shows when it
+  has panels (or the debug browser is enabled).
+- **Depends**: Options infrastructure, the individual features.
+- **Landed**: n/a.
+
+## Options: export/import (incl. legacy NetBeans import)
+→ detail: [`14-options.md`](14-options.md) · branch: `feature/options-export`
+- **Scope**: mirror the NetBeans mechanism — declarative `NbFx/OptionsExport/<category>/<item>` entries
+  with include/exclude patterns over userdir paths; export to a zip (`build.info`/`enabled-items.info`
+  manifest); import from an nbfx zip **or userdir** (keyring/passwords excluded, restart prompt). A
+  separate point imports an export/userdir **from the original NetBeans**: shared headless modules map
+  path-for-path, the rest via a per-category key map with a report of skipped/unknown keys.
+- **Acceptance**: export/import round-trips nbfx settings; a NetBeans export imports the mapped settings
+  and reports the unmapped ones.
+- **Depends**: Options infrastructure.
+- **Landed**: n/a.
+
+## Options: global Quick Search provider
+→ detail: [`14-options.md`](14-options.md) · branch: `feature/options-quicksearch`
+- **Scope**: a Search provider matching options keywords (`o …`) that opens
+  `FxOptionsDisplayer.open(path)` and lets the target panel highlight the match.
+- **Acceptance**: typing words lists matching options panels; selecting opens the right category/tab.
+- **Depends**: Options infrastructure, Quick Search.
+- **Landed**: n/a.
+
 ## Nodes & views API (NodeModel/ChildrenModel/PropertyModel + FX views)
 → detail: [`12-nodes-and-views.md`](12-nodes-and-views.md) · branch: `feature/nodes-api`
 - **Scope**: the headless node model behind trees, tables and the Properties window — `NodeModel`,
@@ -469,10 +561,11 @@ Legend per step: **Scope**, **Steps**, **Acceptance**, **Depends**.
 status-elements registration fix, then the Wizard framework, then the **project modularity refactoring**
 (so the New File/New Project UI lands directly in `nbfx.project.ui`), then the Part 1 steps roughly in
 order. Several steps are independent: **Java Platforms** can run in parallel with the wizard/template
-steps; **FX dialogs & notifications (UI)**, **Theming & branding** and **Nodes & views API** can start in
-parallel with the wizard/New File topics (separate modules, no file overlap — the project-problems UI
-depends on the dialogs step, the two style foundations share the semantic colour token names, and the
-node model must land before the FxProject node factories); the **Property sheet & editors** step follows
-`nodes-api` and must land before the views migration; the **FxProject model** is scheduled later,
-before project-type-aware template filtering. Then Part 2. Each step is sized to be reviewable on its
-own.
+steps; **FX dialogs & notifications (UI)**, **Theming & branding**, **Options system: infrastructure +
+example** and **Nodes & views API** can start in parallel with the wizard/New File topics (separate
+modules, no file overlap — the project-problems UI depends on the dialogs step, the options window and
+the two style foundations share the semantic colour token names and the dialogs chrome, and the node
+model must land before the FxProject node factories); the **Property sheet & editors** step follows
+`nodes-api` and must land before the views migration; the **Options** category/browser/export/Quick
+Search steps follow the options foundation; the **FxProject model** is scheduled later, before
+project-type-aware template filtering. Then Part 2. Each step is sized to be reviewable on its own.

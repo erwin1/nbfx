@@ -48,3 +48,15 @@ legacy `Node.Cookie` extension mechanism** (a node's lookup is the extension poi
 `ChildrenModel`, `ChildFactory<T>`, `PropertyModel`, `PropertySetModel`, `ExplorerContext`; `java.beans`
 events, `Lookup` for content, no JavaFX) and `nbfx.nodes.ui` (JavaFX views over the model, FX observable
 adapters, property editors). See [`plan/12-nodes-and-views.md`](plan/12-nodes-and-views.md).
+
+## Settings / preferences data
+
+User-configurable settings live in a **core-only model module** (`nbfx.settings`): a typed facade over
+`NbPreferences` with change listeners and defaults, no JavaFX. Headless feature code and the JavaFX
+option panels read the **same keys**, so an option change affects the feature without a UI dependency.
+The JavaFX binding helper (`SettingsBindings`) and the options window are UI concerns and live in the
+UI module (`nbfx.options`).
+
+**Options are UI-only (documented exception).** Unlike nodes/views there is no headless part of the
+Options system to split out: its SPI returns a JavaFX `Node`, so `nbfx.options` is a UI module by
+design. Only the settings *data* is model-side. See [`plan/14-options.md`](plan/14-options.md).

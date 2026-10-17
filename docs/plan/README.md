@@ -33,6 +33,7 @@ is backed by a file/class reference in the upstream submodule or in this reposit
 | [11-project-state.md](11-project-state.md) | Current branches/commits/PRs, verification, backups, clean-ups |
 | [12-nodes-and-views.md](12-nodes-and-views.md) | Nodes & views API (`NodeModel`/`ChildrenModel`/`ChildFactory`/`ExplorerContext`), mapping from `org.openide.nodes`, migration |
 | [13-property-sheet-and-editors.md](13-property-sheet-and-editors.md) | Property model contract, multi-selection aggregation, editor SPI/built-ins, property sheet, outline/tree-table columns and inline editing |
+| [14-options.md](14-options.md) | Porting the NetBeans Options system: SPI/registrations, containers/search/change-validity, `nbfx.settings`, advanced browser, parity matrix and per-category steps, export/import |
 
 Repo-wide docs referenced here: [`../architecture-rules.md`](../architecture-rules.md) (the model/UI
 split rule), [`../repo-and-build.md`](../repo-and-build.md) (harness, clusters, patches),
@@ -51,6 +52,8 @@ split rule), [`../repo-and-build.md`](../repo-and-build.md) (harness, clusters, 
 | New File: per-template wizard panels | `feature/newfile-template-panels` | next |
 | FX dialogs & notifications (UI) | `feature/fx-dialogs` | planned, parallel |
 | Theming & branding (light/dark, CSS) | `feature/theming` | planned, parallel |
+| Options system (infra + example) | `feature/options-foundation` | planned, parallel |
+| Options categories (Appearance/Editor/Java/Misc) + browser/export/Quick Search | `feature/options-*` | planned |
 | Nodes & views API (node model + FX views) | `feature/nodes-api` | planned, parallel |
 | Property sheet & editors (editors, sheet, outline columns) | `feature/property-sheet-editors` | planned |
 | Views on nodes (migration) | `refactor/views-on-nodes` | planned |

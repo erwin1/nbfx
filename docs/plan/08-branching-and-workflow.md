@@ -34,6 +34,14 @@ recorded in the PR body for traceability.
 | Wizard framework (**incl. the themed dialog/makeover**) | `feature/wizard-framework` |
 | FX dialogs & notifications (UI) | `feature/fx-dialogs` |
 | Theming & branding (light/dark, CSS via branding) | `feature/theming` |
+| Options system: infrastructure + example | `feature/options-foundation` |
+| Options: settings/preferences browser (debug aid) | `feature/options-settings-browser` |
+| Options: Appearance category | `feature/options-appearance` |
+| Options: Editor + Fonts & Colors categories | `feature/options-editor` |
+| Options: Java/JavaFX category | `feature/options-java` |
+| Options: Miscellaneous/Advanced + Team categories | `feature/options-misc` |
+| Options: export/import (incl. legacy NetBeans import) | `feature/options-export` |
+| Options: global Quick Search provider | `feature/options-quicksearch` |
 | Nodes & views API (NodeModel/ChildrenModel/PropertyModel + FX views) | `feature/nodes-api` |
 | Property sheet & editors (PropertyModel, editor SPI, outline columns) | `feature/property-sheet-editors` |
 | Views on nodes (migration) | `refactor/views-on-nodes` |
@@ -69,6 +77,9 @@ names; the node model must land before the FxProject node factories. `feature/pr
 follows `nodes-api` (it extends `nbfx.nodes`/`nbfx.nodes.ui` and rewrites `nbfx.propertysheet`) and must
 land before the views migration. The `refactor/views-on-nodes` migration is a follow-up to both and
 rewrites working views, so it should not overlap with concurrent navigator/Structure/Properties work.
+`feature/options-foundation` rewrites `nbfx.options` and adds the `nbfx.settings` model module; the
+options category/browser/export/Quick-Search branches follow it, and `appearance` depends on `theming`
+while `java` depends on the platforms/build steps.
 
 ### Current local stack (history condensed by concern)
 
