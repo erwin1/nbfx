@@ -1,8 +1,10 @@
-# nbfx — JavaFX support plan (communication & planning base)
+# nbfx — roadmap & plan (communication & planning base)
 
-This directory is the working plan for **JavaFX project support in nbfx** and for completing the
-existing project infrastructure first. It captures the design, the evidence from the original NetBeans
-code, the execution backlog (small steps), the branch/commit layout, and the open work.
+This directory is the working plan for **nbfx as a whole** — completing the existing project
+infrastructure (wizards/templates, options, output/terminal, nodes/views, dialogs, theming) and then
+adding **JavaFX project support** (JavaFX Ant project, Java Platforms, FXML completion, embedded
+SceneBuilder). It captures the design, the evidence from the original NetBeans code, the execution
+backlog (small steps), the branch/commit layout, and the open work.
 
 It is written to be read by someone who is not in the day-to-day conversation: every non-obvious claim
 is backed by a file/class reference in the upstream submodule or in this repository.

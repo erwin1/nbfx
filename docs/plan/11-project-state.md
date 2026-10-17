@@ -27,7 +27,7 @@ main
  └─ feature/wizard-framework             23ce07d257   2 commits
      └─ refactor/project-modularity       a961fb9546   1 commit
          └─ feature/newfile-templates    69ce22420e   2 commits + styles fix
-planning/javafx-support                                 this documentation branch
+planning/nbfx-roadmap                                   this documentation branch
 ```
 
 | Branch | Commits |

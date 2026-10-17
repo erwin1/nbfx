@@ -72,9 +72,9 @@ recorded in the PR body for traceability.
 | JavaFX customizers | `feature/javafx-customizers` |
 | FXML completion | `feature/fxml-completion` |
 | SceneBuilder editor | `feature/scenebuilder-editor` |
-| Documentation set (these docs) | `planning/javafx-support` |
+| Documentation set (these docs) | `planning/nbfx-roadmap` |
 
-The planning set lives in **`docs/plan/`** on the `planning/javafx-support` branch; it is the
+The planning set lives in **`docs/plan/`** on the `planning/nbfx-roadmap` branch; it is the
 communication base for the plan (see [`README.md`](README.md)).
 
 **Parallelism:** `feature/fx-dialogs`, `feature/theming` and `feature/nodes-api` can be developed
@@ -132,5 +132,5 @@ the rewrites have been reviewed.
 - `feature/separate-build` is merged (PR #1) and can be deleted locally and on `sven`.
 - `nbfx/mvp-phase1` is a leftover from the initial import; delete it.
 - The `source` remote is unused after the `resync-source` removal; `git remote remove source`.
-- Commit this plan set on `docs/javafx-support-plan`, then link it from `docs/MVP.md` /
-  `docs/repo-and-build.md`.
+- The plan set lives on `planning/nbfx-roadmap` (docs-only) and is linked from `README.md`; link it from
+  `docs/MVP.md` / `docs/repo-and-build.md` too.
