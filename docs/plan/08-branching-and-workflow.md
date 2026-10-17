@@ -42,6 +42,14 @@ recorded in the PR body for traceability.
 | Options: Miscellaneous/Advanced + Team categories | `feature/options-misc` |
 | Options: export/import (incl. legacy NetBeans import) | `feature/options-export` |
 | Options: global Quick Search provider | `feature/options-quicksearch` |
+| Output window (api.io + ANSI + FX view) | `feature/output-window` |
+| Execution service (process model + pumps) | `feature/execution-service` |
+| Terminal emulator model (VT/xterm) | `feature/terminal-model` |
+| Terminal PTY backend (JLine) | `feature/terminal-pty` |
+| Terminal view (JavaFX) | `feature/terminal-view` |
+| Run/build output integration (Terminal default; Maven as a process) | `feature/run-output-integration` |
+| Terminal/Output options | `feature/terminal-options` |
+| Remote terminal (later) | `feature/terminal-remote` |
 | Nodes & views API (NodeModel/ChildrenModel/PropertyModel + FX views) | `feature/nodes-api` |
 | Property sheet & editors (PropertyModel, editor SPI, outline columns) | `feature/property-sheet-editors` |
 | Views on nodes (migration) | `refactor/views-on-nodes` |
@@ -79,7 +87,11 @@ land before the views migration. The `refactor/views-on-nodes` migration is a fo
 rewrites working views, so it should not overlap with concurrent navigator/Structure/Properties work.
 `feature/options-foundation` rewrites `nbfx.options` and adds the `nbfx.settings` model module; the
 options category/browser/export/Quick-Search branches follow it, and `appearance` depends on `theming`
-while `java` depends on the platforms/build steps.
+while `java` depends on the platforms/build steps. The output/terminal chain is
+`feature/output-window` + `feature/execution-service` + `feature/terminal-model` in parallel →
+`feature/terminal-pty` → `feature/terminal-view` → `feature/run-output-integration` (Terminal default,
+Maven as a process), with `feature/terminal-options` after the options foundation; the run integration
+also touches the build providers and should not overlap with concurrent build/Maven work.
 
 ### Current local stack (history condensed by concern)
 

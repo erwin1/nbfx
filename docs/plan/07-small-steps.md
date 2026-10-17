@@ -266,6 +266,109 @@ Legend per step: **Scope**, **Steps**, **Acceptance**, **Depends**.
 - **Depends**: Options infrastructure, Quick Search.
 - **Landed**: n/a.
 
+## Output window (api.io + ANSI + FX view)
+→ detail: [`15-output-and-terminal.md`](15-output-and-terminal.md) · branch: `feature/output-window`
+- **Scope**: rewrite `nbfx.output` onto the clean `org.netbeans.spi.io.InputOutputProvider`/`api.io` API
+  with a JavaFX view (one tab per console, virtualised styled text, not a `TextArea`): `print`/`println`,
+  `OutputColor`, hyperlinks (→ editor), folds, positions, important/error lines, Reset/Clear, input
+  prompts, line/byte limits, search, tab lifecycle/names. Port `core.output2`'s ANSI **SGR** colour
+  handling (`OutWriter.printANSI`: CSI+SGR, xterm palette, bright/faint, carry-over across writes) onto FX
+  colours; strip non-SGR control (that is the Terminal's job). Keep `FxOutput`/`FxConsole` as a thin
+  facade while migrating callers.
+- **Acceptance**: build/test output shows ANSI colours, clickable file/line links and folds; input prompts
+  work; limits trim; callers migrated; tests for SGR parsing and the view model.
+- **Depends**: Theming & branding (styles).
+- **Ordering / parallel**: can start in parallel with the wizard/options/nodes topics (one module); land
+  before the build-provider integration so output is worth targeting.
+- **Landed**: n/a.
+
+## Execution service (process model + output pumps)
+→ detail: [`15-output-and-terminal.md`](15-output-and-terminal.md) · branch: `feature/execution-service`
+- **Scope**: a headless `nbfx.execution` model — `ExecutionService`/`ExecutionDescriptor` (argv, working
+  dir, `Environment`, charset, redirects, output mode `PIPE|PTY`, cancel, exit listener),
+  `ExecutionHandle` (cancel, exit status, stdin writer) and output pumps (out/err split, line/raw modes)
+  with a progress hook. Reuse `ide/extexecution.base`/`extexecution.process` where it fits (clean,
+  Swing-free) and do **not** depend on `ide/extexecution` (legacy `InputOutput` coupling). Adopt it in
+  `nbfx.run` (`ProcessRunner`).
+- **Acceptance**: start/cancel/exit, env/cwd/charset, distinct out/err, back-pressure; `nbfx.execution`
+  passes `check-models`.
+- **Depends**: none.
+- **Ordering / parallel**: parallel with the Output-window/terminal-model steps; the PTY backend and the
+  run integration depend on it.
+- **Landed**: n/a.
+
+## Terminal emulator model (VT/xterm)
+→ detail: [`15-output-and-terminal.md`](15-output-and-terminal.md) · branch: `feature/terminal-model`
+- **Scope**: a fresh headless VT/xterm model in `nbfx.terminal.model` (screen + scrollback, attribute
+  runs, cursor, resize, input encoder, OSC title/cwd, alt-screen, line discipline), **porting the useful
+  pieces** of `ide/lib.terminalemulator` (CSI/SGR/DEC-mode patterns from `InterpDtTerm`/`InterpANSI`/
+  `InterpProtoANSI`, `Ops`, `Attr`/`AttrSave`, `LineDiscipline` semantics, `StreamTerm`; the upstream
+  `TermTest` as fixtures) and writing the rest fresh (buffer/scrollback structures, public API with
+  `java.beans`-style events, FX key → bytes encoder, 256/truecolor + theme mapping). Do not port the Swing
+  `Term`/`Screen`.
+- **Acceptance**: escape-sequence fixture suite green (movement/erase/SGR/DEC modes/scroll regions/tabs/
+  OSC/alt-screen/echo), resize + scrollback behaviour, no JavaFX in the module (`check-models`).
+- **Depends**: none.
+- **Ordering / parallel**: can run in parallel with the Output-window/execution steps.
+- **Landed**: n/a.
+
+## Terminal PTY backend (JLine)
+→ detail: [`15-output-and-terminal.md`](15-output-and-terminal.md) · branch: `feature/terminal-pty`
+- **Scope**: the PTY implementation of the execution seam over **JLine 3** (`jline-terminal` +
+  `terminal-jna`/`terminal-ffm`, `org.jline.terminal.impl.exec.ExecPty`/`ExecTerminalProvider`, per-OS
+  termios mappings, signal handling): a `PtyProcess` interface (stdin/stdout bytes, resize, signals, exit
+  status, `tty` name) that keeps the backend swappable. Add a `libs.jline` external module (like
+  `libs.jna`) and align the JLine version with the platform's JShell (BSD-3, already accepted as
+  `BSD-jline3`); licence entries.
+- **Acceptance**: a shell runs on a PTY with correct echo/raw mode and window size; resize and signals
+  work; exit status reported; no Swing; purity green.
+- **Depends**: Execution service.
+- **Landed**: n/a.
+
+## Terminal view (JavaFX)
+→ detail: [`15-output-and-terminal.md`](15-output-and-terminal.md) · branch: `feature/terminal-view`
+- **Scope**: the JavaFX terminal renderer over `nbfx.terminal.model` — `Canvas` glyph grid (attributes as
+  runs), scrollback, cursor blink, selection + copy/paste, find, font zoom, resize → PTY size, theme
+  colours (ANSI 16 + 256); a `ViewProvider` with tabs (New/Close/Rename/Pin), "Open Terminal Here", "Run
+  in Terminal", "Open in External Terminal".
+- **Acceptance**: `vim`/`top` render and respond; selection/copy; resize reflows/re-wraps per policy;
+  light/dark themes; headless view tests.
+- **Depends**: Terminal emulator model, Terminal PTY backend, Theming & branding.
+- **Landed**: n/a.
+
+## Run/build output integration (Terminal default; Maven as a process)
+→ detail: [`15-output-and-terminal.md`](15-output-and-terminal.md) · branch: `feature/run-output-integration`
+- **Scope**: run is always a **separate process** (`java` with the computed classpath/module path) with
+  **Terminal (PTY) as the default** and an `Output | Terminal` choice per run configuration; **Maven moves
+  to a process entirely** (`mvn`/`mvnw` with the options-system home/`settings.xml`/offline and the JDK
+  environment; cancel = destroy the process tree; the embedder stays only for the project model); Ant
+  output via `BuildListener`/`LogListener`; Gradle CLI with `--console=plain`; tab naming
+  `project (build|run|test)`; Output actions (Clear/Clear All/Find/Next-Prev Error/Rerun); error lines →
+  editor hyperlinks.
+- **Acceptance**: a run with stdin and `System.console()` works in the terminal; `mvn package` runs as a
+  process, shows output, and cancels; Ant/Gradle output lands in the Output window; no in-process Maven
+  goal execution remains.
+- **Depends**: Output window, Execution service, Terminal view, Maven/Gradle/Ant project support, Java
+  Platforms.
+- **Ordering**: last of the output/terminal steps.
+- **Landed**: n/a.
+
+## Terminal/Output options
+→ detail: [`15-output-and-terminal.md`](15-output-and-terminal.md) · branch: `feature/terminal-options`
+- **Scope**: **Terminal** options panel (font family/size, palette/theme, scrollback, cursor shape/blink,
+  shell/argv, environment, line discipline, bell) and **Output** options (line limit, colours, timestamps),
+  persisted via `nbfx.settings` and registered through the Options system (doc 14).
+- **Acceptance**: the panels persist and visibly affect the terminal/output; theme-aware.
+- **Depends**: Options system infrastructure + example, Terminal view, Output window.
+- **Landed**: n/a.
+
+## Remote terminal (later)
+→ detail: [`15-output-and-terminal.md`](15-output-and-terminal.md) · branch: `feature/terminal-remote`
+- **Scope**: remote terminals (SSH sessions) reusing the terminal view and a remote PTY/exec channel
+  (`dlight.terminal` analogue).
+- **Depends**: Terminal view.
+- **Landed**: n/a.
+
 ## Nodes & views API (NodeModel/ChildrenModel/PropertyModel + FX views)
 → detail: [`12-nodes-and-views.md`](12-nodes-and-views.md) · branch: `feature/nodes-api`
 - **Scope**: the headless node model behind trees, tables and the Properties window — `NodeModel`,
@@ -562,10 +665,13 @@ status-elements registration fix, then the Wizard framework, then the **project 
 (so the New File/New Project UI lands directly in `nbfx.project.ui`), then the Part 1 steps roughly in
 order. Several steps are independent: **Java Platforms** can run in parallel with the wizard/template
 steps; **FX dialogs & notifications (UI)**, **Theming & branding**, **Options system: infrastructure +
-example** and **Nodes & views API** can start in parallel with the wizard/New File topics (separate
-modules, no file overlap — the project-problems UI depends on the dialogs step, the options window and
-the two style foundations share the semantic colour token names and the dialogs chrome, and the node
-model must land before the FxProject node factories); the **Property sheet & editors** step follows
-`nodes-api` and must land before the views migration; the **Options** category/browser/export/Quick
-Search steps follow the options foundation; the **FxProject model** is scheduled later, before
-project-type-aware template filtering. Then Part 2. Each step is sized to be reviewable on its own.
+example**, **Output window**, **Execution service**, **Terminal emulator model** and **Nodes & views API**
+can start in parallel with the wizard/New File topics (separate modules, no file overlap — the
+project-problems UI depends on the dialogs step, the options window and the two style foundations share
+the semantic colour token names and the dialogs chrome, and the node model must land before the FxProject
+node factories); the **Property sheet & editors** step follows `nodes-api` and must land before the views
+migration; the **Options** category/browser/export/Quick Search steps follow the options foundation; the
+**Terminal PTY backend** needs the execution service, the **Terminal view** needs the model + PTY, and the
+**run/build output integration** (Terminal default, Maven as a process) comes last; the **FxProject
+model** is scheduled later, before project-type-aware template filtering. Then Part 2. Each step is sized
+to be reviewable on its own.

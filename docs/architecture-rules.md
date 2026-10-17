@@ -60,3 +60,18 @@ UI module (`nbfx.options`).
 **Options are UI-only (documented exception).** Unlike nodes/views there is no headless part of the
 Options system to split out: its SPI returns a JavaFX `Node`, so `nbfx.options` is a UI module by
 design. Only the settings *data* is model-side. See [`plan/14-options.md`](plan/14-options.md).
+
+## Output, execution and terminal
+
+The output/execution/terminal stack follows the same split:
+
+- **Model (core-only, JavaFX-free)**: `nbfx.execution` (process descriptors, output pumps, cancel/exit)
+  and `nbfx.terminal.model` (VT/xterm screen, scrollback, attributes, input encoder; `java.beans`-style
+  events). Both must pass `check-models`.
+- **UI (JavaFX)**: `nbfx.output` (the Output window, implementing
+  `org.netbeans.spi.io.InputOutputProvider`) and `nbfx.terminal.ui` (the Canvas renderer + tabs).
+- Reuse only Swing-free headless code: `platform/api.io` + `spi.io`, `ide/extexecution.base`/
+  `extexecution.process`, and `core.output2`'s ANSI SGR parser (ported). The Swing terminal
+  (`ide/terminal.nb`, `lib.terminalemulator`'s `Term`/`Screen`) is not reusable; the emulator core is
+  ported piecewise into `nbfx.terminal.model`. PTY via **JLine 3** (BSD-3). See
+  [`plan/15-output-and-terminal.md`](plan/15-output-and-terminal.md).

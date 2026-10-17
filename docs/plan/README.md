@@ -34,6 +34,7 @@ is backed by a file/class reference in the upstream submodule or in this reposit
 | [12-nodes-and-views.md](12-nodes-and-views.md) | Nodes & views API (`NodeModel`/`ChildrenModel`/`ChildFactory`/`ExplorerContext`), mapping from `org.openide.nodes`, migration |
 | [13-property-sheet-and-editors.md](13-property-sheet-and-editors.md) | Property model contract, multi-selection aggregation, editor SPI/built-ins, property sheet, outline/tree-table columns and inline editing |
 | [14-options.md](14-options.md) | Porting the NetBeans Options system: SPI/registrations, containers/search/change-validity, `nbfx.settings`, advanced browser, parity matrix and per-category steps, export/import |
+| [15-output-and-terminal.md](15-output-and-terminal.md) | Output window (`api.io` + ANSI + FX view), execution service, VT/xterm terminal model, JLine PTY backend, terminal view, run/build integration (Terminal default, Maven as a process) |
 
 Repo-wide docs referenced here: [`../architecture-rules.md`](../architecture-rules.md) (the model/UI
 split rule), [`../repo-and-build.md`](../repo-and-build.md) (harness, clusters, patches),
@@ -54,6 +55,8 @@ split rule), [`../repo-and-build.md`](../repo-and-build.md) (harness, clusters, 
 | Theming & branding (light/dark, CSS) | `feature/theming` | planned, parallel |
 | Options system (infra + example) | `feature/options-foundation` | planned, parallel |
 | Options categories (Appearance/Editor/Java/Misc) + browser/export/Quick Search | `feature/options-*` | planned |
+| Output window + execution service + terminal (VT model, JLine PTY, view) | `feature/output-window`, `feature/execution-service`, `feature/terminal-*` | planned, parallel start |
+| Run/build output integration (Terminal default, Maven as a process) | `feature/run-output-integration` | planned |
 | Nodes & views API (node model + FX views) | `feature/nodes-api` | planned, parallel |
 | Property sheet & editors (editors, sheet, outline columns) | `feature/property-sheet-editors` | planned |
 | Views on nodes (migration) | `refactor/views-on-nodes` | planned |
