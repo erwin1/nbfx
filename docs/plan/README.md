@@ -39,6 +39,14 @@ is backed by a file/class reference in the upstream submodule or in this reposit
 | [15-output-and-terminal.md](15-output-and-terminal.md) | Output window (`api.io` + ANSI + FX view), execution service, VT/xterm terminal model, JLine PTY backend, terminal view, run/build integration (Terminal default, Maven as a process) |
 | [16-debugging.md](16-debugging.md) | JVM debugging: headless core reuse vs JavaFX UI port, launch/attach, view models, breakpoints, stepping/editor, evaluate, attach/monitors, build integration, options |
 | [17-profiling.md](17-profiling.md) | Profiling: agent-free backends (JFR, bundled async-profiler per OS/arch, JMX sampler), analysis model, feature/parity map, streaming + open `.jfr`/`.hprof`/`.nps`, heap walker, options |
+| [18-navigation-and-search.md](18-navigation-and-search.md) | Java editor intelligence foundation: Go to File/Type/Symbol/Line, Quick Search, navigation/hyperlinks, Find Usages parity, call/type hierarchies |
+| [19-refactoring.md](19-refactoring.md) | Refactoring: reuse `refactoring.api`/`refactoring.java` logic, rename first, then the Java refactorings, preview/actions UI |
+| [20-java-hints.md](20-java-hints.md) | Java hints/inspections: `spi.java.hints` engine + `java.hints`, editor annotations, lightbulb/fixes, Fix/Organize Imports, Surround With, Hints options |
+| [21-codegen-and-editor-actions.md](21-codegen-and-editor-actions.md) | Code generation (`GeneratorUtilities`), generate dialog, editor action parity (format/fold/indent/templates/mark occurrences/brackets/error stripe/macros) |
+| [22-javadoc.md](22-javadoc.md) | Javadoc viewing (Show Javadoc, Javadoc window/index) and Javadoc completion + insert comment |
+| [23-testing-and-coverage.md](23-testing-and-coverage.md) | Test runner (JUnit/TestNG, Ant/Maven/Gradle), Test Results view, test run configs, code coverage (bundled JaCoCo) |
+| [24-vcs-diff-history.md](24-vcs-diff-history.md) | VCS core (versioning.core/masterfs), Git over jgit, diff/merge + patch, local history |
+| [25-misc-java-features.md](25-misc-java-features.md) | Libraries manager, module support/graph, task list & bookmarks, i18n, JavaBeans, project groups, plugins UI parity, JShell, and the explicit out-of-scope list |
 
 Repo-wide docs referenced here: [`../architecture-rules.md`](../architecture-rules.md) (the model/UI
 split rule), [`../repo-and-build.md`](../repo-and-build.md) (harness, clusters, patches),
@@ -63,6 +71,11 @@ split rule), [`../repo-and-build.md`](../repo-and-build.md) (harness, clusters, 
 | Run/build output integration (Terminal default, Maven as a process) | `feature/run-output-integration` | planned |
 | Debugger (foundation, views, breakpoints, stepping/editor, evaluate, attach, build integration, options) | `feature/debug-*` | planned |
 | Profiler (foundation, recordings, streaming, async-profiler, cpu/memory/locks, attach, heap, options) | `feature/profiler-*` | planned |
+| Java navigation & search (goto/quick search, hyperlinks, usages, hierarchies) | `feature/editor-intelligence-core`, `feature/goto-search`, `feature/editor-navigation`, `feature/find-usages-parity`, `feature/hierarchies` | planned |
+| Refactoring, hints, codegen, editor actions, Javadoc | `feature/refactoring-*`, `feature/java-hints-*`, `feature/codegen-generate`, `feature/fix-imports`, `feature/editor-actions-parity`, `feature/javadoc-*` | planned |
+| Testing & coverage | `feature/test-runner`, `feature/test-results-ui`, `feature/test-run-configs`, `feature/code-coverage` | planned |
+| VCS, diff & local history | `feature/vcs-core`, `feature/vcs-git`, `feature/diff-and-patch`, `feature/local-history` | planned |
+| Misc Java basics (libraries, modules, task list/bookmarks, i18n, beans, groups, plugins UI, JShell) | `feature/libraries-manager`, `feature/module-support`, `feature/tasklist-bookmarks`, `feature/i18n`, `feature/beans`, `feature/project-groups`, `feature/plugins-ui`, `feature/jshell` | planned |
 | Nodes & views API (node model + FX views) | `feature/nodes-api` | planned, parallel |
 | Property sheet & editors (editors, sheet, outline columns) | `feature/property-sheet-editors` | planned |
 | Views on nodes (migration) | `refactor/views-on-nodes` | planned |

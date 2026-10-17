@@ -96,3 +96,25 @@ the legacy NetBeans profiler agent is out (class-file cap = JDK 11). Reuse the h
 `org.netbeans.lib.profiler` (the HPROF heap parser fully; the `.nps`/results algorithms selectively).
 One analysis model is fed by live JFR streams, `.jfr` (JFR and async-profiler), `.hprof` and `.nps`
 recordings. See [`plan/17-profiling.md`](plan/17-profiling.md).
+
+## Java intelligence & tooling
+
+The Java editor-feature wave (navigation, refactoring, hints, code generation, Javadoc, testing, VCS)
+follows the same rule with one important boost: the **semantic API is already a dependency** —
+`org.netbeans.modules.java.source.base` provides the whole `org.netbeans.api.java.source` surface
+(`JavaSource`, `WorkingCopy`, `SourceUtils`, `ElementUtilities`, `ClassIndex`, `GeneratorUtilities`,
+`TreeUtilities`/`TreeMaker`, `ModificationResult`, `ElementHandle`/`TreePathHandle`). So:
+
+- **Reuse the headless logic**: `java.source.base` (edits/index/elements), `java/spi.java.hints`
+  (`HintsInvoker`) + `java/java.hints` implementations, `ide/refactoring.api` + `java/refactoring.java`
+  plugins, `java/testrunner`/`junit`/`testng` runners, `ide/versioning.core`/`versioning.masterfs` +
+  `ide/o.eclipse.jgit*` (EDL), `ide/diff`'s engine + `spi/diff`, `ide/localhistory`, `ide/project.libraries`
+  (no forbidden deps), `java/javadoc` index, bundled JaCoCo (`org.jacoco.core`, EPL-2.0, already shipped).
+- **Port the Swing UI** to JavaFX; never import the prohibited UI modules (`openide.awt/nodes/explorer/
+  windows/dialogs`, `core.windows`) in nbfx sources or list them in nbfx `project.xml` files.
+- **Split** model/UI as usual (e.g. `nbfx.refactoring.core` + `nbfx.refactoring.ui`,
+  `nbfx.test.core` + `nbfx.test.ui`, `nbfx.vcs.core` + `nbfx.vcs.ui`, `nbfx.editor.intelligence` headless);
+  model modules are JavaFX-free (`check-models`).
+
+See [`plan/18-navigation-and-search.md`](plan/18-navigation-and-search.md) through
+[`plan/25-misc-java-features.md`](plan/25-misc-java-features.md).

@@ -71,6 +71,14 @@ recorded in the PR body for traceability.
 | Profiler: options panel | `feature/profiler-options` |
 | Profiler: tracer/OQL/profiling points/diff (later) | `feature/profiler-snaptracer`, `-oql`, `-ppoints`, `-compare` |
 | Profiler: legacy agent backend (optional) | `feature/profiler-legacy-agent` |
+| Java navigation & search (foundation, goto/search, hyperlinks, usages, hierarchies) | `feature/editor-intelligence-core`, `feature/goto-search`, `feature/editor-navigation`, `feature/find-usages-parity`, `feature/hierarchies` |
+| Refactoring (core, rename, Java refactorings, actions) | `feature/refactoring-core`, `feature/refactoring-rename`, `feature/refactoring-java`, `feature/refactoring-actions` |
+| Java hints / inspections | `feature/java-hints-core`, `feature/java-hints-editor`, `feature/java-hints-fixes`, `feature/java-hints-options` |
+| Code generation & editor actions | `feature/codegen-generate`, `feature/fix-imports`, `feature/editor-actions-parity` |
+| Javadoc viewing & completion | `feature/javadoc-view`, `feature/javadoc-index` |
+| Testing & code coverage | `feature/test-runner`, `feature/test-results-ui`, `feature/test-run-configs`, `feature/code-coverage` |
+| VCS, diff & local history | `feature/vcs-core`, `feature/vcs-git`, `feature/diff-and-patch`, `feature/local-history` (+ `feature/vcs-hg`, `feature/vcs-svn`) |
+| Misc Java basics (libraries, modules, task list/bookmarks, i18n, beans, groups, plugins UI, JShell) | `feature/libraries-manager`, `feature/module-support`, `feature/tasklist-bookmarks`, `feature/i18n`, `feature/beans`, `feature/project-groups`, `feature/plugins-ui`, `feature/jshell` |
 | Nodes & views API (NodeModel/ChildrenModel/PropertyModel + FX views) | `feature/nodes-api` |
 | Property sheet & editors (PropertyModel, editor SPI, outline columns) | `feature/property-sheet-editors` |
 | Views on nodes (migration) | `refactor/views-on-nodes` |
@@ -120,7 +128,15 @@ chain is `feature/debug-foundation` (after the execution service) → `debug-vie
 `feature/profiler-foundation` (after the execution service) →
 `recordings`/`streaming`/`async-profiler`/`cpu`/`memory`/`locks-threads`/`attach-sampler` (mostly
 parallel) → `heap` → `options`, with `nbfx.profiler.core` (headless) + `nbfx.profiler.ui` (FX) and the
-per-OS/arch `libs.asyncprofiler.*` native modules.
+per-OS/arch `libs.asyncprofiler.*` native modules. The Java-intelligence wave is
+`editor-intelligence-core` (gate) → `goto-search`/`editor-navigation`/`find-usages-parity`/`hierarchies`
+→ `refactoring-*` / `java-hints-*` / `codegen-generate`/`fix-imports`/`editor-actions-parity` →
+`javadoc-*`; `test-runner`/`test-results-ui`/`test-run-configs`/`code-coverage` and
+`vcs-core`/`vcs-git`/`diff-and-patch`/`local-history` are independent of that chain (they need docs
+12/13, 15 and 16) and can run in parallel; the `misc` branches are independent filler. None of these may
+import the prohibited UI modules — they reuse the headless NetBeans APIs (e.g. `java.source.base`,
+`spi.java.hints`, `refactoring.api`, `java.testrunner`, `versioning.core`, `project.libraries`) and port
+the Swing UI to JavaFX.
 
 ### Current local stack (history condensed by concern)
 

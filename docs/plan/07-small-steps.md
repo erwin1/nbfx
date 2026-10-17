@@ -574,6 +574,132 @@ Legend per step: **Scope**, **Steps**, **Acceptance**, **Depends**.
 - **Depends**: —
 - **Landed**: n/a.
 
+## Java navigation & search (editor intelligence foundation)
+→ detail: [`18-navigation-and-search.md`](18-navigation-and-search.md) · branches:
+`feature/editor-intelligence-core`, `feature/goto-search`, `feature/editor-navigation`,
+`feature/find-usages-parity`, `feature/hierarchies`
+- **Scope**: the missing daily-driver navigation. **Foundation**: `nbfx.editor.intelligence` (headless) —
+  `SemanticAccess` over `JavaSource`/`WorkingCopy` (already available via the existing `java.source.base`
+  dependency), `SourceOpener` (file+offset → editor), and the provider SPIs (`GotoProvider` for
+  File/Type/Symbol/Line/Package/Member, `NavigationProvider` for declaration/implementation/overridden/
+  super, `UsagesProvider`, `HierarchyProvider` for call/type). **UI**: keyboard-first FX **Go to** popup +
+  global **Quick Search** (reuse `platform/spi.quicksearch`, port `ide/jumpto` provider logic), Ctrl/Cmd-click
+  **hyperlinks**, **Find Usages parity** (extend `nbfx.findusages`: scopes, read/write filters, tree/flat,
+  actions, progress), **Call/Type Hierarchy** views (port `java.navigation` models). `Navigate` menu +
+  editor context menu + keymap entries.
+- **Acceptance**: Ctrl/Cmd-click and Go to Declaration/Implementation work (own code + libraries); Go to
+  Type/Symbol finds JDK/project elements; Find Usages matches the original for fixtures; hierarchies expand
+  and navigate; `nbfx.editor.intelligence` is JavaFX-free; headless provider tests.
+- **Depends**: Options (keymap, doc 14), Nodes & views / property sheet (docs 12/13) for the
+  usages/hierarchy views, `nbfx.editor`.
+- **Ordering / parallel**: first of the Java-intelligence wave; gates refactoring/hints/codegen.
+- **Landed**: n/a.
+
+## Refactoring
+→ detail: [`19-refactoring.md`](19-refactoring.md) · branches: `feature/refactoring-core`,
+`feature/refactoring-rename`, `feature/refactoring-java`, `feature/refactoring-actions`
+- **Scope**: reuse the UI-agnostic core of `ide/refactoring.api` (`Refactoring`, `RefactoringSession`,
+  `RefactoringPlugin`, `Problem`, `Progress`) and the Java plugins from `java/refactoring.java` (port the
+  Swing `ui/*`), editing through `java.source.base` (`ModificationResult` + one `UndoManager` edit).
+  Steps: **core** (manager/scope/execution + preview model), **rename** (plugin, inline rename, options,
+  preview, undo, Instant Rename), **Java refactorings** (move/copy/delete/safe delete, introduce
+  variable/constant/field/method/parameter, inline, encapsulate fields, change parameters, pull up/push
+  down, extract interface/superclass), **actions & UI** (Refactor menu/context menu/shortcuts, generic
+  preview/parameters panel, "Refactor Usages" integration).
+- **Acceptance**: rename with correct preview/options/undo; the other refactorings match NetBeans on
+  fixtures; context enablement; off-FX execution with progress/cancel; `nbfx.refactoring.core` JavaFX-free.
+- **Depends**: Java navigation & search (usages/hierarchy + semantic foundation).
+- **Ordering**: after Part 18; `rename` first.
+- **Landed**: n/a.
+
+## Java hints / inspections
+→ detail: [`20-java-hints.md`](20-java-hints.md) · branches: `feature/java-hints-core`,
+`feature/java-hints-editor`, `feature/java-hints-fixes`, `feature/java-hints-options`
+- **Scope**: reuse `java/spi.java.hints` (SPI + `HintsInvoker`) and the implementations in `java/java.hints`
+  (274 files, mostly logic) — `OrganizeImports`, `SurroundWithTryCatch*`, error/style hints; **engine**
+  (run on `CompilationInfo`, severities, debounce/caching/cancel), **editor integration** (annotations,
+  gutter, hover, error stripe, next/prev hint), **lightbulb & fixes** (Alt+Enter popup, apply fix /
+  fix all, atomic undo; Fix/Organize Imports and Surround With surfaced as commands), **configuration**
+  (Editor ▸ Hints options page, doc 14) + project/dependency hints (`ant.hints`/`maven.hints`).
+- **Acceptance**: the same hints/severities as NetBeans on fixtures; Alt+Enter offers the same fixes;
+  applying is atomic and undoable; options apply live; `nbfx.java.hints.core` JavaFX-free.
+- **Depends**: Java navigation & search (semantic foundation), editor annotations, Options (doc 14).
+- **Landed**: n/a.
+
+## Code generation & editor actions
+→ detail: [`21-codegen-and-editor-actions.md`](21-codegen-and-editor-actions.md) · branches:
+`feature/codegen-generate`, `feature/fix-imports`, `feature/editor-actions-parity`
+- **Scope**: **Generate** over `GeneratorUtilities` (`java.source.base`) with an FX dialog (constructor,
+  getters/setters, override/implement, `equals`/`hashCode`/`toString`, delegate, add property); **Fix/
+  Organize Imports** and **Surround With** via the hints engine (doc 20); **Insert Javadoc**; and **editor
+  action parity** (format/reformat, fold, indent, insert template, toggle comment, mark occurrences,
+  bracket matching, error-stripe navigation, macros) with keymap entries — using the settings from the
+  Editor options (doc 14).
+- **Acceptance**: generate/inserts are undoable and import-correct; fix/organize imports resolve fixtures;
+  surround-with wraps selections; the editor actions work from menus/context/shortcuts.
+- **Depends**: Java hints (for imports/surround), Options (Editor).
+- **Landed**: n/a.
+
+## Javadoc viewing & completion
+→ detail: [`22-javadoc.md`](22-javadoc.md) · branches: `feature/javadoc-view`, `feature/javadoc-index`
+- **Scope**: `JavadocResolver` (element → doc comment / JDK javadoc via `ClassPath`/`DocTreePathHandle`,
+  reuse `java/javadoc` index logic), FX popup/window + F1 + context actions, "Show Javadoc in Browser",
+  the dockable Javadoc window with search, and the editor's Javadoc completion contributor; insert-Javadoc
+  comment (shared with doc 21).
+- **Acceptance**: F1 on own/library elements shows the doc; the Javadoc window follows selection and
+  searches; completion offers tags/params; no FX in the resolver.
+- **Depends**: Java navigation & search; Java Platforms (sources/javadoc roots, doc 02).
+- **Landed**: n/a.
+
+## Testing & code coverage
+→ detail: [`23-testing-and-coverage.md`](23-testing-and-coverage.md) · branches: `feature/test-runner`,
+`feature/test-results-ui`, `feature/test-run-configs`, `feature/code-coverage`
+- **Scope**: reuse `java.testrunner`/`junit`/`testng`/`maven.junit`/`gradle.test` logic (port the Swing
+  results UI): the **Test Runner** SPI + discovery (file/package/project) over `nbfx.execution`, report
+  parsers (JUnit XML/Surefire/TNG); the dockable FX **Test Results** view (session/test tree, output,
+  statistics, go-to-failure, re-run failed); **Test/Run/Debug Test** actions + test run-configurations
+  (doc 02, doc 16); **code coverage** via the bundled **JaCoCo** (`org.jacoco.core`, EPL-2.0, already
+  shipped with notice) and the `gsf.codecoverage` model, with an FX coverage view and editor line
+  highlighting.
+- **Acceptance**: Test File/Project works for Ant/Maven/Gradle with results and go-to-failure; Debug Test
+  hits breakpoints; coverage numbers match JaCoCo; `nbfx.test.core` JavaFX-free.
+- **Depends**: Run configurations (doc 02), Output/Execution (doc 15), Debug (doc 16) for Debug Test.
+- **Landed**: n/a.
+
+## VCS, diff & local history
+→ detail: [`24-vcs-diff-history.md`](24-vcs-diff-history.md) · branches: `feature/vcs-core`,
+`feature/vcs-git`, `feature/diff-and-patch`, `feature/local-history`, later `feature/vcs-hg`/`feature/vcs-svn`
+- **Scope**: reuse `ide/versioning.core` + `versioning.masterfs` (status/annotations) and `versioning.util`
+  (history/diff-sidebar model); **VCS core** (status cache, tree badges/annotations, menus/actions);
+  **Git** over **jgit** (`ide/o.eclipse.jgit*`, EDL) or the CLI: status view, commit (selection + diff
+  preview + amend), history/log with diffs, blame, branches/tags/remotes, credentials
+  (`platform/keyring`), revert/reset, ignore list, conflicts; **Diff & patch** reusing `ide/diff`'s engine
+  + `spi/diff` with an FX side-by-side/merge view, "Diff to…", apply/export patch; **Local history** from
+  `ide/localhistory` (per-file timeline + revert).
+- **Acceptance**: badges + Git actions; commit/history/diff/blame/branch/remote/ignore work on a local repo;
+  patch apply/export round-trip; local-history revert; `nbfx.vcs.core` JavaFX-free; operations cancellable.
+- **Depends**: Nodes & views (docs 12/13) for badges/annotations; Notifications (09); Progress (06).
+- **Landed**: n/a.
+
+## Misc Java basics (libraries, modules, task list, i18n, beans, groups, plugins, JShell)
+→ detail: [`25-misc-java-features.md`](25-misc-java-features.md) · branches: `feature/libraries-manager`,
+`feature/module-support`, `feature/tasklist-bookmarks`, `feature/i18n`, `feature/beans`,
+`feature/project-groups`, `feature/plugins-ui`, `feature/jshell`
+- **Scope**: **Libraries manager** — reuse `ide/project.libraries` (**no forbidden deps**,
+  `org.netbeans.api.project.libraries.*`) + port `project.libraries.ui` (manager dialog, Libraries node,
+  J2SE customizer integration); **module support** (module-info completion/highlighting + the
+  `java.module.graph` dependency view); **task list & bookmarks** (`tasklist.*`, `editor.bookmarks`
+  providers/models, FX views, counts, options); **i18n** (`java/i18n`: insert internationalized string +
+  wizard); **JavaBeans** (`java/beans`: bean patterns, Add Property); **project groups** (`ide/projectui`);
+  **plugins UI parity** (extend `nbfx.plugins`: update centers, proxy, install/update progress);
+  **JShell** (`jdk.jshell` + `jshell.support` logic, FX console reusing the terminal/output stack); plus
+  the **explicit out-of-scope list** (free-form/Eclipse import, JavaEE/web/JPA/Spring, form editor, Java
+  ME, WebStart, native-image, other languages, databases/servers, JavaHelp topics).
+- **Acceptance**: per item (libraries add/remove + build resolve; module graph; task list/bookmarks; i18n;
+  Add Property; groups; plugin install/update; JShell snippets).
+- **Depends**: mostly independent; plugins need `autoupdate.services` (already a dep); JShell needs doc 15.
+- **Landed**: n/a.
+
 ## Nodes & views API (NodeModel/ChildrenModel/PropertyModel + FX views)
 → detail: [`12-nodes-and-views.md`](12-nodes-and-views.md) · branch: `feature/nodes-api`
 - **Scope**: the headless node model behind trees, tables and the Properties window — `NodeModel`,
