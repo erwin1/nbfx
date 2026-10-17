@@ -8,7 +8,9 @@ owned by the JavaFX application.
 
 The full roadmap, milestones and history live in **[`docs/MVP.md`](docs/MVP.md)** (the canonical
 plan); the repository layout, upstream patch set and build harness are documented in
-**[`docs/repo-and-build.md`](docs/repo-and-build.md)**. This file is the short project overview.
+**[`docs/repo-and-build.md`](docs/repo-and-build.md)**. The forward plan for JavaFX project support —
+including the step-by-step backlog, branch/commit map and the current project state — is in
+**[`docs/plan/`](docs/plan/README.md)**. This file is the short project overview.
 
 ## Repository
 

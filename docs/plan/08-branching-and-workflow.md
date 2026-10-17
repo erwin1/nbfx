@@ -1,0 +1,106 @@
+# 08 — Branching & workflow
+
+Branch names mirror the small steps in [`07-small-steps.md`](07-small-steps.md) with short, readable
+slugs — one branch per step, one PR per branch.
+
+## Remotes
+
+| Remote | Repo | Role |
+|---|---|---|
+| `origin` | `gluonhq/nbfx` | upstream; PRs target `origin/main` |
+| `sven` | `svenreimers/nbfx` | fork; feature branches are pushed here |
+| `source` | `gluonhq/netbeans` | the original nbfx source repo (read-only reference; unused) |
+
+## Branches
+
+| Pattern | Use |
+|---|---|
+| `main` | Integration/release line; tracks `origin/main`. Never commit work directly. |
+| `feature/<topic>` | One branch per step; `<topic>` is a short, readable slug (see table). Default working branch. |
+| `spike/<topic>` | Throwaway investigations that may not be merged. |
+| `fix/<topic>` | Bug fixes not tied to a step. |
+| `docs/<topic>` | Documentation-only changes. |
+
+Rules: lowercase, hyphen-separated, descriptive; no numeric codes or personal prefixes. The step name is
+recorded in the PR body for traceability.
+
+### Step → branch
+
+| Step (from `07-small-steps.md`) | Branch |
+|---|---|
+| Progress UI parity | `feature/progress-ui` |
+| Progress: drop the launcher's hard-wired progress | `feature/progress-launcher-removal` |
+| Status elements: dynamic registration | `fix/status-elements-dynamic-registration` |
+| Wizard framework (**incl. the themed dialog/makeover**) | `feature/wizard-framework` |
+| FX dialogs & notifications (UI) | `feature/fx-dialogs` |
+| Theming & branding (light/dark, CSS via branding) | `feature/theming` |
+| Project modularity refactoring | `refactor/project-modularity` |
+| New File templates | `feature/newfile-templates` |
+| New File: per-template wizard panels | `feature/newfile-template-panels` |
+| New Project templates | `feature/newproject-templates` |
+| FxProject model (headless project model) | `feature/fxproject-model` |
+| Project problems UI (FX) | `feature/project-problems-ui` |
+| Java Platforms | `feature/java-platforms` |
+| J2SE customizers | `feature/customizers-j2se` |
+| Platform customizers | `feature/customizers-platforms` |
+| Build actions | `feature/build-actions` |
+| Run lifecycle | `feature/run-lifecycle` |
+| Run configurations | `feature/run-configurations` |
+| Ant runtime | `feature/ant-runtime` |
+| SceneBuilder embedding | `spike/scenebuilder-embedding` |
+| JavaFX cluster | `feature/javafx-cluster` |
+| JavaFX project | `feature/javafx-project` |
+| JavaFX customizers | `feature/javafx-customizers` |
+| FXML completion | `feature/fxml-completion` |
+| SceneBuilder editor | `feature/scenebuilder-editor` |
+| Documentation set (these docs) | `planning/javafx-support` |
+
+The planning set lives in **`docs/plan/`** on the `planning/javafx-support` branch; it is the
+communication base for the plan (see [`README.md`](README.md)).
+
+**Parallelism:** `feature/fx-dialogs` and `feature/theming` can be developed alongside the wizard/New
+File topics — they add separate modules (`nbfx.dialogs`, `nbfx.theme`) and do not touch `nbfx.wizard` or
+the project/template files. The project-problems UI depends on `fx-dialogs`; `fx-dialogs` and
+`theming` share the semantic colour token names.
+
+### Current local stack (history condensed by concern)
+
+```
+main
+ └─ feature/wizard-framework        (2 commits: framework API; themed dialog + CSS + icons + list-hover fix)
+     └─ refactor/project-modularity (1 commit: project UI -> nbfx.project.ui)
+         └─ feature/newfile-templates (2 commits: headless template model; New File chooser on the framework,
+                                       plus a follow-up `styles:` app list-hover fix)
+```
+
+The wizard **makeover** is part of `feature/wizard-framework` (not a separate branch); the earlier
+`feature/wizard-makeover` and `feature/newfile-wizard` branches were folded into this stack and deleted.
+The app-wide list hover/selection fix is split by concern: the `wizard.css` half lives in the wizard
+branch, the app `styles.css` half is the follow-up commit on the New File branch.
+`backup/wizard-stack` (pre-consolidation) and `backup/list-hover-fix` (pre-fold) keep the old tips until
+the rewrites have been reviewed.
+
+## Flow
+
+1. Branch from an up-to-date `main`: `git switch main && git pull && git switch -c feature/progress-ui`.
+2. Work the step's sub-steps; keep `ant build` + `ant check-purity` green.
+3. Push to the fork and open a PR into `origin/main`:
+   `git push -u sven feature/progress-ui` → PR `svenreimers:feature/progress-ui` → `gluonhq:main`
+   (name the step, e.g. "Progress UI parity", in the PR body).
+4. One step = one PR (they are sized to be reviewable on their own).
+5. After merge: `git switch main && git pull`, then delete the branch locally and on `sven`.
+
+## Commit messages
+
+- Prefix with the step name: `progress-ui: add nbfx.progress module skeleton`,
+  `customizers-j2se: FXML customizer base + Sources panel`.
+- Reference the plan docs when useful, e.g. `progress-ui: … (07-small-steps.md / 06-progress-ui.md)`.
+- Keep commits within a branch scoped to that step.
+
+## Housekeeping
+
+- `feature/separate-build` is merged (PR #1) and can be deleted locally and on `sven`.
+- `nbfx/mvp-phase1` is a leftover from the initial import; delete it.
+- The `source` remote is unused after the `resync-source` removal; `git remote remove source`.
+- Commit this plan set on `docs/javafx-support-plan`, then link it from `docs/MVP.md` /
+  `docs/repo-and-build.md`.
