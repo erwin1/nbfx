@@ -26,6 +26,9 @@ recorded in the PR body for traceability.
 
 ### Step → branch
 
+The table follows the layer model of [`26-roadmap.md`](26-roadmap.md) (platform → ide → java → javafx);
+the module allocation per step is in [`27-layer-module-map.md`](27-layer-module-map.md).
+
 | Step (from `07-small-steps.md`) | Branch |
 |---|---|
 | Progress UI parity | `feature/progress-ui` |
@@ -42,6 +45,9 @@ recorded in the PR body for traceability.
 | Options: Miscellaneous/Advanced + Team categories | `feature/options-misc` |
 | Options: export/import (incl. legacy NetBeans import) | `feature/options-export` |
 | Options: global Quick Search provider | `feature/options-quicksearch` |
+| Quick Search service (command palette) | `feature/quicksearch` |
+| Credentials / keyring (platform service) | `feature/credentials` |
+| Favorites (platform view) | `feature/favorites` |
 | Output window (api.io + ANSI + FX view) | `feature/output-window` |
 | Execution service (process model + pumps) | `feature/execution-service` |
 | Terminal emulator model (VT/xterm) | `feature/terminal-model` |

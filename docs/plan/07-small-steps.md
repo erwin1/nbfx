@@ -12,6 +12,23 @@ Each step is one branch (`feature/<topic>`) and one PR.
 
 Legend per step: **Scope**, **Steps**, **Acceptance**, **Depends**.
 
+## Layers (how to read this backlog)
+
+The backlog follows the layer model of [`26-roadmap.md`](26-roadmap.md) —
+`nbfx-platform` → `nbfx-ide` → `nbfx-java` → `nbfx-javafx` (with `libs.*` leaves). Every step belongs to
+one layer; a capability may span layers (a `platform` service + an `ide` view + a `java` backend). The
+module-by-module allocation is in [`27-layer-module-map.md`](27-layer-module-map.md); where the JavaFX
+implementation should differ from the Swing original is in
+[`28-beyond-swing-ui.md`](28-beyond-swing-ui.md).
+
+| Layer | Milestone | Steps in this backlog |
+|---|---|---|
+| `nbfx-platform` | M0 | Progress UI parity, Progress launcher removal, Status elements, Wizard framework, FX dialogs & notifications, Theming & branding, Options (all `Options:` steps), Output window, Execution service, Terminal model/PTY/view/options, **Quick Search service**, **Credentials/keyring**, **Favorites**, Nodes & views API, Property sheet & editors |
+| `nbfx-ide` | M1 | Project modularity, New File templates (+ per-template panels), New Project templates, FxProject model, Project problems UI, Views on nodes (migration), Java navigation & search, Refactoring, Java hints, Codegen & editor actions, Javadoc, Testing & coverage, VCS/diff/local history, Debugger UI steps, Profiler UI steps, Libraries, Task list/bookmarks, Plugins UI, Project groups |
+| `nbfx-java` | M2 | Java Platforms, (J2SE/Platform) customizers, Build actions, Run lifecycle, Run configurations, Ant runtime, Java editor semantics, Java debug backend, Java profiler backends, Java test integration + coverage, Module support, i18n, Beans, JShell |
+| `nbfx-javafx` | M3 | JavaFX cluster, JavaFX project, JavaFX customizers, FXML completion, SceneBuilder embedding/editor |
+| `libs.*` | M0–M2 | JLine (terminal PTY), async-profiler per OS/arch (profiler), jgit/JaCoCo (reuse) |
+
 ---
 
 ## Progress UI parity
@@ -264,6 +281,39 @@ Legend per step: **Scope**, **Steps**, **Acceptance**, **Depends**.
   `FxOptionsDisplayer.open(path)` and lets the target panel highlight the match.
 - **Acceptance**: typing words lists matching options panels; selecting opens the right category/tab.
 - **Depends**: Options infrastructure, Quick Search.
+- **Landed**: n/a.
+
+## Quick Search service (command palette)
+→ detail: [`27-layer-module-map.md`](27-layer-module-map.md) · branch: `feature/quicksearch`
+- **Scope**: a **platform** service — `SearchProvider` registry (reuse `platform/spi.quicksearch`),
+  provider categories (actions, open files, recent, projects, options), and an FX **command-palette**
+  popup (fuzzy matching, keyboard-only, preview, history) with a configurable key binding (doc 14
+  keymap). Consumed by Find/Go-to (doc 18), the options search (doc 14) and feature providers
+  (files, types, symbols, Git actions, run configurations).
+- **Acceptance**: the palette lists providers, opens the selected item, is keyboard-driven and themed;
+  headless tests for registry/matching; no JavaFX in the matching model.
+- **Depends**: Theming, Dialogs (for the popup chrome), Options (keymap).
+- **Ordering / parallel**: can run in parallel with the other M0 platform steps; a prerequisite for
+  doc 18's Go-to/Quick Search.
+- **Landed**: n/a.
+
+## Credentials / keyring (platform service)
+→ detail: [`27-layer-module-map.md`](27-layer-module-map.md) · branch: `feature/credentials`
+- **Scope**: a **platform** credentials service over the NetBeans `keyring`/`keyring.impl`/
+  `keyring.fallback` modules with an FX master-password/unlock prompt and a "remember credentials" flow;
+  used by VCS (doc 24), update centers/plugins (doc 25), remote debug/profiler (docs 16/17) and update
+  centers.
+- **Acceptance**: prompts unlock once per session, credentials persist/upgrade with the platform scheme,
+  a fallback is offered when the OS keyring is unavailable.
+- **Depends**: Dialogs/notifications.
+- **Landed**: n/a.
+
+## Favorites (platform view)
+→ detail: [`27-layer-module-map.md`](27-layer-module-map.md) · branch: `feature/favorites`
+- **Scope**: a **platform** view: favourite folders (add favourite, drag & drop to reorder, open files),
+  reusing `platform/favorites`' model where possible; integration with the navigator/editor.
+- **Acceptance**: add/remove favourites, persist across restarts, open/paste into them.
+- **Depends**: Nodes & views API (or the existing tree infrastructure).
 - **Landed**: n/a.
 
 ## Output window (api.io + ANSI + FX view)
