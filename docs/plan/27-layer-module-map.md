@@ -13,7 +13,11 @@ Legend — **status**: `landed` (in the repo), `in-flight` (branch/PR), `planned
 | Module | Purpose | NetBeans counterpart | Status | Step / branch | Doc |
 |---|---|---|---|---|---|
 | `nbfx.actions` | command/action registry, keymap, menus/toolbars wiring | `openide.actions`, `openide.awt` actions | landed | — | 00 |
-| `nbfx.annotations` | layer-generating annotations (views, actions, menus, toolbars, status, options, wizards, project types, property editors) | `openide.filesystems` layer + `nbs.annotations` | landed | — | 00 |
+| `nbfx.annotations` | **core** layer-generating annotations + processors: actions, views, menus, toolbars, status (+ `FxLayer` for the shell folders) | `openide.filesystems` layer + `nbs.annotations` | landed (to split) | `refactor/annotations-split` | 29 |
+| `nbfx.options` annotations + processor | `@FxOptionsRegistration`/`Container`/`Sub` + `FxOptionsRegistrationProcessor`, `OPTIONS` layer path | `options.api` registration | planned | `refactor/annotations-split` (slice 1) | 29 |
+| `nbfx.wizard` annotation + processor | `@FxWizardRegistration` + processor, `WIZARDS` path | `openide.loaders` wizard registration | planned | `refactor/annotations-split` (slice 2) | 29 |
+| property-editor annotation + processor | `@FxPropertyEditorRegistration` + processor, `PROPERTY_EDITORS` path (module decided by doc 13: `nbfx.nodes.ui`/`nbfx.propertysheet`) | `openide.explorer` property editors | planned | `refactor/annotations-split` (slice 3) | 29 |
+| project API annotation + processor | `@FxProjectTypeRegistration` + processor, `PROJECTS` path (ide, project API module) | `projectuiapi` project-type registration | planned | `refactor/annotations-split` (slice 4) | 29 |
 | `nbfx.api` | view/action/status/editor/progress **APIs** + (misplaced) project API | `openide.util.lookup`, platform APIs | landed (`api.project` to move, see 26 §3.1) | — | 00 |
 | `nbfx.context` | global selection/context (`FxActionContext`) | `openide.awt` `Actions`/global `Lookup` | landed | — | 00 |
 | `nbfx.docking` | docks/areas/tabs/layout model | `core.windows` (dropped from nbfx) | landed | — | 00 |
@@ -50,6 +54,16 @@ Legend — **status**: `landed` (in the repo), `in-flight` (branch/PR), `planned
 - **Execution + terminal** are platform services (build, run, debug, profiler, VCS, JShell): docs 15.
 - **Preferences/settings browser** (the debug aid in doc 14) is platform, not options-specific.
 - **Favorites** and **templates manager** are small platform gaps.
+
+### 1.2 Annotation ownership (the `nbfx.annotations` split)
+
+`nbfx.annotations` must not stay a single cross-layer module. Registration annotations and their
+processors move to the module that owns the SPI they complement, while the core keeps only shell
+registrations (actions/views/menus/toolbars/status + the shell `FxLayer` constants): options →
+`nbfx.options`, wizard → `nbfx.wizard`, property editors → the property-editor module, project types →
+the project API module (ide). Annotation modules are **compile-only** (build prerequisite, no
+`run-dependency`) and the generated layer output must stay identical across the move. Full plan:
+[`29-annotation-modules.md`](29-annotation-modules.md).
 
 ## 2. `nbfx-ide` — IDE building blocks
 

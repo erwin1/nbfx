@@ -64,6 +64,11 @@ Two consequences for planning:
    it belongs in `ide` or `platform`.
 5. **Data vs presentation:** NetBeans data/formats (project properties, `.nps`/`.hprof`/`.jfr`, keymap,
    breakpoints, platform storage) stay compatible; the *presentation* is replaced.
+6. **Registration ownership:** a layer-generating annotation (and its processor) lives with the SPI it
+   complements — options registrations in `nbfx.options`, wizard in `nbfx.wizard`, property editors with
+   the editors, project types in the project API module — and only the shell registrations
+   (actions/views/menus/toolbars/status) stay in the core `nbfx.annotations`. Annotation modules are
+   **compile-only**. See [29-annotation-modules.md](29-annotation-modules.md).
 
 ### 3.1 Moves and renames the layer model implies
 

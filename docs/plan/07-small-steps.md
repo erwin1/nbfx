@@ -316,6 +316,21 @@ implementation should differ from the Swing original is in
 - **Depends**: Nodes & views API (or the existing tree infrastructure).
 - **Landed**: n/a.
 
+## Split the annotation modules (ownership by layer)
+→ detail: [`29-annotation-modules.md`](29-annotation-modules.md) · branch: `refactor/annotations-split`
+- **Scope**: split `nbfx.annotations` so each layer-generating annotation **and its processor** live with
+  the SPI they complement — options → `nbfx.options`, wizard → `nbfx.wizard`, property editors → the
+  property-editor module, project types → the project API module (`nbfx-ide`); the core module keeps only
+  shell registrations (actions/views/menus/toolbars/status) plus the shell `FxLayer` constants. Slices:
+  options, wizard, property editors, project types, `FxLayer` split, cleanup (compile-only deps, tests).
+- **Acceptance**: build/tests/guardrails green per slice; **generated layer fragments identical**; no
+  runtime module depends on an annotation module; adding a registration type no longer touches the shared
+  platform module.
+- **Depends**: none (can start immediately); slice 4 (project types) after the project API extraction.
+- **Ordering / parallel**: a structural refactor; can run in parallel with feature work, but land before
+  the option/wizard/property-sheet/project steps to avoid churn.
+- **Landed**: n/a.
+
 ## Output window (api.io + ANSI + FX view)
 → detail: [`15-output-and-terminal.md`](15-output-and-terminal.md) · branch: `feature/output-window`
 - **Scope**: rewrite `nbfx.output` onto the clean `org.netbeans.spi.io.InputOutputProvider`/`api.io` API

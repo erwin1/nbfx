@@ -64,6 +64,7 @@ Swing design holds the UI back and how the JavaFX implementation advances beyond
 | [23-testing-and-coverage.md](23-testing-and-coverage.md) | **ide + java + lib** | Test runner (JUnit/TestNG, Ant/Maven/Gradle), Test Results view, test run configs, coverage (bundled JaCoCo) |
 | [24-vcs-diff-history.md](24-vcs-diff-history.md) | **ide + lib** | VCS core (versioning.core/masterfs), Git over jgit, diff/merge + patch, local history |
 | [25-misc-java-features.md](25-misc-java-features.md) | **java + ide** | Libraries manager, module support/graph, task list & bookmarks, i18n, JavaBeans, project groups, plugins UI, JShell, out-of-scope list |
+| [29-annotation-modules.md](29-annotation-modules.md) | **platform/ide** | Splitting `nbfx.annotations`: annotation+processor ownership by layer/SPI, compile-only modules, layer-output-invariant migration |
 | [11-project-state.md](11-project-state.md) | all | Current branches/commits/PRs, verification, backups, clean-ups |
 
 Repo-wide docs: [`../architecture-rules.md`](../architecture-rules.md) (model/UI split + per-layer rules),
@@ -82,6 +83,7 @@ Repo-wide docs: [`../architecture-rules.md`](../architecture-rules.md) (model/UI
 | **platform** | Theming & branding | `feature/theming` | planned |
 | **platform** | Options + settings (+ categories/browser/export/Quick Search) | `feature/options-*` | planned |
 | **platform** | Nodes/views + property sheet/editors | `feature/nodes-api`, `feature/property-sheet-editors`, `refactor/views-on-nodes` | planned |
+| **platform** | Split the annotation modules (ownership by layer) | `refactor/annotations-split` | planned |
 | **platform** | Output window + execution service + terminal | `feature/output-window`, `feature/execution-service`, `feature/terminal-*` | planned |
 | **platform** | Quick search (command palette) | `feature/quicksearch` | planned |
 | **platform** | Credentials/keyring | `feature/credentials` | planned |

@@ -118,3 +118,14 @@ follows the same rule with one important boost: the **semantic API is already a 
 
 See [`plan/18-navigation-and-search.md`](plan/18-navigation-and-search.md) through
 [`plan/25-misc-java-features.md`](plan/25-misc-java-features.md).
+
+## Registration ownership (layer-generating annotations)
+
+A layer-generating annotation and its processor live **with the SPI they complement**, in the layer that
+owns that SPI: options registrations in `nbfx.options`, wizard in `nbfx.wizard`, property editors with the
+editor module, project types in the project API module. Only the **shell** registrations
+(actions/views/menus/toolbars/status) stay in the core `nbfx.annotations` module (with the shell `FxLayer`
+constants). Annotation modules are **compile-only** (build prerequisite, no run dependency) where possible;
+the generated layer output must stay identical when they move. This keeps the platform layer free of
+ide/java/javafx registration concepts and makes adding a registration type a local change. See
+[`plan/29-annotation-modules.md`](plan/29-annotation-modules.md).

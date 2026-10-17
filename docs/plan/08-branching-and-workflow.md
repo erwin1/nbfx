@@ -48,6 +48,7 @@ the module allocation per step is in [`27-layer-module-map.md`](27-layer-module-
 | Quick Search service (command palette) | `feature/quicksearch` |
 | Credentials / keyring (platform service) | `feature/credentials` |
 | Favorites (platform view) | `feature/favorites` |
+| Split the annotation modules (annotation+processor ownership by layer) | `refactor/annotations-split` |
 | Output window (api.io + ANSI + FX view) | `feature/output-window` |
 | Execution service (process model + pumps) | `feature/execution-service` |
 | Terminal emulator model (VT/xterm) | `feature/terminal-model` |
