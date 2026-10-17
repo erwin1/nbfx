@@ -1,10 +1,17 @@
-# NetBeansFX MVP Plan
+# NetBeansFX MVP Plan — **historical, superseded**
+
+> **Historical document.** This was the original MVP draft. The canonical, maintained plan is
+> [`docs/plan/`](plan/README.md) — in particular the layered roadmap
+> [`plan/26-roadmap.md`](plan/26-roadmap.md), the module map [`plan/27-layer-module-map.md`](plan/27-layer-module-map.md),
+> the API governance rules [`plan/30-api-governance.md`](plan/30-api-governance.md) and the front-end SPI
+> design [`plan/31-front-end-apis.md`](plan/31-front-end-apis.md). Keep this file only for historical
+> context; do not update it as the plan.
 
 A plan to build a full Java IDE MVP on a **pure-JavaFX** frontend for NetBeans, reusing as much
 headless platform/IDE infrastructure as possible while replacing every Swing view/component and
 preserving NetBeans paradigms (central Lookup, Context, layer/annotation registration).
 
-Status: draft for execution. All architectural decisions below are locked unless noted.
+Status: **historical** (see the note above).
 
 ---
 

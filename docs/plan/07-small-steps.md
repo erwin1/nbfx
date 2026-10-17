@@ -28,8 +28,87 @@ implementation should differ from the Swing original is in
 | `nbfx-java` | M2 | Java Platforms, (J2SE/Platform) customizers, Build actions, Run lifecycle, Run configurations, Ant runtime, Java editor semantics, Java debug backend, Java profiler backends, Java test integration + coverage, Module support, i18n, Beans, JShell |
 | `nbfx-javafx` | M3 | JavaFX cluster, JavaFX project, JavaFX customizers, FXML completion, SceneBuilder embedding/editor |
 | `libs.*` | M0–M2 | JLine (terminal PTY), async-profiler per OS/arch (profiler), jgit/JaCoCo (reuse) |
+| **cross-cutting** | M0/M1 | **Walking skeleton**, public-package inventory + `nbfx.api` split, capability naming, services-not-statics + typed contracts, structural guardrails, front-end component factory (spike + upstream) |
 
 ---
+
+## Walking skeleton (one project type end-to-end)
+→ detail: [`30-api-governance.md`](30-api-governance.md) §11 · branch: `feature/walking-skeleton`
+- **Scope**: before filling layers, make the application **usable end-to-end** for one project type:
+  open a project → edit a file (tab, save) → build → run → output/status → commit. Deliberately boring,
+  deliberately complete; it is the integration test for every later step and the baseline for the
+  startup/latency budget (doc 30 §7).
+- **Acceptance**: a developer can open/build/run/commit a real project in the app; startup and first-use
+  numbers recorded in `11-project-state.md`; every later step keeps the skeleton green.
+- **Depends**: the current shell, launcher, docking, output (basic), Git status (basic).
+- **Ordering / parallel**: first — before the layer milestones ([`26-roadmap.md`](26-roadmap.md) §6).
+- **Landed**: n/a.
+
+## Public-package inventory + `nbfx.api` split
+→ detail: [`30-api-governance.md`](30-api-governance.md) §1 · branch: `refactor/api-split`
+- **Scope**: inventory every module's public packages (today **38 modules** declare them, **23 export whole
+  subtrees**); list packages **explicitly**; split `com.gluonhq.netbeans.nbfx.api` into per-capability
+  modules (`nbfx-action-api`, `nbfx-view-api`, `nbfx-status-api`, `nbfx-editor-api`, `nbfx-progress-api`,
+  `nbfx-project-api` in ide); move implementations to `*.impl`/UI modules; privatise what is not a
+  contract; give each API module its own specification version.
+- **Acceptance**: no `<subpackages>` without a written justification; the governance guard (§6) is green;
+  dependants bumped to the new API modules; build/tests green.
+- **Depends**: none.
+- **Ordering**: early — before the API spreads further (before M1's API freeze).
+- **Landed**: n/a.
+
+## Capability naming: remove the toolkit from the SPI
+→ detail: [`31-front-end-apis.md`](31-front-end-apis.md) §3 · branch: `refactor/api-naming`
+- **Scope**: rename the **57 public `Fx*` types** (SPIs, registrations, annotations, constants) to
+  capability names — e.g. `FxOptionsPanel`→`OptionsPanelController`, `FxOptionsRegistration`→
+  `OptionsRegistration`, `FxWizardIterator`→`WizardIterator`, `FxViewRegistration`→`ViewRegistration`,
+  `FxPropertyEditorRegistration`→`PropertyEditorRegistration`, `FxDialogDescriptor`→`DialogDescriptor`;
+  `FxLayer` path constants become `private static final`; FX classes move to `…ui.fx` implementation
+  modules. Mechanical, with **layer output invariance** and `apichanges.xml` entries.
+- **Acceptance**: no toolkit name in an SPI type/annotation/public constant; build/tests green; generated
+  layer identical; structural naming check green (doc 30 §6).
+- **Depends**: Public-package inventory (to know what is public).
+- **Ordering**: before M1's API freeze; coordinate with doc 31's factory migration.
+- **Landed**: n/a.
+
+## Services, not statics + typed contracts
+→ detail: [`30-api-governance.md`](30-api-governance.md) §4/§5 · branch: `refactor/services-not-statics`
+- **Scope**: replace mutable statics with lifecycle services in `Lookup` (`DebugSession.current`,
+  `DebugStatus.ACTIVE`, `EditorBuffer.OPEN`, `CompletionPopup.cachedFooterWidth`); replace stringly-typed
+  contracts — JPDA's `Object[] services` + `Map` keys (`"name"`/`"sourcepath"`/`"jdksources"`/`"baseDir"`) by
+  typed session services, `PropertyModel.getEditorId()` by `PropertyEditorRef`, public layer-path constants
+  by private ones; registries hold cached `Lookup.Result`s instead of calling `Lookups.forPath` per query
+  (14 runtime sites).
+- **Acceptance**: no mutable statics in public-package classes (check green); typed services in place and
+  unit-tested with fakes; registries cached; no behaviour change.
+- **Depends**: capability naming (same files).
+- **Landed**: n/a.
+
+## Structural guardrails (replace the grep checks)
+→ detail: [`30-api-governance.md`](30-api-governance.md) §6 · branch: `refactor/guardrail-structural-checks`
+- **Scope**: restate the objective (no Swing/AWT rendering; no forbidden module on the runtime path;
+  toolkit-free models/SPIs; governed public packages) and enforce it structurally: module-graph check over
+  the built clusters, `jdeps`/bytecode scan of the built jars (no `javafx.*` in model jars, no
+  `javax.swing`/`java.awt`/`org.openide.nodes|explorer|windows|awt|dialogs` in SPI/model jars), a
+  governance check (public package ⇒ `arch.xml` + `apichanges`), and a naming check (`Fx*`/`Sw*` in SPI
+  packages). Run in the verify phase, fail with a report.
+- **Acceptance**: the new checks replace `check-sources`/`check-dependencies` as the gate; a deliberately
+  broken fixture fails all of them; docs/rules updated.
+- **Depends**: API split/naming (so the checks pass on the new shape).
+- **Landed**: n/a.
+
+## Front-end component factory (spike + upstream proposal)
+→ detail: [`31-front-end-apis.md`](31-front-end-apis.md) · branch: `spike/front-end-component-factory`
+- **Scope**: prototype the *one SPI, many toolkits* hook (`ComponentFactory` resolved from `Lookup`) on
+  **options** first: toolkit-free `OptionsPanelController` + `OptionsComponentFactory`, an FX factory in
+  `nbfx.options.ui.fx`, and a Swing factory kept working in the upstream tree; then propose the hook to
+  `apache/netbeans` (additive, no behaviour change). Establishes the pattern for wizard/dialogs/property
+  sheet/views/progress/output (doc 31 §4).
+- **Acceptance**: the options SPI is served by a factory; a headless test factory works (headless SPI
+  tests); the upstream PR is opened with tests; the nbfx-side shim is deprecation-only.
+- **Depends**: capability naming.
+- **Ordering**: after `refactor/api-naming`, before the M1 API freeze.
+- **Landed**: n/a.
 
 ## Progress UI parity
 → detail: [`06-progress-ui.md`](06-progress-ui.md) · branch: `feature/progress-ui`

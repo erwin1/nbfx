@@ -53,7 +53,7 @@ interface PropertyModel {
     boolean isDefaultValue();
 
     List<?> getAllowedValues();        // non-null/empty = combo (enum-like)
-    String getEditorId();              // explicit editor; null = resolve by type/allowed values
+    String getEditorId();              // explicit editor; null = resolve by type/allowed values -> replace by PropertyEditorRef (doc 30 §4)
     boolean canEditAsText();           // false = custom editor only (NetBeans "canEditAsText")
     boolean supportsCustomEditor();    // NetBeans "suppressCustomEditor" is the inverse
 

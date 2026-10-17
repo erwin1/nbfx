@@ -20,8 +20,13 @@ and the **Swing front end rebuilt on top of it**, so the pure-JavaFX nbfx front 
 front end share one implementation instead of keeping two copies in sync.
 
 **Where.** Model modules live in **`nbfx-platform`** (which depends only on `nb.cluster.platform`); the
-JavaFX UI that consumes them lives in **`nbfx-ide`** / **`nbfx-java`**. `ant check-purity` enforces the
-UI-free part for every module listed in `nbfx.model.src.pattern` (see `check-purity.xml`).
+JavaFX UI that consumes them lives in **`nbfx-ide`** / **`nbfx-java`** / **`nbfx-javafx`**, following the
+layer model of `plan/26-roadmap.md` and the module allocation of `plan/27-layer-module-map.md`.
+
+**Enforcement is structural, not textual.** The UI-free/toolkit-free part is checked by a bytecode scan
+of the built jars (no `javafx.*`/`javax.swing`/`java.awt` in model/SPI jars) and by the module-graph
+check, not by a source grep; imports are a style check only. `ant check-purity` runs the structural checks
+in the verify phase (see `plan/30-api-governance.md` §6).
 
 **Prefer reuse.** Before writing a model, check whether the NetBeans core already exposes it headlessly
 (for example `org.netbeans.api.templates.FileBuilder` for template creation). Reuse it and keep only
@@ -35,10 +40,12 @@ JavaFX); the New File wizard UI that consumes it lives in the project UI module,
 ## Observability in models
 
 Model modules must not use `javafx.beans.*` / `javafx.collections.*`: those are JavaFX, so they would
-break the core-only chain and the `check-models` guardrail. Model state is observable through **JDK
-mechanisms** instead — `java.beans.PropertyChangeSupport` plus explicit nbfx listener/event types, the
-way `org.openide.nodes.Node` / `Children` are modelled — and a small **UI adapter** wraps the model in
-JavaFX `ObservableList` / `ObservableValue` for binding.
+break the core-only chain and the `check-models` guardrail. Model state is observable through **typed
+`Lookup`-based mechanisms** — a `Lookup.Result` over `InstanceContent`/`AbstractLookup` carrying typed
+event objects (the platform idiom) — or, where an adapted engine forces it, JDK
+`java.beans.PropertyChangeSupport` behind a **typed adapter**; a small **UI adapter** wraps the model in
+JavaFX `ObservableList` / `ObservableValue` for binding. Do not invent a parallel event mechanism when the
+platform already has one; do not expose `java.beans`-style untyped events as a public API.
 
 `org.openide.util.Lookup` is fine in a model: it is part of the NetBeans core, and it **replaces the
 legacy `Node.Cookie` extension mechanism** (a node's lookup is the extension point; the old
@@ -118,6 +125,35 @@ follows the same rule with one important boost: the **semantic API is already a 
 
 See [`plan/18-navigation-and-search.md`](plan/18-navigation-and-search.md) through
 [`plan/25-misc-java-features.md`](plan/25-misc-java-features.md).
+
+## API is a promise
+
+A **public package is an API** and needs the full governance set: an `arch.xml` `<api>` entry (type
+export/import), an `apichanges.xml` change for every API edit, `@since` on new elements, a signature test,
+and a specification-version bump on change. A module exports **only** packages that are contracts, listed
+explicitly (no whole-tree `<subpackages>` without a written justification). `nbfx.api` is split per
+capability rather than being a kitchen sink. See [`plan/30-api-governance.md`](plan/30-api-governance.md).
+
+- **No toolkit in SPI names.** SPI types, annotations, public constants: capability names
+  (`OptionsPanelController`, `WizardIterator`, `ViewRegistration`). The toolkit belongs to the
+  implementation module (`…ui.fx`) and to private classes. Components are produced through
+  **front-end component factories** resolved from `Lookup`, so one SPI serves Swing/JavaFX/web: see
+  [`plan/31-front-end-apis.md`](plan/31-front-end-apis.md).
+- **No stringly-typed API contracts.** No `Map` with key strings, no string editor ids, no public
+  layer-path constants; use typed service types, typed refs and private constants (adapters may translate
+  at the boundary to an engine's legacy shape, documented).
+- **Services, not statics.** Mutable state lives in a `Lookup`-registered service with a lifecycle
+  (`Closeable`), injectable in tests. Statics are allowed only for immutable constants and bounded caches
+  with a named owner; a cache is never the only reference to a live model.
+- **Registries cache `Lookup.Result`s.** Do not call `Lookups.forPath`/`FileUtil.getConfigFile` per query
+  (config-filesystem traversal); keep a cached `Lookup.Result` in the registry and update it on module
+  changes.
+- **No new `friend` patches** without an entry in the friend register (what, why not API, upstream
+  proposal, owner, deadline) and **no "reuse" of `org.netbeans.modules.*` internals** without a reuse
+  decision: *upstream API* / *vendored fork with version and upgrade cadence* / *reimplement*. See
+  [`plan/30-api-governance.md`](plan/30-api-governance.md) §8/§9.
+- **Measure before claiming.** Every milestone records startup, first-use latency, module count and
+  memory; a regression beyond the documented budget blocks the milestone.
 
 ## Registration ownership (layer-generating annotations)
 

@@ -20,6 +20,11 @@ Read [`26-roadmap.md`](26-roadmap.md) for the layer model, allocation principles
 (M0 platform → M1 IDE → M2 Java → M3 JavaFX → M4 breadth), [`27-layer-module-map.md`](27-layer-module-map.md)
 for the module-by-module allocation, and [`28-beyond-swing-ui.md`](28-beyond-swing-ui.md) for where the
 Swing design holds the UI back and how the JavaFX implementation advances beyond it.
+**API discipline is not optional**: [`30-api-governance.md`](30-api-governance.md) defines the promise
+(public packages, `arch/apichanges`, versioning, signature tests, registers, structural guardrails,
+budget) and [`31-front-end-apis.md`](31-front-end-apis.md) the "one SPI, many toolkits" design
+(capability names, component factories, upstream proposals). `docs/MVP.md` is historical; `docs/plan/` is
+canonical.
 
 ## Where to start
 
@@ -65,6 +70,8 @@ Swing design holds the UI back and how the JavaFX implementation advances beyond
 | [24-vcs-diff-history.md](24-vcs-diff-history.md) | **ide + lib** | VCS core (versioning.core/masterfs), Git over jgit, diff/merge + patch, local history |
 | [25-misc-java-features.md](25-misc-java-features.md) | **java + ide** | Libraries manager, module support/graph, task list & bookmarks, i18n, JavaBeans, project groups, plugins UI, JShell, out-of-scope list |
 | [29-annotation-modules.md](29-annotation-modules.md) | **platform/ide** | Splitting `nbfx.annotations`: annotation+processor ownership by layer/SPI, compile-only modules, layer-output-invariant migration |
+| [30-api-governance.md](30-api-governance.md) | **all** | API is a promise: public-package inventory + `nbfx.api` split, `arch/apichanges`/`@since`/signature tests, versioning, typed contracts, services-not-statics, structural guardrails, startup budget, friend/reuse registers, upstream strategy |
+| [31-front-end-apis.md](31-front-end-apis.md) | **all** | One SPI, many toolkits: capability naming (no `Fx*` in the SPI), front-end component factories, mapping table and migration, upstream proposal |
 | [11-project-state.md](11-project-state.md) | all | Current branches/commits/PRs, verification, backups, clean-ups |
 
 Repo-wide docs: [`../architecture-rules.md`](../architecture-rules.md) (model/UI split + per-layer rules),
@@ -84,6 +91,12 @@ Repo-wide docs: [`../architecture-rules.md`](../architecture-rules.md) (model/UI
 | **platform** | Options + settings (+ categories/browser/export/Quick Search) | `feature/options-*` | planned |
 | **platform** | Nodes/views + property sheet/editors | `feature/nodes-api`, `feature/property-sheet-editors`, `refactor/views-on-nodes` | planned |
 | **platform** | Split the annotation modules (ownership by layer) | `refactor/annotations-split` | planned |
+| **cross-cutting** | Walking skeleton (one project end-to-end) | `feature/walking-skeleton` | planned |
+| **cross-cutting** | Public-package inventory + `nbfx.api` split | `refactor/api-split` | planned |
+| **cross-cutting** | Capability naming (no `Fx*` in the SPI) | `refactor/api-naming` | planned |
+| **cross-cutting** | Services, not statics + typed contracts | `refactor/services-not-statics` | planned |
+| **cross-cutting** | Structural guardrails (module graph, jdeps, governance, naming) | `refactor/guardrail-structural-checks` | planned |
+| **cross-cutting** | Front-end component factory (spike + upstream) | `spike/front-end-component-factory` | planned |
 | **platform** | Output window + execution service + terminal | `feature/output-window`, `feature/execution-service`, `feature/terminal-*` | planned |
 | **platform** | Quick search (command palette) | `feature/quicksearch` | planned |
 | **platform** | Credentials/keyring | `feature/credentials` | planned |

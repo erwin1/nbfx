@@ -18,7 +18,7 @@ Legend — **status**: `landed` (in the repo), `in-flight` (branch/PR), `planned
 | `nbfx.wizard` annotation + processor | `@FxWizardRegistration` + processor, `WIZARDS` path | `openide.loaders` wizard registration | planned | `refactor/annotations-split` (slice 2) | 29 |
 | property-editor annotation + processor | `@FxPropertyEditorRegistration` + processor, `PROPERTY_EDITORS` path (module decided by doc 13: `nbfx.nodes.ui`/`nbfx.propertysheet`) | `openide.explorer` property editors | planned | `refactor/annotations-split` (slice 3) | 29 |
 | project API annotation + processor | `@FxProjectTypeRegistration` + processor, `PROJECTS` path (ide, project API module) | `projectuiapi` project-type registration | planned | `refactor/annotations-split` (slice 4) | 29 |
-| `nbfx.api` | view/action/status/editor/progress **APIs** + (misplaced) project API | `openide.util.lookup`, platform APIs | landed (`api.project` to move, see 26 §3.1) | — | 00 |
+| `nbfx.api` | view/action/status/editor/progress **APIs** + (misplaced) project API | `openide.util.lookup`, platform APIs | landed; **to split per capability** (`refactor/api-split`, doc 30 §1) | — | 00/30 |
 | `nbfx.context` | global selection/context (`FxActionContext`) | `openide.awt` `Actions`/global `Lookup` | landed | — | 00 |
 | `nbfx.docking` | docks/areas/tabs/layout model | `core.windows` (dropped from nbfx) | landed | — | 00 |
 | `nbfx.menus` / `nbfx.windows` | menu bar + main window shell/persistence | `core.windows`, `core.ui` | landed | — | 00 |

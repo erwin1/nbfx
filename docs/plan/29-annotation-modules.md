@@ -62,7 +62,7 @@ plat/c.gluonhq.netbeans.nbfx.propertysheet(+ …)       property-editor registra
 ide/c.gluonhq.netbeans.nbfx.project.api(+ .annotations) project-type registration
 ```
 
-`FxLayer` after the split:
+`FxLayer` after the split (all constants **private** — layer paths are implementation detail, not API):
 
 - **core** keeps the platform-shell folders: `ACTIONS`, `MENUS`, `TOOLBARS`, `CONTEXT_MENUS`, `VIEWS`,
   `STATUS`, `REF_SUFFIX`;

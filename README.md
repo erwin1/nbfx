@@ -6,11 +6,13 @@ indexing, autoupdate, JPDA, templates, …) and replaces every Swing view/compon
 There is no NetBeans Swing window: `core.windows` is dropped from the nbfx clusters and the shell is
 owned by the JavaFX application.
 
-The full roadmap, milestones and history live in **[`docs/MVP.md`](docs/MVP.md)** (the canonical
-plan); the repository layout, upstream patch set and build harness are documented in
-**[`docs/repo-and-build.md`](docs/repo-and-build.md)**. The forward plan for nbfx — including the
-step-by-step backlog, branch/commit map and the current project state — is in
-**[`docs/plan/`](docs/plan/README.md)**. This file is the short project overview.
+The canonical roadmap, milestones, API governance and step-by-step backlog live in
+**[`docs/plan/`](docs/plan/README.md)** — start with the layered roadmap
+([`26-roadmap.md`](docs/plan/26-roadmap.md)) and the API rules
+([`30-api-governance.md`](docs/plan/30-api-governance.md)). **[`docs/MVP.md`](docs/MVP.md)** is the
+historical MVP draft (kept for context only). The repository layout, upstream patch set and build harness
+are documented in **[`docs/repo-and-build.md`](docs/repo-and-build.md)**. This file is the short project
+overview.
 
 ## Repository
 

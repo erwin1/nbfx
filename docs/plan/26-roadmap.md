@@ -135,10 +135,19 @@ work *structurable*:
 Each milestone is shippable, has a demo and an exit criterion. Existing docs/steps fold into these
 milestones (§7 maps them).
 
+**Order: a walking skeleton first.** Before filling the layers, `feature/walking-skeleton` makes the app
+usable end-to-end for one project type (open → edit → build → run → output/status → commit). It is the
+integration test every later step must keep green, and the baseline for the startup/laziness budget
+(doc 30 §7). The layers are then filled with the skeleton as the vertical thread — not as a waterfall.
+
 **M0 — Platform shell & services.** The nbfx application runs with a complete FX shell: docking/views,
 menus/toolbars/actions, status bar, wizard, templates, dialogs/notifications, progress, options/settings,
 theming/branding, node/view model, property sheet, output, execution, terminal, quick search, credentials.
-*Exit:* no visible Swing; every shell surface is FX; guardrails green; the service set is documented.
+*Exit:* no visible Swing; every shell surface is FX; guardrails green; the service set is documented;
+**startup/“usable”/first-use numbers recorded** (doc 30 §7); **API discipline landed before the freeze**:
+public-package inventory + `nbfx.api` split, capability naming, services-not-statics/typed contracts,
+structural guardrails, and the front-end component factory prototype with its upstream proposal
+(docs 30/31).
 Existing landings: progress UI, status elements, wizard framework, docking/views, actions/menus,
 launcher. Remaining: options (14), theming (10), dialogs (09), nodes/views (12), property sheet (13),
 output/execution/terminal (15), quick search, credentials, favorites, templates.
@@ -166,7 +175,7 @@ debug/profiler, export/import, accessibility, multi-window, and the "beyond Swin
 
 | Milestone | Docs | Main clusters |
 |---|---|---|
-| M0 | 06 (progress), 09 (dialogs), 10 (theme), 12 (nodes/views), 13 (property sheet), 14 (options), 15 (output/execution/terminal), 18 §1 (quick search service) | nbfx-platform |
+| M0 | 06 (progress), 09 (dialogs), 10 (theme), 12 (nodes/views), 13 (property sheet), 14 (options), 15 (output/execution/terminal), 18 §1 (quick search service); **30/31 (API discipline)**; `feature/walking-skeleton` | nbfx-platform |
 | M1 | 02 (project infra), 07 (modularity/templates/new file+project), 11, 12 §migration, 13 §migration, 18–25 (offline parts: structure, find, task list, libraries, plugins, diff/VCS, tests) | nbfx-ide |
 | M2 | 02 (Java Platforms, customizers, actions, run, Ant), 07 (Java steps), 16 (debugging), 17 (profiling), 18–22 (Java editor intelligence), 23 (Java tests/coverage) | nbfx-java (+ nbfx-ide) |
 | M3 | 03 (JavaFX project), 04 (FXML/SceneBuilder) | nbfx-javafx |
@@ -187,12 +196,17 @@ M0 platform blocks ──┬─▶ M1 ide blocks ──┬─▶ M2 java blocks 
 - **Vertical slices are allowed**: a milestone need not finish before a vertical starts (e.g. the debugger
   vertical can begin once platform execution + output exist, and its IDE views arrive with M1).
 - **Same-layer steps are parallel**; cross-layer prerequisites are explicit in every step entry (07).
+- **API discipline runs in parallel with M0/M1 and gates the freeze**: public-package split, capability
+  naming, typed contracts, structural guardrails and the component-factory prototype (docs 30/31) land
+  before M1's API freeze; the walking skeleton is the integration thread throughout.
 - **`nbfx-javafx` never blocks M0–M2**; it consumes M2's Java platform/project/build facilities.
 
 ## 9. Definition of done (per layer)
 
 - **platform**: JavaFX-only public API; services registered through `Lookup` + generated layers; no Swing
-  imports; usable headlessly (model) with FX views on top; themed and brandable.
+  imports; usable headlessly (model) with FX views on top; themed and brandable; **every public package
+  governed** (`arch.xml` `<api>` + `apichanges.xml` + `@since` + signature test); **no mutable statics**,
+  **no toolkit names in SPI types**, **no stringly-typed API contracts** (doc 30).
 - **ide**: language-agnostic SPIs with FX views; feature-specific bits delegate to usage layers through
   `Lookup` (e.g. `BuildActionProvider`, `DebugBackend`, `ProfileBackend`); model modules `check-models`
   clean.

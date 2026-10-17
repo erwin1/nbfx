@@ -297,7 +297,8 @@ children load off-thread with cancellation when a node collapses or the session 
   - fallback: choose a free port and use `address=127.0.0.1:<port>`.
 - **Attach**: `JPDADebugger.attach(host, port, services)` with
   `services = { Map.of("name", sessionName, "sourcepath", ClassPath, "jdksources", ClassPath, "baseDir", File) }`
-  (documented contract); attach dialog for host/port and "Debugging by socket".
+  (the documented upstream contract; nbfx wraps it behind **typed** session parameters/services and
+  converts to the map only at the engine boundary — no stringly-typed API, doc 30 §4)
 - Suspend policy: `suspend=y` initially (catch early breakpoints/exceptions), configurable.
 - Stop: `ACTION_KILL` + destroy the process tree; restart: stop + relaunch.
 

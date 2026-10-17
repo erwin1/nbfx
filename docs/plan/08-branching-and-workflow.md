@@ -46,6 +46,12 @@ the module allocation per step is in [`27-layer-module-map.md`](27-layer-module-
 | Options: export/import (incl. legacy NetBeans import) | `feature/options-export` |
 | Options: global Quick Search provider | `feature/options-quicksearch` |
 | Quick Search service (command palette) | `feature/quicksearch` |
+| Walking skeleton (one project type end-to-end) | `feature/walking-skeleton` |
+| Public-package inventory + `nbfx.api` split | `refactor/api-split` |
+| Capability naming (remove the toolkit from the SPI) | `refactor/api-naming` |
+| Services, not statics + typed contracts | `refactor/services-not-statics` |
+| Structural guardrails (module graph, jdeps, governance, naming) | `refactor/guardrail-structural-checks` |
+| Front-end component factory (spike + upstream proposal) | `spike/front-end-component-factory` |
 | Credentials / keyring (platform service) | `feature/credentials` |
 | Favorites (platform view) | `feature/favorites` |
 | Split the annotation modules (annotation+processor ownership by layer) | `refactor/annotations-split` |
