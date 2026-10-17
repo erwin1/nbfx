@@ -461,6 +461,119 @@ Legend per step: **Scope**, **Steps**, **Acceptance**, **Depends**.
 - **Depends**: Debug attach & monitors.
 - **Landed**: n/a.
 
+## Profiler foundation (session, backend SPI, JFR lifecycle, analysis model)
+→ detail: [`17-profiling.md`](17-profiling.md) · branch: `feature/profiler-foundation`
+- **Scope**: `nbfx.profiler.core` (JavaFX-free, `check-models`): `ProfilerSession`/`ProfileRequest`
+  (launch/attach), the `ProfilerBackend` SPI, `JfrBackend` (recording start/stop/dump/save/load,
+  `-XX:StartFlightRecording…` + `FlightRecorderMXBean`), the analysis-model skeleton (stack tree/CCT,
+  flat profile, allocations, locks, telemetry, source mapping), the snapshot store, and reuse of the
+  headless `lib.profiler` parts (HPROF heap parser + `.nps` reader). `nbfx.profiler.ui`: the profiler
+  window + snapshot list. JDK module wiring (`jdk.jfr`, `jdk.management.jfr`, `jdk.attach`,
+  `jdk.management`); basic options entry.
+- **Acceptance**: profile a Java app end to end (launch with JFR, stop, open the recording, see the model);
+  `nbfx.profiler.core` has no JavaFX; JDK modules documented.
+- **Depends**: Execution service (doc 15).
+- **Ordering / parallel**: first profiler step; can start once the execution seam exists.
+- **Landed**: n/a.
+
+## Profiler: open recordings (`.jfr`, `.hprof`, `.nps`)
+→ detail: [`17-profiling.md`](17-profiling.md) · branch: `feature/profiler-recordings`
+- **Scope**: file loaders + a Profiler data object/loader with "Open in Profiler"/"Open Heap
+  Walker"/"Compare" actions, drag & drop and recent files; map JFR (JFR and async-profiler), HPROF and
+  legacy `.nps` into the shared analysis model; exports (collapsed stacks, HTML flame graph, flat-profile
+  CSV).
+- **Acceptance**: opening each format shows the right views; `.nps`/`.hprof` files from NetBeans open;
+  exports round-trip.
+- **Depends**: Profiler foundation.
+- **Landed**: n/a.
+
+## Profiler: streaming JFR (live views)
+→ detail: [`17-profiling.md`](17-profiling.md) · branch: `feature/profiler-streaming`
+- **Scope**: incremental aggregation (bounded memory, ring buffers, spill-to-file),
+  `RecordingStream`/`FlightRecorderMXBean.openStream`, live refresh cadence, snapshot-while-recording,
+  pause/resume, `jfrsync` timeline alignment with async-profiler.
+- **Acceptance**: a running app's profile updates live; snapshot-while-recording yields a consistent
+  snapshot; memory stays bounded on long runs.
+- **Depends**: Profiler foundation.
+- **Landed**: n/a.
+
+## Profiler: async-profiler backend (bundled per OS/arch)
+→ detail: [`17-profiling.md`](17-profiling.md) · branch: `feature/profiler-async-profiler`
+- **Scope**: the per-OS/arch `libs.asyncprofiler.{macos-x64,macos-aarch64,linux-x64,linux-aarch64}`
+  modules (vendored `libasyncProfiler.{so,dylib}` + Apache-2.0 license + a lib-path service), gated by
+  `org.openide.modules.os.*`/`.arch.*`; `AsyncProfilerBackend` (launch `-agentpath` with JFR output,
+  dynamic attach via `jdk.attach`), parsing via `jdk.jfr.consumer`, options, and the JFR fallback where
+  no module exists (Windows/unsupported arch).
+- **Acceptance**: async-profiler profiles CPU/alloc/lock on macOS and Linux (launch and attach); the
+  recording opens in the same views as JFR; missing module → JFR fallback with a clear message.
+- **Depends**: Profiler foundation.
+- **Landed**: n/a.
+
+## Profiler: CPU views (call tree, flat, flame graph)
+→ detail: [`17-profiling.md`](17-profiling.md) · branch: `feature/profiler-cpu`
+- **Scope**: the CPU view (call tree/hotspots/callers/callees), flat profile table, **flame graph**
+  (Canvas), go-to-source from frames, save/load/compare snapshots.
+- **Acceptance**: hot methods rank correctly; the flame graph matches the tree; double-click opens the
+  source.
+- **Depends**: Profiler foundation.
+- **Landed**: n/a.
+
+## Profiler: memory views (allocations, live set, GC)
+→ detail: [`17-profiling.md`](17-profiling.md) · branch: `feature/profiler-memory`
+- **Scope**: allocations by class and allocation site, live set, GC/memory telemetry.
+- **Acceptance**: allocation hotspots identify the right classes/sites; numbers match a reference profile.
+- **Depends**: Profiler foundation.
+- **Landed**: n/a.
+
+## Profiler: locks & threads views
+→ detail: [`17-profiling.md`](17-profiling.md) · branch: `feature/profiler-locks-threads`
+- **Scope**: contended monitors/blocked time, thread-state timeline, thread dumps.
+- **Acceptance**: lock contention is attributed to the right monitor/owner; thread dumps render.
+- **Depends**: Profiler foundation.
+- **Landed**: n/a.
+
+## Profiler: attach & live sampler
+→ detail: [`17-profiling.md`](17-profiling.md) · branch: `feature/profiler-attach-sampler`
+- **Scope**: attach to a running JVM (`jdk.attach` list/attach + `FlightRecorderMXBean` start/stop/dump);
+  the JMX live sampler view (thread states/hot stacks, no recording file).
+- **Acceptance**: attach to a running JVM and record; the sampler shows live thread activity.
+- **Depends**: Profiler foundation.
+- **Landed**: n/a.
+
+## Profiler: heap walker
+→ detail: [`17-profiling.md`](17-profiling.md) · branch: `feature/profiler-heap`
+- **Scope**: heap dump via `HotSpotDiagnosticMXBean.dumpHeap`, heap model reusing
+  `org.netbeans.lib.profiler.heap`, FX heap walker (classes/instances/fields/references, dominators,
+  retained size, merge paths); memory-lint rules later.
+- **Acceptance**: walk a known object graph (retained size sanity); open a `.hprof` file; large dumps stay
+  responsive.
+- **Depends**: Profiler foundation, open recordings.
+- **Landed**: n/a.
+
+## Profiler: options panel
+→ detail: [`17-profiling.md`](17-profiling.md) · branch: `feature/profiler-options`
+- **Scope**: the Profiler options panel (backend selection JFR/async-profiler, event mode/interval,
+  continuous/`loop`, lib path override, JFR `settings`/`maxAge`/`maxSize`, snapshot dir, filters/root
+  methods) via the Options system (doc 14).
+- **Acceptance**: settings persist and affect new sessions.
+- **Depends**: Options system infrastructure + example.
+- **Landed**: n/a.
+
+## Profiler: snapshot tracer, OQL, profiling points, diff (later)
+→ detail: [`17-profiling.md`](17-profiling.md) · branches: `feature/profiler-snaptracer`,
+`feature/profiler-oql`, `feature/profiler-ppoints`, `feature/profiler-compare`
+- **Scope**: JFR-based timeline/tracer, OQL over heap dumps, profiling points (snapshot/heapdump/start/
+  stop/stopwatch), the snapshot compare view.
+- **Depends**: the respective earlier steps.
+- **Landed**: n/a.
+
+## Profiler: legacy agent backend (optional, high risk)
+→ detail: [`17-profiling.md`](17-profiling.md) · branch: `feature/profiler-legacy-agent`
+- **Scope**: raise the NetBeans agent's class-file cap to JDK 25, rebuild the native libs and validate —
+  only if the instrumented-call-count parity is ever needed; default off.
+- **Depends**: —
+- **Landed**: n/a.
+
 ## Nodes & views API (NodeModel/ChildrenModel/PropertyModel + FX views)
 → detail: [`12-nodes-and-views.md`](12-nodes-and-views.md) · branch: `feature/nodes-api`
 - **Scope**: the headless node model behind trees, tables and the Properties window — `NodeModel`,
@@ -767,5 +880,7 @@ migration; the **Options** category/browser/export/Quick Search steps follow the
 **run/build output integration** (Terminal default, Maven as a process) comes last; the **Debug** steps
 start after the Output/Execution work (foundation → views/breakpoints/stepping/evaluate/attach, with
 build integration after Run configurations and the debug options panel after the options foundation); the
-**FxProject model** is scheduled later, before project-type-aware template filtering. Then Part 2. Each
-step is sized to be reviewable on its own.
+**Profiler** steps start after the execution service too (foundation → recordings/streaming/async-profiler
+→ CPU/memory/locks → attach/sampler → heap walker → options, with tracer/OQL/profiling points/compare
+later); the **FxProject model** is scheduled later, before project-type-aware template filtering. Then
+Part 2. Each step is sized to be reviewable on its own.

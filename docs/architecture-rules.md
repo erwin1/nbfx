@@ -85,3 +85,14 @@ annotations). Reuse the headless NetBeans core (`org.netbeans.api.debugger`, `or
 (`org.netbeans.spi.debugger.ui`, `org.netbeans.spi.viewmodel`, `org.netbeans.modules.debugger.jpda.ui`) are
 unusable (forbidden `openide.awt/nodes/windows/explorer` deps) and are ported. See
 [`plan/16-debugging.md`](plan/16-debugging.md).
+
+## Profiling
+
+Same split: `nbfx.profiler.core` (headless — session/backends/recording, analysis model, snapshot store,
+heap model; JavaFX-free, `check-models`) and `nbfx.profiler.ui` (JavaFX views). The engine is
+**agent-free**: JFR (built into the JDK) as the default, **async-profiler** (Apache-2.0) bundled per OS/arch
+as `libs.asyncprofiler.*` modules gated by `org.openide.modules.os.*`/`.arch.*`, and a JMX live sampler;
+the legacy NetBeans profiler agent is out (class-file cap = JDK 11). Reuse the headless parts of
+`org.netbeans.lib.profiler` (the HPROF heap parser fully; the `.nps`/results algorithms selectively).
+One analysis model is fed by live JFR streams, `.jfr` (JFR and async-profiler), `.hprof` and `.nps`
+recordings. See [`plan/17-profiling.md`](plan/17-profiling.md).

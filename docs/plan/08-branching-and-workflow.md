@@ -59,6 +59,18 @@ recorded in the PR body for traceability.
 | Debug build integration (Debug Project/Test; Ant/Maven/Gradle) | `feature/debug-build-integration` |
 | Debug options (Java Debugger panel) | `feature/debug-options` |
 | Debug remote (later) | `feature/debug-remote` |
+| Profiler foundation (session, backend SPI, JFR lifecycle, analysis model) | `feature/profiler-foundation` |
+| Profiler: open recordings (`.jfr`, `.hprof`, `.nps`) | `feature/profiler-recordings` |
+| Profiler: streaming JFR (live views) | `feature/profiler-streaming` |
+| Profiler: async-profiler backend (bundled per OS/arch) | `feature/profiler-async-profiler` |
+| Profiler: CPU views (call tree, flat, flame graph) | `feature/profiler-cpu` |
+| Profiler: memory views (allocations, live set, GC) | `feature/profiler-memory` |
+| Profiler: locks & threads views | `feature/profiler-locks-threads` |
+| Profiler: attach & live sampler | `feature/profiler-attach-sampler` |
+| Profiler: heap walker | `feature/profiler-heap` |
+| Profiler: options panel | `feature/profiler-options` |
+| Profiler: tracer/OQL/profiling points/diff (later) | `feature/profiler-snaptracer`, `-oql`, `-ppoints`, `-compare` |
+| Profiler: legacy agent backend (optional) | `feature/profiler-legacy-agent` |
 | Nodes & views API (NodeModel/ChildrenModel/PropertyModel + FX views) | `feature/nodes-api` |
 | Property sheet & editors (PropertyModel, editor SPI, outline columns) | `feature/property-sheet-editors` |
 | Views on nodes (migration) | `refactor/views-on-nodes` |
@@ -104,7 +116,11 @@ also touches the build providers and should not overlap with concurrent build/Ma
 chain is `feature/debug-foundation` (after the execution service) → `debug-views` → `debug-breakpoints` /
 `debug-stepping-editor` / `debug-evaluate` / `debug-attach-monitors` → `debug-build-integration`
 (after Run configurations) → `debug-options` (after the options foundation); it splits the existing
-`nbfx.debug` into `nbfx.debug.core` (headless) + `nbfx.debug` (UI).
+`nbfx.debug` into `nbfx.debug.core` (headless) + `nbfx.debug` (UI). The profiler chain is
+`feature/profiler-foundation` (after the execution service) →
+`recordings`/`streaming`/`async-profiler`/`cpu`/`memory`/`locks-threads`/`attach-sampler` (mostly
+parallel) → `heap` → `options`, with `nbfx.profiler.core` (headless) + `nbfx.profiler.ui` (FX) and the
+per-OS/arch `libs.asyncprofiler.*` native modules.
 
 ### Current local stack (history condensed by concern)
 
