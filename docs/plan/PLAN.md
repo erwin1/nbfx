@@ -150,7 +150,9 @@ update centers, pinned SHA-256 for bundled native artifacts, install-time capabi
 1. **One model, many views.** `nbfx.api.nodes` (M) defines the node/children/property model and the
    explorer context; the platform provides the FX views (tree, tree-table, table, list) and the property
    sheet. The navigator, structure view, breakpoints, test results, variables and task list all render
-   through it.
+   through it. Explorer-like panels use it; popups/overlays (completion, breadcrumbs) keep their private
+   list models. The inventory and the migration order are in
+   [Appendix F](appendix/F-node-and-view-migration.md) (25 view files, ≥5 item models today).
 2. **Model-first panels, concrete FX factories.** Component-producing SPIs are **concrete and FX-typed**
    (`OptionsPanelFactory` returning `javafx.scene.Node`), because there is exactly one front end; the
    portability lives in the toolkit-free model (`PanelModel`, `FieldModel`, `Validator`), which a future
@@ -236,7 +238,7 @@ T0/T1 inside the owning module and promote deliberately.
 | `platform.theme` | theme manager, light/dark palettes, branding, editor syntax palettes | new |
 | `platform.settings` | settings storage UI (preferences browser, export/import) | new |
 | `platform.options` | options window (categories, tabs, search, validity) | replaces `nbfx.options` UI |
-| `platform.nodes` | FX node views + property sheet on `api.nodes`/`api.property` | new (merges `nbfx.nodes.ui` + `nbfx.propertysheet`) |
+| `platform.nodes` | FX node views + property sheet on `api.nodes`/`api.property` | new (merges `nbfx.nodes.ui` + `nbfx.propertysheet`); the single construction site of `TreeView`/`TableView` — [Appendix F](appendix/F-node-and-view-migration.md) |
 | `platform.output` | output window view on `api.output` | replaces `nbfx.output` |
 | `platform.execution` | process launcher, pumps, PTY (JLine), cancellation | new |
 | `platform.terminal` | VT/xterm model + FX renderer + tabs | new |
@@ -413,7 +415,7 @@ class that imports a JDK `javax.swing` type passes and the two new clusters are 
 | Milestone | Target | Content | Exit |
 |---|---|---|---|
 | **M0 — Shell & platform** | 2026-12 | shell/docking/actions/menus/status, dialogs, progress, theme, options, settings UI, nodes+property views, output, execution, terminal, quick search, credentials, favourites, templates, wizard | the walking-skeleton scenario (open→edit→build→run→output→commit) runs on a **placeholder project** (no real project type until M2); the `projectuiapi.base` bridge in `launcher`/`ui` is **removed** and the M0 rows of the retirement matrix are absent; `refactor/module-names` + `refactor/api-split` landed; all guards green; budget baseline recorded |
-| **M1 — IDE core** | 2027-03 | project model, editor (core + Java), structure, search, usages (generic + Java), file actions, VCS+Git, diff, local history, tests **UI**, libraries, task list/bookmarks, plugins UI | open/edit/search/find/commit/run-tests in FX on a J2SE project; the M1 rows of the retirement matrix absent; guards green |
+| **M1 — IDE core** | 2027-03 | project model, editor (core + Java), structure, search, usages (generic + Java), file actions, VCS+Git, diff, local history, tests **UI**, libraries, task list/bookmarks, plugins UI | open/edit/search/find/commit/run-tests in FX on a J2SE project; every explorer panel renders through `api.nodes` (except popups) — [Appendix F](appendix/F-node-and-view-migration.md); the M1 rows of the retirement matrix absent; guards green |
 | **M2 — Java tooling** | 2027-07 | project types (J2SE/Maven/Gradle/Ant), Java Platforms, editor intelligence (goto, usages, hints, refactoring, codegen, Javadoc), debugger, profiler, Java tests engines/coverage | daily Java work on a Maven **and** an Ant project; the M2 rows of the retirement matrix absent; guards green |
 | **M3 — JavaFX usage** | 2027-09 | JavaFX project, FXML editing, SceneBuilder | a JavaFX project opens, edits FXML, and runs; `javafx.enabled` round-trips |
 | **M4 — Breadth** | 2027-12 | i18n, beans, JShell, remote debug/profiler, export/import, accessibility, multi-window, module graph view | the intended feature scope is present; guards green; a11y pass recorded |
@@ -451,7 +453,10 @@ implementation (`refactor/guardrails`); the exemption register with owners and d
 `feature/indexing` (reuse `parsing.api`/`parsing.indexing`; index-on-open with progress, cancellation and a
 memory budget — [Appendix D.5](appendix/D-bridge-and-retirement-matrix.md)).
 
-**W4 — IDE core.** `feature/project-model`, `feature/project-ui`, `feature/editor`,
+**W4 — IDE core.** `feature/project-model`, `feature/project-ui`,
+`refactor/nodes-model` → `refactor/nodes-usages` → `refactor/nodes-navigator` →
+`refactor/nodes-properties` → `refactor/nodes-misc` (the node/view consolidation;
+[Appendix F.3](appendix/F-node-and-view-migration.md)), `feature/editor`,
 `feature/navigation-search`, `feature/refactoring`, `feature/hints`, `feature/codegen`,
 `feature/javadoc`, `feature/structure`, `feature/diff`, `feature/vcs`, `feature/localhistory`,
 `feature/tests`, `feature/libraries`, `feature/tasklist-bookmarks`, `feature/plugins-ui`,
@@ -537,5 +542,5 @@ budget, CI), `refactor/swing-retirement` (execute the retirement matrix of
 | [C — Naming and rename table](appendix/C-naming-and-rename-table.md) | the rule per location, all 53 public `Fx*` types and their targets, `api.layer.LayerPaths`, the `refactor/api-naming` step |
 | D — [Bridge and retirement matrix](appendix/D-bridge-and-retirement-matrix.md) | every upstream module (Swing API bridges, the 45 editor/Java modules, the indexing dependency, the compiler choice) with mechanism, owner, milestone and exemptions, plus the retirement matrix per milestone |
 | E — [Contracts](appendix/E-contracts.md) | threading per SPI, disposal/ownership + the leak test, accessibility, error/logging, the precise `Lookup` rule, the plugin allowlist, and the removal of the generic-`C` factories |
-| F — Node/view migration *(next iteration)* | the 25 tree/table view files and their models → `api.nodes`, owners, milestones |
+| F — [Node and view migration](appendix/F-node-and-view-migration.md) | the 25 tree/table/list view files, today's item models, the target `api.nodes` model, and the migration order |
 | G — Licences and notices *(next iteration)* | JavaFX (GPLv2+CE), async-profiler, JLine, jgit, JaCoCo; NOTICE check |
