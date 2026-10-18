@@ -210,23 +210,29 @@ public final class Counts {
                 int clusterModules = 0;
                 int clusterJava = 0;
                 int clusterSwing = 0;
+                int clusterSwingFree = 0;
                 try (DirectoryStream<Path> children = Files.newDirectoryStream(dir)) {
                     for (Path module : children) {
                         if (!Files.isDirectory(module.resolve("src"))) {
                             continue;
                         }
                         clusterModules++;
+                        int moduleSwing = 0;
                         for (Path file : javaFiles(module.resolve("src"))) {
                             clusterJava++;
                             String text = read(file);
                             if (text.contains("import javax.swing") || text.contains("import java.awt")) {
                                 clusterSwing++;
+                                moduleSwing++;
                             }
+                        }
+                        if (moduleSwing == 0) {
+                            clusterSwingFree++;
                         }
                     }
                 }
-                rows.add(new String[]{"upstream `" + cluster + "` cluster (modules / java files / Swing-touching)",
-                        clusterModules + " / " + clusterJava + " / " + clusterSwing});
+                rows.add(new String[]{"upstream `" + cluster + "` cluster (modules / Swing-free modules / java files / Swing-touching)",
+                        clusterModules + " / " + clusterSwingFree + " / " + clusterJava + " / " + clusterSwing});
             }
         }
 

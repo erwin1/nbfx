@@ -208,12 +208,12 @@ update centers, pinned SHA-256 for bundled native artifacts, install-time capabi
 | `api.elements` | T1 → `java.elements` | the **Java** vocabulary (`SourceElementKind`, `SourceTypeKind`, `SourceModifiers`) moves to `java.elements`; only the neutral `ElementRef`/`SourceLocation`/`ElementIcons` stay in `api.language` (no `java.lang.reflect.Modifier` bits in a neutral API) |
 | `api.nodes` | M | `NodeModel`, `ChildrenModel`, `ChildFactory`, `PropertyModel`, `PropertySetModel`, `PropertyEditorRef` (opaque handle), `ExplorerContext`, property-change events |
 | `api.property` | T2-FX | `PropertyEditor`, `PropertyEditorRegistration`, `PropertyEnv`; depends on `api.nodes` (the handle lives there — M never depends on a T2-FX module) |
-| `api.usages` | M | `UsagesProvider`, `UsageResult`, `UsageKind` — the generic usages engine SPI; the Java provider is `java.usages` |
+| `api.usages` | M | `UsagesTarget` (opaque `ElementRef` + `LanguageId` + location), `UsagesProvider`, `UsageResult`, `UsageKind` — the generic usages SPI; the Java provider is `java.usages` |
 | `api.project` | M | `ProjectModel`, `ProjectRegistry`, `ProjectFactory`, `ProjectFile`/`Directory`/`Library`, `@ProjectTypeRegistration`, `ProjectKindProvider` |
 | `api.build` | M | `BuildActionProvider`, `BuildExecution`, `BuildOutput`, `BuildProgress`, `BuildCommands`, `RunConfiguration` |
 | `api.project.customizer` | T2-FX | `ProjectCustomizerPanel`, `@CustomizerRegistration`, `ProjectCustomizerPanel` rendering |
 | `api.editor` | T2-FX | `EditorService`, `EditorDocument`, `EditorContext`, annotations (`EditorAnnotation`, `EditorAnnotationProvider`), completion/breadcrumbs SPIs |
-| `api.editor.intelligence` | M | `GotoProvider`, `NavigationProvider`, `UsagesProvider`, `HierarchyProvider`, `HintProvider`, `RefactoringProvider`, `CodeGenerator` |
+| `api.editor.intelligence` | M | `GotoProvider`, `NavigationProvider`, `StructureProvider`, `UsagesProvider`, `HierarchyProvider`, `HintProvider`, `RefactoringProvider`, `CodeGenerator` — all scoped by `LanguageId` ([Appendix I.3](appendix/I-language-soundness.md)) |
 | `api.wizard` | T2-FX | `WizardIterator`, `WizardPanel`, `WizardDescriptor`, `@WizardRegistration` |
 | `api.templates` | M | `TemplateRegistry`, `TemplateCreator`, `@TemplateRegistration` |
 | `api.search` | T2-FX | `SearchProvider`, `SearchRequest`, `SearchResult`, `SearchScope` |
@@ -431,7 +431,7 @@ on day one** with the current exemptions and fails only on a new violation or an
 | `check-licences` *(new)* | every bundled jar/native has a `NOTICE` entry; `javafx.web` absent; `LICENSE`/`THIRDPARTY` present ([Appendix G](appendix/G-licences-and-notices.md)) | an unnotified bundle |
 | `check-figures` *(new)* | `ant -f check-purity.xml check-figures` → `java docs/plan/tools/Counts.java --check`: every number the plan states matches the tree ([`figures.md`](figures.md)) | stale figures, a hand-typed count |
 | `check-baseline` *(new)* | one `javac.release` across nbfx modules; no `javafx.web` in the FX bundle; the launcher's `--add-exports` list is a single, documented file (§8.1) | a drifting JDK/FX/class-file baseline |
-| `check-languages` *(new)* | core (`platform.*`, neutral `api.*`) contains no `LanguageId`/content-type branch; language modules depend only downward, and decoration is a provider (Appendix I.4) | an `if (java)` in the core |
+| `check-languages` *(new)* | core (`platform.*`, neutral `api.*`) contains no `LanguageId`/content-type branch; language modules depend only downward; decoration is a provider; an unregistered MIME resolves to **plain text**; providers are language-scoped, never a global `lookupAll` (Appendix I.3/I.4) | an `if (java)` in the core, or an unknown language falling back to Java |
 
 The old, grep-only `check-jars` greps the *file list* of three cluster directories for `javax/swing/`, so a
 class that imports a JDK `javax.swing` type passes and the two new clusters are unscanned; that is the gap
@@ -521,7 +521,7 @@ workstreams only the stated dependencies do.**
 |---|---|
 | W0 walking skeleton | the scenario (open → edit → build → run → output → commit) runs on a J2SE project; budget baseline recorded |
 | W1 containment/naming/split | `check-java-source` green with the 4-module allowlist; no `Fx*` in an exported package; all consumers compile after `api-split`; layer contract test green; `check-jars` scans five clusters |
-| W2 governance | every governed module has `arch.xml` + `apichanges` + a `sigtest` target; spec-version guard green; exemption register has owners and dates |
+| W2 governance | every governed module has `arch.xml` + `apichanges` + a `sigtest` target; spec-version guard green; exemption register has owners and dates; the language conformance fixture passes |
 | W3 platform services | each service documents its thread, disposal and lease tests; index-on-open with progress and cancellation |
 | W4 IDE core | the M1 scenario (open/edit/search/find/commit/run-tests) on a J2SE project; every explorer panel renders through `api.nodes` |
 | W5 Java tooling | the M2 scenario on an Ant **and** a Maven project, including a debugging session |
@@ -530,7 +530,7 @@ workstreams only the stated dependencies do.**
 | W8 upstream/retirement | the milestone rows of the retirement matrix are absent (guard); `chore/upstream-sync` green |
 | W9 upstream proposals | ≥1 accepted upstream change; each proposal filed with its prototype, size and fallback |
 | W10 packaging | a clean machine installs, launches and passes the guards on the packaged image |
-| W11 language soundness | a second language (Groovy) is highlighted, completed and run without editing core; the PHP/web spikes decided `api.servers`; `check-languages` green |
+| W11 language soundness | the conformance fixture passes in CI; a second language (Groovy) is highlighted, completed and run without editing core; the PHP/web spikes decided `api.servers`; `check-languages` green |
 
 **W0 — Walking skeleton & baseline.** `feature/walking-skeleton`: one project end-to-end (open → edit →
 build → run → output → commit) + the budget script and baseline. Everything else keeps it green.
@@ -557,6 +557,9 @@ The writer/reader layer contract test belongs to `api-split`.
 **W2 — API governance.** `feature/api-governance`: `arch.xml`/`apichanges`/signature tests for every
 T1/T2-FX/M module, the version baseline (1.0 + bump rule) and the spec-version guard; the audit/guard
 implementation (`refactor/guardrails`); the exemption register with owners and dates.
+`feature/language-conformance`: the **fake-language fixture** (`LanguageId("text/x-nbfx-conformance")` with
+decoration, completion, structure, goto and usages) — the CI proof of the core freeze
+([Appendix I.4](appendix/I-language-soundness.md)).
 
 **W3 — Shell and platform services.** Per service, on its own branch: `feature/shell`,
 `feature/workspace`, `feature/dialogs`, `feature/progress`, `feature/theme`, `feature/settings-ui`,
@@ -600,8 +603,9 @@ passes `check-licences`/`check-baseline`/`check-figures` on the packaged image.
 no build, no server — the headline exercise of `api.language`), `spike/lang-php` (no build, interpreter +
 dev server — decides `api.servers`), `spike/web-javaee` (a thin project-type + deploy slice). Time-boxed, after
 `platform.editor` + `api.*` and before the M5 freeze; the deliverable is a **hole list + the smallest core API
-fix**, and the core freeze (`check-languages`) is the acceptance. No feature growth — the cut list kills a
-spike that becomes a language IDE.
+fix**, and the core freeze (`check-languages`) is the acceptance. Each spike has a branch, a time box, an owner
+and a **kill criterion**; spike code is deleted unless it survives as a real (optional) provider module. No
+feature growth — the cut list kills a spike that becomes a language IDE.
 
 
 **W9 — Upstream proposals.** Per [Appendix H](appendix/H-upstream-proposals.md), each with a tracked upstream
@@ -669,9 +673,11 @@ Order and the per-proposal credibility test are in [H.8](appendix/H-upstream-pro
     **jpackage** at M4 unless a spike shows it cannot meet the requirement (then NBI). Plugins are built as
     **NBMs** with the NetBeans `nbm` Ant harness (Appendix E.6.1).
 20. **Language registry**: `api.language` (M) is the one registry; providers are scoped by `LanguageId`;
-    syntax decoration is a provider, not a core branch; the neutral `ElementRef` lives in `api.language` and the
-    Java vocabulary moves to `java.elements` ([Appendix I](appendix/I-language-soundness.md)). The core must not
-    branch on a language (`check-languages`).
+    syntax decoration is a provider, not a core branch; the neutral `ElementRef` (with a language-defined
+    `handle()`) lives in `api.language` and the Java vocabulary moves to `java.elements`; an unregistered MIME
+    resolves to **plain text** ([Appendix I](appendix/I-language-soundness.md)). The core must not branch on a
+    language (`check-languages`). `api.language` ships `arch.xml category="devel"` and is **not frozen** until
+    the conformance fixture and one real second language (Groovy) pass.
 
 ## 14. Open questions
 

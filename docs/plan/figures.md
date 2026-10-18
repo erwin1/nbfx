@@ -28,8 +28,8 @@ Every number the plan states is derived here from the tree. Regenerate with
 | modules with tests | 17 of 38 |
 | upstream editor/Java modules (ide/editor*, java/java.source*, java.java.hints*) | 50 |
 | of their source files, Swing/AWT-touching | 847 of 1647 |
-| upstream `groovy` cluster (modules / java files / Swing-touching) | 11 / 259 / 73 |
-| upstream `php` cluster (modules / java files / Swing-touching) | 38 / 1833 / 475 |
-| upstream `enterprise` cluster (modules / java files / Swing-touching) | 117 / 5079 / 1269 |
-| upstream `webcommon` cluster (modules / java files / Swing-touching) | 59 / 1415 / 420 |
+| upstream `groovy` cluster (modules / Swing-free modules / java files / Swing-touching) | 11 / 4 / 259 / 73 |
+| upstream `php` cluster (modules / Swing-free modules / java files / Swing-touching) | 38 / 5 / 1833 / 475 |
+| upstream `enterprise` cluster (modules / Swing-free modules / java files / Swing-touching) | 117 / 47 / 5079 / 1269 |
+| upstream `webcommon` cluster (modules / Swing-free modules / java files / Swing-touching) | 59 / 22 / 1415 / 420 |
 

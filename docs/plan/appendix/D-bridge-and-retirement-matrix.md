@@ -157,16 +157,21 @@ recorded in the module metadata.
 Measured ([`../figures.md`](../figures.md)); ~75 % of each cluster is headless, so the reuse / bridge / replace
 matrix generalizes at roughly **3:1**:
 
-| Cluster | modules | java files | Swing-touching |
-|---|---|---|---|
-| groovy | 11 | 259 | 73 (28 %) |
-| php | 38 | 1833 | 475 (26 %) |
-| enterprise (JavaEE) | 117 | 5079 | 1269 (25 %) |
-| webcommon | 59 | 1415 | 420 (30 %) |
+Count **modules**, not files (a module with one `javax.swing.Action` must be bridged, not reused):
 
-`groovy/groovy.antproject` (16 files, **0 Swing**), `groovy/libs.groovy` (0) and `groovy/maven.groovy` (1) are
-reusable as-is; `groovy/groovy.editor` (134, 34 Swing) and `groovy/groovy.refactoring` (47, 13) split like the
-Java editor. But **the Swing-in-the-API defect recurs**: `php/php.api.phpmodule` is **9/20 Swing (45 %)** — a
+| Cluster | modules | Swing-free modules | java files | Swing-touching |
+|---|---|---|---|---|
+| groovy | 11 | 4 | 259 | 73 |
+| php | 38 | 5 | 1833 | 475 |
+| enterprise (JavaEE) | 117 | 47 | 5079 | 1269 |
+| webcommon | 59 | 22 | 1415 | 420 |
+
+`groovy/groovy.antproject` (16 files, **0 Swing**), `groovy/libs.groovy` (0), `groovy/maven.groovy` (1) and
+`groovy/groovy.kit` are reusable as-is; `groovy/groovy.refactoring` (47, 13) splits like the Java editor; and
+`groovy/groovy.editor`'s **headless half** (`api/elements` +`ast`/`common`, `compiler` +`error`,
+`completion/inference`, `completion/util`, `java`, `occurrences`, `spi/completion` — all 0 Swing) is reusable
+once its UI is split, making `groovy.editor` a further upstream split candidate (Appendix H). But **the
+Swing-in-the-API defect recurs**: `php/php.api.phpmodule` is **9/20 Swing (45 %)** — a
 Swing-typed API module — `php/php.project` 116/268, `php/php.refactoring` 18/28. So
 [Appendix H](H-upstream-proposals.md)'s splits apply to *any* language API module, not just `java.source`. The
 architecture is proven or broken by the spikes of [Appendix I](I-language-soundness.md).

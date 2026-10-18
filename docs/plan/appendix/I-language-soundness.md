@@ -23,9 +23,12 @@ So a new language (or your own XML/CSS split) edits `platform.editor`. That is t
 | # | Hole | Evidence |
 |---|---|---|
 | **L1** | the language seam is a `switch` in the core, not an SPI | `SyntaxDecorators.java:20-30`, `EditorBuffer.java:125`; `api.editor` has no decoration SPI |
-| **L2** | provider SPIs carry no language/content-type scope | `api.editor`, `api.completion`, `api.breadcrumbs`, `api.usages`, `api.editor.intelligence` providers have no `LanguageId`; with one language that is harmless, with two a Groovy provider fires on a Java file |
+| **L2** | provider SPIs carry no language/content-type scope, and registration is global | `api.editor`, `api.completion`, `api.breadcrumbs`, `api.usages`, `api.editor.intelligence` providers have no `LanguageId`; `CompletionController.java:305` does `Lookup.getDefault().lookupAll(CompletionProvider.class)` with no language filter, and the Java providers are plain `@ServiceProvider` (`JavaLexicalCompletionProvider.java:77`, `JavaSemanticCompletionProvider.java:180`) |
 | **L3** | `api.elements` is Java wearing a neutral name, in the platform cluster | `SourceModifiers.toModifierBits` returns `java.lang.reflect.Modifier` bits and matches `javax.lang.model.element.Modifier` by name (`SourceModifiers.java:19-24`); `SourceElementKind`/`SourceTypeKind` encode Java kinds |
 | **L4** | non-Java capabilities have no home | no `api.servers`/`api.deploy`; `api.build` assumes a build (PHP has none); `libs.*` has no language-runtime policy ([Appendix G](G-licences-and-notices.md)) |
+| **L5** | no structure/navigator SPI | `api.editor.intelligence` lists goto/hierarchy/usages/hints/refactoring/codegen but **no `StructureProvider`**; `ide.structure`/`java.structure` have no published contract, so a language cannot contribute a structure view |
+| **L6** | the usages *request* is Java-hardcoded | `api.usages` has the results (`UsagesProvider`, `UsageResult`, `UsageKind`) but no target; today's request imports `com.sun.source.*`, `javax.lang.model.element.*`, `ElementHandle`, `TreeUtilities` (`nbfx.findusages/query/UsagesTarget.java:3-20`) |
+| **L7** | an unknown language silently becomes Java | `SyntaxDecorators.java:28` — `default -> new JavaSyntaxDecorator(fo)`; a Groovy file opened with no Groovy module gets Java lexing |
 
 **L4b — the Swing-in-the-API defect is not Java-specific.** In the other clusters the same defect recurs:
 `php/php.api.phpmodule` is **9/20 files Swing-touching (45 %)** — a Swing-typed *API* module — `php/php.project`
@@ -57,6 +60,19 @@ public interface Languages {                      // Lookup service
   `SourceLocation`/`ElementIcons` live in `api.language` (keep neutral); the Java vocabulary
   (`SourceElementKind`, `SourceTypeKind`, `SourceModifiers`) moves to **`java.elements`**. No
   `java.lang.reflect.Modifier` bits in a neutral API.
+- **Handles are language-defined strings** (`ElementRef.handle()`), resolved by the language. "Kind + location"
+  cannot express *the type X, wherever it is* — hierarchy, find-references and refactoring need a handle, not a
+  location. And no provider may compare `javax.lang.model`/`com.sun.source` identity across languages (the
+  nb-javac hazard, [Appendix A.4](A-toolkit-policy.md)) — which is exactly what `SourceModifiers.java:19-24`
+  already works around.
+- **Fibonacci the unknown-language path**: an unregistered MIME resolves to a **plain-text** `LanguageId`
+  (no lexer, no analysis), never to Java (L7). Opening `.groovy` without a Groovy module must degrade, not
+  mis-run the Java parser.
+- **Language-scoped registration** (L2 made mechanical): a language declares its providers in its
+  `LanguageRegistration` (or via `@LanguageProviderRegistration(language=…)`); the host asks
+  `Languages.providers(id, spi)` — never a global `lookupAll`.
+- **Two new SPIs**: `StructureProvider` (structure/navigator, scoped) and `UsagesTarget` (opaque
+  `ElementRef` + `LanguageId` + location) in `api.editor.intelligence`/`api.usages` (L5, L6).
 
 ## I.4 Core freeze — how a spike stays honest
 
@@ -64,6 +80,16 @@ A language cluster **implements only existing SPIs** (`M`/T2-FX). Any core chang
 it, fix it in the API (before the M5 freeze), and never special-case it in the language module. Checked by
 `check-languages` (PLAN §9): `platform.*` and the neutral `api.*` must not reference a `LanguageId`/content type
 (no `if (java)` in the core), and language modules depend only downward.
+
+**Proved in CI, not by hand.** The freeze is tested by the **conformance fixture** (`feature/language-conformance`,
+M0/M1): a test-only module registers `LanguageId("text/x-nbfx-conformance")` with decoration, completion,
+structure, goto and usages, and a test opens such a file and asserts the features appear — with the core
+untouched. That is the cheapest possible second language and it belongs in the build; Groovy/PHP/web are the
+manual confirmation, not the proof.
+
+**Don't freeze a wrong abstraction.** `api.language` ships `arch.xml category="devel"` and is **not frozen**
+until the fixture **and** one real second language (Groovy) pass. Freezing an abstraction that has only ever
+seen Java is how the `OptionsPanelController`-class mistakes ship.
 
 ## I.5 The soundness spikes (validation, not features)
 
@@ -80,28 +106,53 @@ updates [Appendix D](D-bridge-and-retirement-matrix.md) (new rows) and [Appendix
 Rules: no feature growth (the cut list kills a spike that grows); each spike has an owner (§10.4); a spike that
 must edit core has *found a hole* and the fix lands in the API.
 
+**The web spike gets a shape, not a mandate.** Give `spike/web-javaee` a target to decide against:
+`ServerInstance` (id, display, state), `DeployTask(FileObject artifact) → DeployProgress`, built on
+`api.execution`/`api.progress`. The spike answers "core capability or out-of-core" with a concrete shape rather
+than taste.
+
+**The Groovy path is cheap, and it is concrete.** `groovy/groovy.editor`'s headless packages are real — 0 Swing
+files in `api/elements` (+ `ast`, `common`), `compiler` (+ `error`), `completion/inference`, `completion/util`,
+`java`, `occurrences`, `spi/completion`. So the spike reuses Groovy's compiler/AST/completion inference and
+replaces only the UI. (`groovy/editor/api/elements` being *Groovy's own* `api.elements` independently confirms
+Decision 20: a language's element model stays in its layer.)
+
+**Spike hygiene (or the spikes become products).** Each spike has a branch, a time box, an owner, a **kill
+criterion**, and the rule that spike code is **deleted** unless it survives as a real (optional) provider
+module. A spike that grows a feature list is killed by the cut list, before it reaches the critical path.
+
 ## I.6 Measured opportunity (generated — [`../figures.md`](../figures.md))
 
-| Cluster | modules | java files | Swing-touching |
-|---|---|---|---|
-| groovy | 11 | 259 | 73 (28 %) |
-| php | 38 | 1833 | 475 (26 %) |
-| enterprise (JavaEE) | 117 | 5079 | 1269 (25 %) |
-| webcommon | 59 | 1415 | 420 (30 %) |
+Count **modules**, not files: a module with a single `javax.swing.Action` is neither reusable nor replaceable —
+it must be **bridged** (the `ProgressHandle` situation). File shares overstate reuse:
 
-~75 % of each cluster is headless engine, so `reuse engine / replace UI` generalizes at roughly **3:1**:
-`groovy/groovy.antproject` is 16 files **0 Swing**, `groovy/libs.groovy` 0, `groovy/maven.groovy` 1,
-`groovy/groovy.editor` 134 with 34 Swing. The plan's reuse/bridge matrix is therefore *sound in shape* for
-languages it does not target — and the spikes prove it or break it.
+| Cluster | modules | **Swing-free modules** | java files | Swing-touching |
+|---|---|---|---|---|
+| groovy | 11 | **4** | 259 | 73 |
+| php | 38 | **5** | 1833 | 475 |
+| enterprise (JavaEE) | 117 | **47** | 5079 | 1269 |
+| webcommon | 59 | **22** | 1415 | 420 |
+
+So Groovy is **4 reusable / 7 mixed-or-replace**, not "72 % reusable" — and the mixed modules are exactly where
+the holes are, which is why the spikes target them. Reusable as-is: `groovy/groovy.antproject` (16 files,
+0 Swing), `groovy/libs.groovy` (0), `groovy/maven.groovy` (1), `groovy/groovy.kit`; the headless half of
+`groovy/groovy.editor` (I.5) is the additional reusable surface once its UI is split.
 
 ## I.7 What the plan requires
 
 1. `refactor/editor-split` (W1) delivers the decoration SPI + `api.language`, and its acceptance is the
    conformance test: **XML and CSS are modules, and `platform.editor` contains no language branch.**
-2. `api.elements` is split per I.3 (Decision 20); the Java vocabulary moves to `java.elements`.
-3. The three spikes (W11) run between M1 and the M5 freeze; their findings update D/H.
-4. `check-languages` guards the core freeze (§9).
-5. A language runtime ships as `libs.<language>` with a NOTICE entry ([Appendix G](G-licences-and-notices.md)).
-6. The other clusters' figures stay generated (they are, in [`../figures.md`](../figures.md)).
+2. `feature/language-conformance` (W1/W2): the **fake-language fixture** in CI — the automated proof of the core
+   freeze (I.4).
+3. `api.elements` is split per I.3 (Decision 20); the Java vocabulary moves to `java.elements`; handles are
+   language-defined strings; the unknown language falls back to **plain text** (L7).
+4. Two SPIs are added: `StructureProvider` ([§6.1](../PLAN.md)) and `UsagesTarget` (L5, L6).
+5. Language-scoped registration is normative (I.3, [Appendix E.6.1](E-contracts.md)); the host never does a
+   global `lookupAll` on a language provider.
+6. The three spikes (W11) run between M1 and the M5 freeze, with a kill criterion (I.5); their findings update
+   D/H.
+7. `check-languages` guards the core freeze (§9); `api.language` stays `devel` until the fixture and Groovy pass.
+8. A language runtime ships as `libs.<language>` with a NOTICE entry ([Appendix G](G-licences-and-notices.md)).
+9. The other clusters' figures stay generated (they are, in [`../figures.md`](../figures.md)).
 
 Non-goals stay non-goals; the architecture is what must hold. **A non-goal is not a licence for a hole.**
