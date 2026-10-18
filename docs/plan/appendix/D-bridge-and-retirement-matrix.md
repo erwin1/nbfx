@@ -166,7 +166,7 @@ Count **modules**, not files (a module with one `javax.swing.Action` must be bri
 | enterprise (JavaEE) | 117 | 47 | 5079 | 1269 |
 | webcommon | 59 | 22 | 1415 | 420 |
 
-`groovy/groovy.antproject` (16 files, **0 Swing**), `groovy/libs.groovy` (0), `groovy/maven.groovy` (1) and
+`groovy/groovy.antproject` (16 files, **0 Swing**), `groovy/libs.groovy`, `groovy/gradle.groovy` and
 `groovy/groovy.kit` are reusable as-is; `groovy/groovy.refactoring` (47, 13) splits like the Java editor; and
 `groovy/groovy.editor`'s **headless half** (`api/elements` +`ast`/`common`, `compiler` +`error`,
 `completion/inference`, `completion/util`, `java`, `occurrences`, `spi/completion` — all 0 Swing) is reusable

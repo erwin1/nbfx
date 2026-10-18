@@ -134,9 +134,9 @@ it must be **bridged** (the `ProgressHandle` situation). File shares overstate r
 | webcommon | 59 | **22** | 1415 | 420 |
 
 So Groovy is **4 reusable / 7 mixed-or-replace**, not "72 % reusable" — and the mixed modules are exactly where
-the holes are, which is why the spikes target them. Reusable as-is: `groovy/groovy.antproject` (16 files,
-0 Swing), `groovy/libs.groovy` (0), `groovy/maven.groovy` (1), `groovy/groovy.kit`; the headless half of
-`groovy/groovy.editor` (I.5) is the additional reusable surface once its UI is split.
+the holes are, which is why the spikes target them. The four Swing-free modules are
+`groovy/groovy.antproject` (16 files), `groovy/libs.groovy`, `groovy/gradle.groovy` and `groovy/groovy.kit`;
+the headless half of `groovy/groovy.editor` (I.5) is the additional reusable surface once its UI is split.
 
 ## I.7 What the plan requires
 
