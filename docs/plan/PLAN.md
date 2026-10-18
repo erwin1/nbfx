@@ -674,3 +674,24 @@ Order and the per-proposal credibility test are in [H.8](appendix/H-upstream-pro
 | F — [Node and view migration](appendix/F-node-and-view-migration.md) | the 25 tree/table/list view files, today's item models, the target `api.nodes` model, and the migration order |
 | G — [Licences and notices](appendix/G-licences-and-notices.md) | JavaFX 27 (GPLv2+CE), async-profiler, JLine, jgit, JaCoCo; the NOTICE rules and the `check-licences` guard |
 | H — [Upstream proposals](appendix/H-upstream-proposals.md) | the Swing-free API agenda for upstream NetBeans (`java.source`, `api.progress`, `openide.awt`, `openide.nodes`, the editor SPI, the `nbbuild` checks, the friend APIs) and where nbfx prototypes each one first |
+
+## 16. Risks
+
+Every entry has a **trigger**, so it is a decision rule, not a worry. Owners are filled before M0 (§10.4).
+
+| Risk | Likelihood | Impact | Mitigation | Trigger |
+|---|---|---|---|---|
+| **R1** upstream refuses the `java.source` split (H.1) | medium | high | keep `java.model`, write the diff-apply path; time-boxed | no upstream decision by M1 |
+| **R2** FX internals (`com.sun.jfx.*`) change or vanish in a JavaFX upgrade | medium | high | one adapter (`RichTextView`), pin FX 27, an upgrade spike per FX release | an FX 28 bump |
+| **R3** the editor replacement (≈600 upstream files) overruns M1 | high | high | M1 editor scope = edit/highlight/complete/format/find; defer folding, macros, code templates | M1 mid-point slips one milestone |
+| **R4** indexing memory/time on large projects | medium | medium | lazy indexing, budget in `check-budget`, degrade (no blocking) | first 10k-file project |
+| **R5** pinned NetBeans submodule + friend patches drift | medium | medium | monthly `chore/upstream-sync`, patch budget, rebase CI | a patch fails to apply |
+| **R6** JavaFX GPLv2+CE obligations conflict with the distribution | low | high | `check-licences`, NOTICE, exclude `javafx.web`, legal review before M0 ships | a clean-machine installer is produced |
+| **R7** no third-party plugin authors appear | medium | high | publish the API as *devel* early, quickstart + sample, compatibility report | M5 with zero external plugins |
+| **R8** Maven/Gradle project types need the embedder/friend patches | high | medium | process-based builds; Maven/Gradle are on the cut list (behind J2SE+Ant) | `0003` blocks an M2 step |
+| **R9** FX threading/leak defects | high | medium | §E.1–E.3 contracts, leak test, green trunk | a leak test regression |
+| **R10** startup/performance regression vs Swing | medium | high | budget baseline at M0, `check-budget` blocks | baseline recorded |
+| **R11** settings/keymap data lost on module renames | medium | medium | round-trip test in `refactor/module-names`; code-names freeze at 1.0 | first code-name rename lands |
+| **R12** JPDA/debugger integration (attach, sources, hot swap) underestimated | medium | medium | `java.debug` typed session services; M2 gate | debugger step slips |
+| **R13** scope creep from the module catalogue | high | medium | Rule of Creation (§6.1), cut list (§10.2), owners before M0 | a new `api.*` module without a consumer #2 |
+| **R14** a11y postponed and unfixable later | medium | medium | a11y is an M1 contract of `api.views` (E.3), checked in the shell | M1 exit |

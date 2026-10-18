@@ -185,3 +185,16 @@ useful upstream; H.1 pays nbfx back at M1; H.5 is the only architectural one and
 - **At least one accepted upstream change per milestone** (PLAN §13.10): H.6/H.2 are M0 candidates, H.1/H.3
   M1, H.4/H.7 M2, H.5 M2+.
 - If a proposal is refused, the fallback above is adopted explicitly and the row is struck — no silent drift.
+
+## H.10 Filing mechanics and SLA (being explicit)
+
+| Aspect | Rule |
+|---|---|
+| Tracker | one GitHub issue in `apache/netbeans` per proposal (the upstream change) plus one in the nbfx tracker linking the prototype; the nbfx issue is closed only when the upstream one is resolved |
+| Form | the PR is the **prototype diff**, reduced to the neutral change — no nbfx-specific code, no rename noise |
+| Size (est.) | **S**: H.2, H.6, H.7 · **M**: H.1, H.3 · **L**: H.4, H.5 (H.5 needs an experimental module first) |
+| Reviewer | the `nbbuild`/platform module owner for tooling (H.6), the `ide/` editor owners for H.5, the `java/` owners for H.1; the review must include the `arch.xml`/`apichanges` discipline of §4 |
+| Evidence attached | the nbfx prototype, `sigtest` output, and the first-customer test (H.8's credibility column) |
+| Upstream acceptance | merged **and** additive (the old API remains) **and** a `sigtest` added |
+| Who files | an nbfx owner from §10.4; no proposal is filed without a named owner |
+| SLA | no upstream decision within **two milestones** → adopt the fallback, close the row, and re-open only if an upstream owner picks it up. No row may sit "in progress" indefinitely |
