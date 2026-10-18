@@ -553,8 +553,8 @@ budget, CI), `refactor/swing-retirement` (execute the retirement matrix of
     [Appendix D.4](appendix/D-bridge-and-retirement-matrix.md). For every upstream UI API, the mechanism is
     *reimplement behind the API* when the API is provider-based (and the bridge carries the documented Swing
     exemption), *replace with an nbfx API* otherwise ([Appendix A.3](appendix/A-toolkit-policy.md)).
-12. **Layer-path constants are public and versioned in the owning `api.*` module**, and the writer/reader
-    agreement is a contract test (§3.3). No "private constant per reader".
+12. **Layer-path constants have one owner**, the module `api.layer` (T1) with the class `LayerPaths`; the
+    writer/reader agreement is a contract test (§3.3). No "private constant per reader".
 13. **The Java semantic layer is the only importer of `java.source`/`libs.javacapi`**, behind the `java.model`
     bridge; `javax.swing.text.Document` is banned everywhere
     ([Appendix B](appendix/B-java-source-isolation.md)).

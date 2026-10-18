@@ -82,9 +82,10 @@ Two rules, both machine-checkable:
    `org.netbeans.api.java.source.*`, `org.netbeans.libs.javacapi*`, `javax.swing.*`, `java.awt.*`,
    `org.openide.awt|nodes|explorer|windows|dialogs`, `org.netbeans.core.windows`,
    `org.netbeans.modules.projectuiapi.base`, `javafx.embed.swing.*`.
-2. **The allowlist** — a module declares in its metadata which denylisted import families it may use, and
-   the guard fails on any import outside that declaration. The Java layer's modules are the only ones that
-   may declare `java.source`; today that is 4 modules and ~50 files (Appendix B).
+2. **The allowlist** — a module declares in **`nbproject/nbfx-policy.properties`** (read by the guard) its
+   tier and the denylisted import families it may use, e.g. `tier=M`, `imports.allow=java.source,libs.javacapi`.
+   The guard fails on any denylisted import outside the declaration. The Java layer's modules are the only
+   ones that may declare `java.source`; today that is 4 modules and ~50 files (Appendix B).
 
 The guard must **check references, not just bundled classes**: `check-jars` (`check-purity.xml:93-116`)
 greps the *file list* of three cluster directories, so a class that imports a JDK `javax.swing` type from
