@@ -491,8 +491,36 @@ the table is maintained in the issue tracker, not here. Until then, no step is "
 
 ## 11. Workstreams (the work, sliced)
 
-Each workstream is a branch family; each step lands alone with tests and guardrails. **Order inside a
-workstream matters; across workstreams only the stated dependencies do.**
+Each workstream is a branch family; each step lands alone. **Order inside a workstream matters; across
+workstreams only the stated dependencies do.**
+
+### 11.0 Definition of done (every step, no exceptions)
+
+1. **Scope** — one concern, one sentence; no drive-by refactors.
+2. **Acceptance test** — named, added in the same commit, failing before the change.
+3. **Guards green** — the §9 checks, plus `check-figures` when a number changed and `check-baseline` when a
+   build setting changed.
+4. **Docs** — the module's `arch.xml`/`apichanges.xml` entry when a public type changed; this plan updated when
+   a rule or a figure changed.
+5. **Rollback** — revertable without touching later steps; no half-migrations.
+6. **Green trunk** — after every integration commit the application still **starts, opens a file, edits it,
+   builds and runs**. A refactor that leaves the app unusable for more than one step is rejected; the module
+   being replaced stays in the distribution until its replacement passes the scenario.
+
+### 11.0.1 Acceptance per workstream (the evidence that closes it)
+
+| Workstream | Acceptance |
+|---|---|
+| W0 walking skeleton | the scenario (open → edit → build → run → output → commit) runs on a J2SE project; budget baseline recorded |
+| W1 containment/naming/split | `check-java-source` green with the 4-module allowlist; no `Fx*` in an exported package; all consumers compile after `api-split`; layer contract test green; `check-jars` scans five clusters |
+| W2 governance | every governed module has `arch.xml` + `apichanges` + a `sigtest` target; spec-version guard green; exemption register has owners and dates |
+| W3 platform services | each service documents its thread, disposal and lease tests; index-on-open with progress and cancellation |
+| W4 IDE core | the M1 scenario (open/edit/search/find/commit/run-tests) on a J2SE project; every explorer panel renders through `api.nodes` |
+| W5 Java tooling | the M2 scenario on an Ant **and** a Maven project, including a debugging session |
+| W6 JavaFX usage | FXML edits and runs; `javafx.enabled` round-trips |
+| W7 *(withdrawn)* | — |
+| W8 upstream/retirement | the milestone rows of the retirement matrix are absent (guard); `chore/upstream-sync` green |
+| W9 upstream proposals | ≥1 accepted upstream change; each proposal filed with its prototype, size and fallback |
 
 **W0 — Walking skeleton & baseline.** `feature/walking-skeleton`: one project end-to-end (open → edit →
 build → run → output → commit) + the budget script and baseline. Everything else keeps it green.
@@ -503,7 +531,11 @@ current 4-module allowlist; [Appendix B.5](appendix/B-java-source-isolation.md))
 out of exported packages, introduce `api.layer.LayerPaths`; no behaviour change) →
 `refactor/java-plumbing` (`java.model` bridge; dedupe the three in-memory-file helpers and the position
 conversions) → `refactor/editor-split` (`platform.editor` / `java.editor` / `ide.editor.{xml,css}`) →
-`refactor/usages-split` (`api.usages` + `ide.usages` + `java.usages`) → `refactor/module-names` (rename to
+`refactor/usages-split` (`api.usages` + `ide.usages` + `java.usages`) → `refactor/cluster-layout` (create the
+`nbfx-libs`, `nbfx-api` and `nbfx-javafx` clusters: `cluster/nbfx-cluster.properties.fragment`, `nbbuild`/CI
+wiring, and the `check-purity.xml` `check-jars` includes + `${nbfx.dist.dir}` scans extended to all five
+cluster dirs; acceptance: `check-jars` scans five clusters and a dry-run build produces them) →
+`refactor/module-names` (rename to
 §3.1; settings/layer round-trip test) → `refactor/api-split` (create the `api.*` modules; move packages
 **wholesale** — same package names, consumers update only their `project.xml`; topological order:
 elements/file/project → editor → actions/views → root last; no shims) →
