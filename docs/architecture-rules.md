@@ -21,6 +21,7 @@ is how three documents start disagreeing.
 | Guardrails (implementation of every rule above) | [`plan/PLAN.md`](plan/PLAN.md) §9 |
 | Licences and notices | Appendix [G](plan/appendix/G-licences-and-notices.md) |
 | Process: one step = one branch; naming steps are source-compatible; upstream-first; retirement is the deliverable | [`plan/PLAN.md`](plan/PLAN.md) §11, §13 |
+| Upstream agenda: additive-only, new module + compat wrapper, `ModuleAutoDeps`, `sigtest`-frozen, prototyped in nbfx, fallback recorded, one accepted change per milestone | Appendix [H](plan/appendix/H-upstream-proposals.md) |
 
 If a rule here and the plan disagree, the plan wins; if the plan and an appendix disagree, the plan states the
 rule and the appendix the detail — fix whichever is wrong and commit both.

@@ -438,6 +438,11 @@ The editor branch (`platform.editor` → `java.editor`) and the project branch
 (`api.project` → `java.projecttype.java`) run in parallel after `api-split`; they meet at
 `feature/build-run`. M2 ("daily Java work") is gated by `feature/debugger`.
 
+Two upstream prototypes run in parallel with the critical path and are **not** allowed to delay it:
+`chore/upstream-module-tools` (H.6, portable `nbbuild` checks → `nbfx-tools/`) with `refactor/guardrails`, and
+`spike/java-source-headless` (H.1) with `refactor/java-plumbing`; `spike/progress-neutral-spi` (H.2) is the M0
+upstream win.
+
 ### 10.2 Cut list (in cut order)
 
 If a date is missed, cut in this order; each cut is a plan change, not a silent slip:
@@ -520,6 +525,13 @@ budget, CI), `refactor/swing-retirement` (execute the retirement matrix of
 [Appendix D.4](appendix/D-bridge-and-retirement-matrix.md); `check-packaging` asserts the absence),
 `feature/plugin-api` (contract docs, sample plugin, trust).
 
+**W9 — Upstream proposals.** Per [Appendix H](appendix/H-upstream-proposals.md), each with a tracked upstream
+issue, a prototype in nbfx and a recorded fallback: `chore/upstream-module-tools` (the portable `nbbuild`
+checks, H.6 — portable ant tasks under `nbfx-tools/`), `spike/progress-neutral-spi` (H.2),
+`spike/java-source-headless` (H.1), `spike/actions-neutral-core` (H.3), `spike/nodes-icon-source` (H.4),
+`spike/runlevel-api` (H.7), `spike/maven-embedder-facade` (H.7), `spike/editor-model-spi` (H.5, last).
+Order and the per-proposal credibility test are in [H.8](appendix/H-upstream-proposals.md).
+
 ## 12. Mirror and evidence
 
 - The **archived** documents under `docs/plan/archive/` hold the research that justifies each workstream
@@ -565,6 +577,10 @@ budget, CI), `refactor/swing-retirement` (execute the retirement matrix of
 16. **Compiler**: JDK `javac` by default, nb-javac only where the project's source level requires it; the
     choice is owned by `java.model` and recorded in the module metadata
     ([Appendix D.6](appendix/D-bridge-and-retirement-matrix.md)).
+17. **Upstream agenda** per [Appendix H](appendix/H-upstream-proposals.md): additive-only, new module +
+    compatibility wrapper, `ModuleAutoDeps` carries the move, the surface is frozen by `sigtest`, a prototype in
+    nbfx is the first customer, and a fallback is recorded. **At least one accepted upstream change per
+    milestone.**
 
 ## 14. Open questions
 
@@ -590,3 +606,4 @@ budget, CI), `refactor/swing-retirement` (execute the retirement matrix of
 | E — [Contracts](appendix/E-contracts.md) | threading per SPI, disposal/ownership + the leak test, accessibility, error/logging, the precise `Lookup` rule, the plugin allowlist, and the removal of the generic-`C` factories |
 | F — [Node and view migration](appendix/F-node-and-view-migration.md) | the 25 tree/table/list view files, today's item models, the target `api.nodes` model, and the migration order |
 | G — [Licences and notices](appendix/G-licences-and-notices.md) | JavaFX 27 (GPLv2+CE), async-profiler, JLine, jgit, JaCoCo; the NOTICE rules and the `check-licences` guard |
+| H — [Upstream proposals](appendix/H-upstream-proposals.md) | the Swing-free API agenda for upstream NetBeans (`java.source`, `api.progress`, `openide.awt`, `openide.nodes`, the editor SPI, the `nbbuild` checks, the friend APIs) and where nbfx prototypes each one first |

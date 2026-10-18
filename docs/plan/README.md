@@ -12,6 +12,7 @@
 | [`appendix/E-contracts.md`](appendix/E-contracts.md) | Threading per SPI, disposal/ownership + leak test, accessibility, error/logging, the `Lookup` rule, plugin allowlist, removal of generic `C` factories |
 | [`appendix/F-node-and-view-migration.md`](appendix/F-node-and-view-migration.md) | The 25 view files, their item models, the `api.nodes` target and the migration order |
 | [`appendix/G-licences-and-notices.md`](appendix/G-licences-and-notices.md) | JavaFX 27 (GPLv2+CE), native/lib licences, NOTICE rules, `check-licences` |
+| [`appendix/H-upstream-proposals.md`](appendix/H-upstream-proposals.md) | The Swing-free upstream agenda (`java.source`, `api.progress`, `openide.awt`, `openide.nodes`, editor SPI, `nbbuild` checks, friend APIs) and the nbfx prototypes that prove each |
 | [`../architecture-rules.md`](../architecture-rules.md) | A one-screen **index** of every rule and its normative source (no rule detail — that lives in the plan/appendices) |
 | [`archive/README.md`](archive/README.md) | Historical research and earlier plan revisions — **evidence only, not maintained** |
 | [`../repo-and-build.md`](../repo-and-build.md) | Build harness, clusters, submodule patches |
