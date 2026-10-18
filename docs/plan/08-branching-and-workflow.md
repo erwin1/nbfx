@@ -154,7 +154,7 @@ import the prohibited UI modules — they reuse the headless NetBeans APIs (e.g.
 `spi.java.hints`, `refactoring.api`, `java.testrunner`, `versioning.core`, `project.libraries`) and port
 the Swing UI to JavaFX.
 
-### Current local stack (history condensed by concern)
+### Current local stack (snapshot; the schedule is [`34`](34-upstream-sync-and-budget.md) §3)
 
 ```
 main

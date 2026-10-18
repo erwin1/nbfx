@@ -85,6 +85,8 @@ Repo-wide docs: [`../architecture-rules.md`](../architecture-rules.md) (model/UI
 
 ## Status at a glance (by layer / milestone)
 
+**Next (board in [`34`](34-upstream-sync-and-budget.md) §3):** walking skeleton → `api-split` → `api-naming` (freeze) → `annotations-split` / `services-not-statics` / guardrails / component factory. The table below is the state, not the schedule.
+
 | Layer | Capability | Branch(es) | State |
 |---|---|---|---|
 | **platform** | Progress UI parity | `feature/progress-ui` | **PR #2 open** |
@@ -110,7 +112,7 @@ Repo-wide docs: [`../architecture-rules.md`](../architecture-rules.md) (model/UI
 | **platform** | Credentials/keyring | `feature/credentials` | planned |
 | **ide** | Project modularity refactoring | `refactor/project-modularity` | local, 1 commit |
 | **ide** | New File templates (model + chooser + parity) | `feature/newfile-templates` | local, 2 commits + fix |
-| **ide** | New File: per-template wizard panels | `feature/newfile-template-panels` | next |
+| **ide** | New File: per-template wizard panels | `feature/newfile-template-panels` | planned (M1) |
 | **ide** | New Project templates / `FxProject` / problems UI | `feature/newproject-templates`, `feature/fxproject-model`, `feature/project-problems-ui` | planned |
 | **ide** | Java navigation & search (goto, hyperlinks, usages, hierarchies) | `feature/editor-intelligence-core`, `feature/goto-search`, `feature/editor-navigation`, `feature/find-usages-parity`, `feature/hierarchies` | planned |
 | **ide** | Refactoring / hints / codegen / editor actions / Javadoc | `feature/refactoring-*`, `feature/java-hints-*`, `feature/codegen-generate`, `feature/fix-imports`, `feature/editor-actions-parity`, `feature/javadoc-*` | planned |

@@ -1,7 +1,7 @@
 # 32 — API tiers, the plugin contract and naming
 
 The second review's core objection: nbfx treated **every** module as a contract (38 modules with public
-packages, 23 exporting whole subtrees) while never defining the one contract that has external consumers —
+packages, 21 exporting whole subtrees) while never defining the one contract that has external consumers —
 the **plugin API**. This doc fixes the size of the API: tiers, the plugin contract and trust, naming
 conventions, and the rename/split ordering.
 
@@ -30,20 +30,37 @@ proportional.
 | **T1 — shared API** | other nbfx layers | explicit list | `arch.xml` `<api type="export">`, `apichanges`, `@since`, signature test | additive preferred; spec minor/major; no third-party promise |
 | **T2 — published plugin API** | third-party plugins | explicit list | full (T1 + compatibility contract, docs/tutorial, deprecation policy, plugin-version range, compatibility report in CI) | strict: additive only within a major; deprecate → remove after a major |
 
-**Module placement (initial).**
+**Module assignment.** The authoritative per-module assignment is the inventory table in
+[`30-api-governance.md`](30-api-governance.md) §1.1 (every existing module: exported packages → tier →
+action). Summary of the target T2 set:
 
-- **T2**: `nbfx.annotations` (the *public* registration annotations), `nbfx.api.actions`, `nbfx.api.view`,
-  `nbfx.api.status`, `nbfx.api.options`, `nbfx.api.settings`, `nbfx.nodes` (model + `PropertyModel`),
-  `nbfx.project.api` (project types/actions), and the run/debug/profile/test/VCS extension points a plugin
-  may implement. Everything a plugin *needs* is T2; nothing a plugin does not need is.
-- **T1**: capability modules shared across nbfx layers but not promised externally (e.g. `nbfx.templates`,
-  internal view wiring, `nbfx.settings` implementation).
-- **T0**: all other modules (the large majority): editor internals, dialogs/theming/output/terminal
-  implementations, debugger/profiler UI, refactoring/hints engines, tests, VCS UI, project UI, plugins UI,
-  misc features.
+- **T2 now** (plugin-facing, implemented or being moved): the registration annotations and the SPIs a
+  plugin needs today — `nbfx.api.actions`, `nbfx.api.view`, `nbfx.api.status`, `nbfx.api.options`,
+  `nbfx.api.settings`, `nbfx.api.wizard`, `nbfx.api.property`, `nbfx.api.project`, `nbfx.nodes`
+  (model + `PropertyModel`), `nbfx.project.ui.api` (build/run actions), `nbfx.project.customizer`,
+  `nbfx.run`, and the public annotations module(s).
+- **T2-proposed** (do **not** promise until implemented + signature-tested + documented): the debugger,
+  profiler, test-runner and VCS backends (`DebuggerBackend`, `ProfileBackend`, `TestRunner`,
+  `VcsProvider`). They are listed as *proposed* in the plugin contract; promotion is a deliberate step
+  after the corresponding feature lands (docs 16/17/23/24).
+- **T1**: shared between nbfx layers, not promised externally (e.g. `nbfx.templates`, `nbfx.structure`,
+  `nbfx.project.context`, `nbfx.settings` implementation).
+- **T0**: everything else — implementations, UIs, engines.
+
+**T2 annotations live in annotation-only API modules.** A plugin must be able to write
+`@OptionsRegistration`/`@WizardRegistration`/`@PropertyEditorRegistration`/`@ProjectTypeRegistration`
+**without depending on the corresponding UI module**. Therefore (doc 29): the T2 annotations + processors
+live in `nbfx.api.<capability>` annotation modules (no UI, no implementation); the UI module depends on
+them; the plugin depends on them. Placing a T2 annotation inside the UI module is forbidden.
+
+**The plugin dependency manifest.** A plugin depends on exactly: the annotation modules it uses, the API
+modules of the extension points it implements, and the platform core (`org.openide.util`,
+`org.openide.filesystems`, `org.openide.util.lookup`). This set is documented in the plugin guide with
+version ranges; a plugin never depends on a T0 module.
 
 **Rule.** A module starts at **T0**. Promotion to T1/T2 is a deliberate change with the artefacts above —
-never a default. Demotion (T2 → T0) is a breaking change and needs a deprecation cycle.
+never a default. Demotion (T2 → T0) is a breaking change and needs a deprecation cycle. **Tier assignment
+comes before every package move or annotation split.**
 
 ## 3. The plugin contract
 
@@ -58,11 +75,11 @@ A plugin (NBM) is the only external promise. Define precisely what it may rely o
 | Nodes/property sheet | `NodeModel`/`ChildrenModel`/`PropertyModel`/`PropertyEditor` | model contracts stable; the FX views are not |
 | Project types | `@ProjectTypeRegistration` + `ProjectModel`/`ProjectProvider` | registration + model stable (this is how a plugin adds a project type) |
 | Wizards/templates | `@WizardRegistration`/`@TemplateRegistration` + `WizardIterator`/`WizardPanel` | registration + page contract stable; the dialog is not |
-| Run/build | `RunConfiguration`, `BuildActionProvider` (Lookup) | model stable; execution implementation not |
-| Debug | `DebuggerBackend`/`DebuggerSession` (Lookup) | backend SPI stable; the debugger views not |
-| Profiling | `ProfileBackend`/`ProfileSource` (Lookup) | backend SPI stable; the views not |
-| Testing | `TestRunner`/`TestReportParser` (Lookup) | SPI stable; the results view not |
-| VCS | `VcsProvider`/`VcsHistoryProvider` (Lookup) | SPI stable; the Git UI not |
+| Run/build | `RunConfiguration`, `BuildActionProvider` (Lookup) | **T2 now** — model stable; execution implementation not |
+| Debug | `DebuggerBackend`/`DebuggerSession` (Lookup) | **T2-proposed** (doc 16) — do not promise until designed/tested |
+| Profiling | `ProfileBackend`/`ProfileSource` (Lookup) | **T2-proposed** (doc 17) |
+| Testing | `TestRunner`/`TestReportParser` (Lookup) | **T2-proposed** (doc 23) |
+| VCS | `VcsProvider`/`VcsHistoryProvider` (Lookup) | **T2-proposed** (doc 24) |
 
 **What a plugin may *not* rely on** (documented in the plugin guide): internal modules/packages (T0), layer
 paths and `.instance` file names, `*Impl` classes, FX/Swing classes used by the host, the order in which
@@ -76,8 +93,11 @@ spec versions) and a compatibility report in CI (signature diff against the prev
 
 The plugin story is not just API; it is trust:
 
-1. **NBM signing/verification** — the plugin manager verifies signatures when available and shows the
-   publisher/unsigned state; a policy setting controls whether unsigned plugins may be installed.
+1. **NBM signing/verification** — NBMs are JARs; the plugin manager verifies **JAR (PKCS#7) signatures**
+   against a trust anchor (the system trust store **or** a pinned publisher key), shows the
+   publisher/unsigned state, and applies a policy (block/warn/allow). Note: upstream autoupdate does
+   **not** verify by default today — this is a **proposed** nbfx behaviour until implemented, and it must
+   not be advertised as shipped before then.
 2. **Update centers over HTTPS only** by default; user-added centers must be HTTPS or explicitly
    confirmed; credentials via `keyring` (doc 30 §9).
 3. **Native artifacts** (async-profiler `.so`/`.dylib`) are verified by SHA-256 pinned in the module

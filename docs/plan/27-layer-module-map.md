@@ -2,7 +2,9 @@
 
 The authoritative allocation of every nbfx building block to a cluster, its NetBeans counterpart, its
 status, the step/branch that delivers it and the detail doc. Read with [26-roadmap.md](26-roadmap.md)
-(layers/milestones) and [`architecture-rules.md`](../architecture-rules.md) (the dependency rules).
+(layers/milestones), [32](32-api-tiers-and-plugin-contract.md) (API tiers + plugin contract),
+[33](33-swing-retirement.md) (retirement) and [`architecture-rules.md`](../architecture-rules.md) (the
+dependency rules).
 
 Legend — **status**: `landed` (in the repo), `in-flight` (branch/PR), `planned` (step + branch agreed),
 `missing` (identified, not yet a step). **Layer**: `plat` = `nbfx-platform`, `ide` = `nbfx-ide`,
@@ -14,10 +16,10 @@ Legend — **status**: `landed` (in the repo), `in-flight` (branch/PR), `planned
 |---|---|---|---|---|---|
 | `nbfx.actions` | command/action registry, keymap, menus/toolbars wiring | `openide.actions`, `openide.awt` actions | landed | — | 00 |
 | `nbfx.annotations` | **core** layer-generating annotations + processors: actions, views, menus, toolbars, status (+ `FxLayer` for the shell folders) | `openide.filesystems` layer + `nbs.annotations` | landed (to split) | `refactor/annotations-split` | 29 |
-| `nbfx.options` annotations + processor | `@OptionsRegistration`/`Container`/`Sub` + `FxOptionsRegistrationProcessor`, `OPTIONS` layer path | `options.api` registration | planned | `refactor/annotations-split` (slice 1) | 29 |
-| `nbfx.wizard` annotation + processor | `@WizardRegistration` + processor, `WIZARDS` path | `openide.loaders` wizard registration | planned | `refactor/annotations-split` (slice 2) | 29 |
-| property-editor annotation + processor | `@PropertyEditorRegistration` + processor, `PROPERTY_EDITORS` path (module decided by doc 13: `nbfx.nodes.ui`/`nbfx.propertysheet`) | `openide.explorer` property editors | planned | `refactor/annotations-split` (slice 3) | 29 |
-| project API annotation + processor | `@ProjectTypeRegistration` + processor, `PROJECTS` path (ide, project API module) | `projectuiapi` project-type registration | planned | `refactor/annotations-split` (slice 4) | 29 |
+| `nbfx.api.options` (T2 annotation-only) | `@OptionsRegistration`/`Container`/`Sub` + processor, `OPTIONS` path | `options.api` registration | planned | `refactor/annotations-split` (slice 1) | 29/32 |
+| `nbfx.api.wizard` (T2 annotation-only) | `@WizardRegistration` + processor, `WIZARDS` path | `openide.loaders` wizard registration | planned | `refactor/annotations-split` (slice 2) | 29/32 |
+| `nbfx.api.property` (T2 annotation-only) | `@PropertyEditorRegistration` + processor, `PROPERTY_EDITORS` path (plus `PropertyModel`/`PropertyEditor`) | `openide.explorer` property editors | planned | `refactor/annotations-split` (slice 3) | 29/32 |
+| `nbfx.api.project` (T2, ide) | `@ProjectTypeRegistration` + processor, `PROJECTS` path, `ProjectModel`/project-type SPI | `projectuiapi` project-type registration | planned | `refactor/annotations-split` (slice 4) | 29/32 |
 | `nbfx.api` | view/action/status/editor/progress **APIs** + (misplaced) project API | `openide.util.lookup`, platform APIs | landed; **to split per capability** (`refactor/api-split`, doc 30 §1) | — | 00/30 |
 | `nbfx.context` | global selection/context (`FxActionContext`) | `openide.awt` `Actions`/global `Lookup` | landed | — | 00 |
 | `nbfx.docking` | docks/areas/tabs/layout model | `core.windows` (dropped from nbfx) | landed | — | 00 |
@@ -116,7 +118,7 @@ the project API module (ide). Annotation modules are **compile-only** (build pre
 
 | Module | Purpose | NetBeans counterpart | Status | Step / branch | Doc |
 |---|---|---|---|---|---|
-| `nbfx.javafx.project` | JavaFX Ant project type, customizers, run/build | `javafx2.project` | planned | `feature/javafx-project` | 03 |
+| `nbfx.javafx.project` | JavaFX **usage module** (customizers/run/build; the NetBeans project-type id stays `j2seproject`) | `javafx2.project` | planned | `feature/javafx-project` | 03 |
 | `nbfx.javafx.platform` | JavaFX runtime detection/JavaFX-enabled JDK, module path | `javafx2.platform` | planned | `feature/javafx-cluster` | 03 |
 | `nbfx.javafx.fxml` | FXML editing/completion | `javafx2.editor` (useful core) | planned | `feature/fxml-completion` | 04 |
 | `nbfx.javafx.scenebuilder` | embedded SceneBuilder (kit 26.0.0) | `javafx2.scenebuilder` | planned | `feature/scenebuilder-editor` | 04 |

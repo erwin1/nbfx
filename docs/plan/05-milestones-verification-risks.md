@@ -14,7 +14,7 @@
 - Manual matrix: create/build/run a JavaFX Ant app (macOS + Linux + Windows); open FXML in the
   design/source editor; custom controls via classpath scan.
 
-## Risks
+## Risks (historical; the live register is [`34`](34-upstream-sync-and-budget.md) §4)
 
 | Risk | Mitigation |
 |---|---|

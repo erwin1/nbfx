@@ -1,5 +1,10 @@
 # 01 — Research findings (evidence)
 
+> **Historical research.** Names in this document reflect the code as researched (some `Fx*` names and
+> `FxProject`); the canonical naming is in [`32`](32-api-tiers-and-plugin-contract.md) and the product
+> model is `ProjectModel` (`nbfx.project`). The plan itself is [`26`](26-roadmap.md) and
+> [`07`](07-small-steps.md).
+
 ## 1. The original `javafx` cluster (`../gluon-netbeans-fx/javafx/*`)
 
 | Module | Role |

@@ -46,9 +46,16 @@ NodeModel + views                         NodeViewFactory<C>
   registration, not a `ClassCastException` at runtime.
 - **Model-first where possible**: an options page, property page or run-config form is a description of
   fields/actions/validation (`PanelModel`), rendered by the front end's property sheet — *no component
-  factory at all*. Reserve the component factory for genuinely custom visualizations (the editor,
-  SceneBuilder, output/terminal, debugger/profiler views). Every model-first panel removed is one fewer
-  fork of the SPI.
+  factory at all*. `PanelModel` = ordered `FieldModel`s (name, label, value type, `PropertyEditorRef`,
+  allowed values, help), `CommandRef` actions and a validator; it is a contract, not a sketch. Reserve the
+  component factory for genuinely custom visualizations (the editor, SceneBuilder, output/terminal,
+  debugger/profiler views). Every model-first panel removed is one fewer fork of the SPI.
+- **Composition (where `C` is bound)**: the FX application shell owns the binding — it provides a
+  `UiToolkit<C>`/`PanelHost<C>` with `C = javafx.scene.Node` and instantiates the generic windows
+  (`OptionsWindow<Node>`, `WizardDialog<Node>`); feature modules receive the host/factory from the shell
+  (constructor/`Lookup` of the *host*, not a raw `OptionsPanelFactory`). A Swing front end binds
+  `C = JComponent`; a test front end binds `C = TestNode`. `Lookup.lookup(OptionsPanelFactory.class)`
+  followed by a cast is forbidden — the composition root is the only place that knows `C`.
 
 ## 3. Mapping: today's `Fx*` SPI → target
 

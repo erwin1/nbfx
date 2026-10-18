@@ -32,7 +32,7 @@ JavaFX project/FXML/SceneBuilder usage layer (M3), breadth (M4). JavaFX is the *
 
 | Area | Decision |
 |---|---|
-| JavaFX project kind | JavaFX project **is** the J2SE Ant project with `javafx.enabled=true`; no separate project type (doc 03) |
+| JavaFX project kind | The **NetBeans project type id stays** `org.netbeans.modules.java.j2seproject` with `javafx.enabled=true`; `nbfx.javafx.project` is the **usage module** contributing JavaFX customizers/run/build — not a new project type (docs 03/27) |
 | Customizers | **Full parity**, all categories enabled, FXML panels (docs 02/03) |
 | SceneBuilder | Embedded design/source editor, kit pinned `com.gluonhq.scenebuilder:kit:26.0.0` (doc 04) |
 | Build tooling | Ship Maven **and** Ant; JavaFX Ant now, Maven/Gradle JavaFX via the chooser later |

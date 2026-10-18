@@ -46,23 +46,32 @@ Readers that consume these folders (and therefore need the *path constants* at r
 
 ## Target layout
 
-Two patterns; use whichever keeps the layer clean:
+**Tier first, then placement.** A registration annotation's module is decided by its **tier** (doc
+[`32`](32-api-tiers-and-plugin-contract.md) §2), not by convenience:
 
-1. **Annotations + processor inside the owning module** when that module may depend on
-   `org.openide.filesystems` + `openide.util.lookup` (needed by `LayerGeneratingProcessor`). Applies to
-   `nbfx.options`, `nbfx.wizard`, `nbfx.propertysheet`, the project API module.
-2. **A sibling `*.annotations` module** when the owning module should not carry the processor/API
-   dependency (e.g. a pure model module), or when several modules need only the annotation.
+1. **T2 annotations → an annotation-only API module** (`nbfx.api.<capability>`): contains the annotation
+   and its processor, **no UI and no implementation**, so a plugin can compile against it without
+   depending on the feature's UI module. This applies to `@OptionsRegistration` (`nbfx.api.options`),
+   `@WizardRegistration` (`nbfx.api.wizard`), `@PropertyEditorRegistration` (`nbfx.api.property`),
+   `@ProjectTypeRegistration` (`nbfx.api.project`) and the shell registrations that plugins may use.
+2. **T1/internal annotations → inside the owning module** (or a sibling `*.annotations` module) when only
+   nbfx layers declare them; the owning module may carry the processor dependency
+   (`org.openide.filesystems` + `openide.util.lookup`).
 
 Resulting modules (`plat` = `nbfx-platform`, `ide` = `nbfx-ide`):
 
 ```
-plat/c.gluonhq.netbeans.nbfx.annotations              core: action/view/menu/toolbar/status + FxLayer
-plat/c.gluonhq.netbeans.nbfx.options(+ .annotations)  options registrations   (core slice first)
-plat/c.gluonhq.netbeans.nbfx.wizard(+ .annotations)   wizard registration
-plat/c.gluonhq.netbeans.nbfx.propertysheet(+ …)       property-editor registration
-ide/c.gluonhq.netbeans.nbfx.project.api(+ .annotations) project-type registration
+plat/…nbfx.annotations                 core shell: @Action/@View/@Menu/@Toolbar/@Status (+ FxLayer paths)
+plat/…nbfx.api.options                 T2: @OptionsRegistration/@Container/@Sub + processor
+plat/…nbfx.api.wizard                  T2: @WizardRegistration + processor
+plat/…nbfx.api.property                T2: @PropertyEditorRegistration + processor
+ide/…nbfx.api.project                  T2: @ProjectTypeRegistration + processor (after the project API extraction)
 ```
+
+The annotation modules are **compile-only** for the nbfx feature modules (build prerequisite, no run
+dependency); for a **plugin build** they are a normal compile dependency (the plugin declares them in its
+`project.xml`). The processor writes into the *compiling* module's layer, so the plugin's declarations are
+generated in the plugin's own layer — verify this in the plugin sample (doc 32 §3).
 
 `FxLayer` after the split (all constants **private** — layer paths are implementation detail, not API):
 
@@ -94,26 +103,32 @@ ide/c.gluonhq.netbeans.nbfx.project.api(+ .annotations) project-type registratio
 
 ## Migration steps (branch `refactor/annotations-split`, one reviewable commit per slice)
 
-1. **Options** — move `FxOptions*` + processor into `nbfx.options` (or `nbfx.options.annotations`); update
-   `EditorOptionsPanel`, `KeyMapOptionsPanel` and any declaring module; verify layer diff, build, tests.
-2. **Wizard** — move `FxWizardRegistration` + processor into `nbfx.wizard`; update declarants
+**Prerequisite:** tier assignment (doc 30 §1.1) and the rename (`refactor/api-naming`) have landed; the
+moved annotations carry **capability names**, never `Fx*`.
+
+1. **Options** — move `@OptionsRegistration`/`Container`/`Sub` + processor into **`nbfx.api.options`**
+   (annotation-only, T2); update `nbfx.options` (window/registry) and every declaring module; verify layer
+   diff, build, tests, and that a plugin can depend on the annotation module without the UI.
+2. **Wizard** — move `@WizardRegistration` + processor into **`nbfx.api.wizard`**; update declarants
    (`nbfx.project.ui`, project kinds in `nbfx-java`).
-3. **Property editors** — move `FxPropertyEditorRegistration` + processor into the property-editor module
-   (after doc 13 decides the module: `nbfx.nodes.ui` vs `nbfx.propertysheet`).
-4. **Project types** — move `FxProjectTypeRegistration` + processor into the project API module (after the
-   `nbfx.api.project` extraction into `nbfx-ide`, doc 26 §3.1); update `nbfx.project.ui.*` (java).
-5. **`FxLayer` split** — core shell folders stay; feature modules get their own constants; update the
-   readers (`OptionsRegistry`, wizard registry, project-kind registry, property-editor registry).
-6. **Cleanup** — drop `run-dependency` on the new annotation modules where they are compile-only, exclude
-   them from the cluster distribution if unused at runtime, and split the
-   `FxAnnotationsProcessorTest` into per-module processor tests.
-7. **Docs** — update docs 26/27 (module rows), this doc's status, and the architecture rule below.
+3. **Property editors** — move `@PropertyEditorRegistration` + processor into **`nbfx.api.property`**
+   (the `PropertyModel`/`PropertyEditor` SPI moves there too, per doc 13).
+4. **Project types** — move `@ProjectTypeRegistration` + processor into **`nbfx.api.project`** (after the
+   project-API extraction, doc 26 §3.1); update `nbfx.project.ui.*`.
+5. **`FxLayer` split** — core shell folders stay (private constants); each feature/API module gets its own
+   private constants; update the readers (`OptionsRegistry`, wizard registry, project-kind registry,
+   property-editor registry).
+6. **Cleanup** — drop `run-dependency` on the annotation modules for nbfx modules (compile-only), keep them
+   in the cluster for the **plugin build** unless the plugin dependency manifest says otherwise, and split
+   the `FxAnnotationsProcessorTest` into per-module processor tests.
+7. **Docs** — update docs 26/27/30 (module rows/inventory), this doc's status, and the architecture rule.
 
 ## Acceptance
 
 - Build + guardrails + tests green after every slice; **generated layer fragments semantically identical**.
-- `nbfx.options`, `nbfx.wizard`, the property-editor module and the project API module own their
-  registration annotations; the core `nbfx.annotations` holds only platform-shell registrations.
+- T2 annotations live in **annotation-only API modules**; the core `nbfx.annotations` holds only the shell
+  registrations; the UI modules own their windows/registries, not their plugin annotations.
+- A sample plugin compiles against the annotation/API modules **without any UI module** on its classpath.
 - No runtime module depends on an annotation module (compile-only), and no `FxLayer` constant mixes layers.
 - Adding a new registration type for a feature no longer touches the shared platform module.
 - A new architecture rule is recorded: *registration annotations live with the SPI they complement

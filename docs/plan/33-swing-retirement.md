@@ -23,6 +23,9 @@ deadline + upstream proposal), `keep` (it is a headless API we intentionally use
 
 **Pruning** uses the cluster config plus the harness `-prune-excluded` step (jar/config/update_tracking
 removal); the structural guard then asserts the module is absent from the built distribution.
+**Provenance:** `-prune-excluded` is introduced by `feature/progress-ui` (PR #2); until that branch is
+merged the retirement guard treats pruning as unavailable and only *reports* the gap (it must not be red
+on day one).
 
 ## 2. Retirement matrix
 
@@ -83,14 +86,21 @@ removal); the structural guard then asserts the module is absent from the built 
 
 ### Explicit exemptions (keep, with owner + deadline)
 
-| Module | Why it stays | Owner | Upstream proposal |
+| Module | Why it stays | Owner | Deadline / upstream proposal |
 |---|---|---|---|
-| `org.openide.text` | reused by editor/debugger engines (annotations) | — | replace with nbfx annotation SPI or an upstream headless API |
-| `openide.windows` (API classes) | transitive from engines using old IO | — | move engines to `api.io`; upstream |
-| `projectuiapi.base` | project problems/actions bridging | — | replace with `ProjectModel` hooks |
-| `lib.profiler` (non-UI) | HPROF parser / `.nps` reader (doc 17) | — | upstream a heap API or keep vendored |
-| `spi.quicksearch` | API we intentionally use | — | keep (T1) |
-| `keyring`, `masterfs`, `api.io`, `spi.io` | headless services we intentionally use | — | keep |
+| `org.openide.text` | reused by editor/debugger engines (annotations) | Sven | M2 (2027-07) — replace with nbfx annotation SPI or an upstream headless API |
+| `openide.windows` (API classes) | transitive from engines using old IO | Sven | M2 (2027-07) — move engines to `api.io`; upstream |
+| `projectuiapi.base` | project problems/actions bridging | Sven | M1 (2027-03) — replace with `ProjectModel` hooks |
+| `lib.profiler` (non-UI) | HPROF parser / `.nps` reader (doc 17) | Sven | M2 (2027-07) — upstream a heap API or keep vendored with monthly rebase |
+| `spi.quicksearch` | API we intentionally use | Sven | keep (T1) |
+| `keyring`, `masterfs`, `api.io`, `spi.io` | headless services we intentionally use | Sven | keep |
+
+**Measured baseline (2026-10-18).** The matrix states are the *targets*; the first guard run records
+the measured truth (present in the built distribution? which dependants?) in this section. Known facts at
+the baseline: `progress.ui`, `notifications`/`uihandler*` are excluded/pruned on the progress branch;
+`core.windows` is dropped from the nbfx shell; `openide.awt`/`openide.nodes`/`openide.explorer`/
+`openide.windows` are present transitively and are the first exemptions. Every `retire` claim is converted
+to a measurement before the milestone exit.
 
 ## 3. Guards and checks
 

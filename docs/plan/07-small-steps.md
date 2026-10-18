@@ -4,8 +4,11 @@ The part docs describe *what* to build; this document slices it into **small, in
 steps**, roughly ordered. Each step should merge on its own (build + guardrails green), so progress is
 visible and risk stays low.
 
-**Recommended first step: Progress UI parity** — self-contained, reuses the headless `api.progress`
-API/controller, needs no JavaFX-project work, and is immediately visible.
+**Order: walking skeleton → API discipline → layers.** The first step is `feature/walking-skeleton`
+(one project end-to-end plus the budget baseline), followed by `refactor/api-split` and
+`refactor/api-naming` (the naming freeze), then the layer steps. The next ten steps and their owners are
+the board in [`34-upstream-sync-and-budget.md`](34-upstream-sync-and-budget.md) §3. Progress UI parity is
+already in flight and lands as part of M0.
 
 Branch per step and the PR flow are in [`08-branching-and-workflow.md`](08-branching-and-workflow.md).
 Each step is one branch (`feature/<topic>`) and one PR.
@@ -50,13 +53,15 @@ dependency graph and the owners live in [`34-upstream-sync-and-budget.md`](34-up
 
 ## Public-package inventory + `nbfx.api` split
 → detail: [`30-api-governance.md`](30-api-governance.md) §1 · branch: `refactor/api-split`
-- **Scope**: inventory every module's public packages (today **38 modules** declare them, **23 export whole
+- **Scope**: inventory every module's public packages (today **38 modules** declare them, **21 export whole
   subtrees**); list packages **explicitly**; split `com.gluonhq.netbeans.nbfx.api` into per-capability
-  modules (`nbfx-action-api`, `nbfx-view-api`, `nbfx-status-api`, `nbfx-editor-api`, `nbfx-progress-api`,
+  modules (`nbfx.api.actions`, `nbfx.api.view`, `nbfx.api.status`, `nbfx.api.editor`, `nbfx.api.progress`,
   `nbfx-project-api` in ide); move implementations to `*.impl`/UI modules; privatise what is not a
   contract; give each API module its own specification version.
-- **Acceptance**: no `<subpackages>` without a written justification; the governance guard (§6) is green;
-  dependants bumped to the new API modules; build/tests green.
+- **Acceptance**: the inventory table (doc 30 §1.1) is complete and accurate; every module is **tiered**
+  (T0/T1/T2); no `<subpackages>` without a written justification; dependants bumped to the new API
+  modules; build/tests green. The structural guard (next step) consumes this output — the guard does not
+exist yet, so it is not an acceptance item here.
 - **Depends**: none.
 - **Ordering**: early — before the API spreads further (before M1's API freeze).
 - **Landed**: n/a.
@@ -70,7 +75,8 @@ dependency graph and the owners live in [`34-upstream-sync-and-budget.md`](34-up
   `FxLayer` path constants become `private static final`; FX classes move to `…ui.fx` implementation
   modules. Mechanical, with **layer output invariance** and `apichanges.xml` entries.
 - **Acceptance**: no toolkit name in an SPI type/annotation/public constant; build/tests green; generated
-  layer identical; structural naming check green (doc 30 §6).
+  layer identical. **Freeze**: mark every in-flight branch/PR with "rename required", record the
+  known-violations baseline (57 public `Fx*` types, 26.10) and add the naming check to the guardrail step.
 - **Depends**: Public-package inventory (to know what is public).
 - **Ordering**: before M1's API freeze; coordinate with doc 31's factory migration.
 - **Landed**: n/a.
@@ -96,8 +102,9 @@ dependency graph and the owners live in [`34-upstream-sync-and-budget.md`](34-up
   `javax.swing`/`java.awt`/`org.openide.nodes|explorer|windows|awt|dialogs` in SPI/model jars), a
   governance check (public package ⇒ `arch.xml` + `apichanges`), and a naming check (`Fx*`/`Sw*` in SPI
   packages). Run in the verify phase, fail with a report.
-- **Acceptance**: the new checks replace `check-sources`/`check-dependencies` as the gate; a deliberately
-  broken fixture fails all of them; docs/rules updated.
+- **Acceptance**: the new checks replace `check-sources`/`check-dependencies` as the gate; they are **green
+  on day one** with the current exemptions and fail only on new violations or expired exemptions; a
+  deliberately broken fixture fails all of them; docs/rules updated.
 - **Depends**: API split/naming (so the checks pass on the new shape).
 - **Landed**: n/a.
 
@@ -123,9 +130,10 @@ dependency graph and the owners live in [`34-upstream-sync-and-budget.md`](34-up
   backends), and the `Lookup` services; document what a plugin may **not** rely on. Add the plugin guide,
   signature tests and version ranges, and the trust path (NBM signature verification, HTTPS-only update
   centers, native-artifact checksums, install-time capability display) in `nbfx.plugins`.
-- **Acceptance**: a sample plugin (NBM) compiles against T2 only, installs with signature verification and
-  works; T0 modules export nothing; the compatibility/signature tests run for T2; the trust policy is
-  documented and enforced in the plugin manager.
+- **Acceptance**: a sample plugin (NBM) compiles against the T2 modules **only** (no UI module on its
+  classpath), installs with signature verification and works; the plugin dependency manifest is
+  documented; T0 modules export nothing; T2-now modules carry signature tests; T2-proposed backends are
+  marked as such; the trust policy is documented and enforced in the plugin manager.
 - **Depends**: capability naming (T2 names), public-package split (tiers), plugins UI step.
 - **Ordering**: after `refactor/api-split`/`api-naming`; before M1's API freeze.
 - **Landed**: n/a.
@@ -136,9 +144,10 @@ dependency graph and the owners live in [`34-upstream-sync-and-budget.md`](34-up
   milestone, the **exemption register** (module, why, owner, removal milestone), the cluster pruning
   (`-prune-excluded`) and the structural guard that fails when a current-milestone `retire` module is
   still present or an exemption is expired. Also the Swing-surface audit (jdeps over the cluster).
-- **Acceptance**: the guard is green on the current state (exemptions for engine transitives); the
-  current milestone's `retire` modules are absent from the built distribution; the audit reports only
-  exempt modules; the matrix is updated per milestone.
+- **Acceptance**: the guard is green on the current state (exemptions for engine transitives, each with an
+  owner and a date); the current milestone's `retire` modules are absent from the built distribution; the
+  audit reports only exempt modules; the matrix rows carry the **measured** present/dependants state; the
+  matrix and exemptions are updated per milestone.
 - **Depends**: the M0 UI replacements; the guardrail redesign.
 - **Ordering**: continuously from M0 onward; the guard gates each milestone exit.
 - **Landed**: n/a.
@@ -439,19 +448,22 @@ dependency graph and the owners live in [`34-upstream-sync-and-budget.md`](34-up
 - **Depends**: Nodes & views API (or the existing tree infrastructure).
 - **Landed**: n/a.
 
-## Split the annotation modules (ownership by layer)
+## Split the annotation modules (ownership by tier)
 → detail: [`29-annotation-modules.md`](29-annotation-modules.md) · branch: `refactor/annotations-split`
-- **Scope**: split `nbfx.annotations` so each layer-generating annotation **and its processor** live with
-  the SPI they complement — options → `nbfx.options`, wizard → `nbfx.wizard`, property editors → the
-  property-editor module, project types → the project API module (`nbfx-ide`); the core module keeps only
-  shell registrations (actions/views/menus/toolbars/status) plus the shell `FxLayer` constants. Slices:
-  options, wizard, property editors, project types, `FxLayer` split, cleanup (compile-only deps, tests).
-- **Acceptance**: build/tests/guardrails green per slice; **generated layer fragments identical**; no
-  runtime module depends on an annotation module; adding a registration type no longer touches the shared
-  platform module.
-- **Depends**: none (can start immediately); slice 4 (project types) after the project API extraction.
-- **Ordering / parallel**: a structural refactor; can run in parallel with feature work, but land before
-  the option/wizard/property-sheet/project steps to avoid churn.
+- **Scope**: split `nbfx.annotations` so each registration annotation **and its processor** live in the
+  module its **tier** dictates: T2 annotations → **annotation-only API modules**
+  (`nbfx.api.options`, `nbfx.api.wizard`, `nbfx.api.property`, `nbfx.api.project` — no UI, so a plugin can
+  compile against them); T1/internal annotations stay with their owning module. The core module keeps only
+  shell registrations (actions/views/menus/toolbars/status) plus private path constants. Slices: options,
+  wizard, property editors, project types, path-constant split, cleanup (compile-only deps for nbfx
+  modules; normal compile deps for plugins; per-module processor tests).
+- **Acceptance**: build/tests green per slice; **generated layer fragments identical**; a sample plugin
+  compiles against the annotation/API modules **without any UI module**; adding a registration type no
+  longer touches the shared platform module.
+- **Depends**: **tier assignment (`refactor/api-split`) and the naming freeze (`refactor/api-naming`)**;
+  slice 4 (project types) after the project API extraction.
+- **Ordering / parallel**: after the tier assignment and rename; before the option/wizard/property-sheet/
+  project steps to avoid churn.
 - **Landed**: n/a.
 
 ## Output window (api.io + ANSI + FX view)
@@ -955,7 +967,7 @@ dependency graph and the owners live in [`34-upstream-sync-and-budget.md`](34-up
   chooser `...project.ui.TemplateChooserPanel`); the generic template wizard is
   `platform/openide.loaders.TemplateWizard` and headless creation is
   `platform/api.templates.FileBuilder` (already reused by `nbfx.templates`). `nbfx.project` is
-  documented (MVP §6) as the **Project model** module, but today holds only that UI.
+  documented ([`26`](26-roadmap.md) §3.1) as the **project model** module, but today holds only that UI.
 - **Steps**: move `NewFileWizard`, `NewProjectWizard`, `NewGradleProjectWizard`, `Wizards` from
   `nbfx.project` to `nbfx.project.ui`; move `WizardCommand`, `ProjectCommandsProvider`,
   `ProjectToolbarRegistrations` to `nbfx.project.actions`; leave `nbfx.project` for the Project model

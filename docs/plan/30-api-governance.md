@@ -12,24 +12,68 @@ The front-end SPI/naming architecture is [31-front-end-apis.md](31-front-end-api
 
 ## 1. Public-package inventory, and splitting the kitchen sink
 
-**Facts to fix:** 38 of ~39 nbfx modules declare `<public-packages>`; **23 export whole package subtrees**
-(`<subpackages>`); only 10 modules carry `arch.xml` + `apichanges.xml`.
+**Measured facts (2026-10-18):** 38 nbfx modules declare a `<public-packages>` element; **25 export at least
+one package** and **13 declare it empty**; of the 25, **21 export their whole package subtree**
+(`<subpackages>`); only **10 modules** carry `arch.xml` + `apichanges.xml`. Known violations to burn down:
+**57 public `Fx*` types** (doc 32 §5).
 
 **Rules.**
 
 1. A module declares `<public-packages>` **only** for packages that are contracts, and lists packages
    **explicitly** (no `<subpackages>` for a whole tree; the tree form is allowed only with a written
    justification in the module's `arch.xml`).
-2. `com.gluonhq.netbeans.nbfx.api` (which today exports `api.actions`, `api.editor`, `api.elements`,
-   `api.icons`, `api.progress`, `api.project`, `api.status`, `api.view`, …) is split **per capability**:
-   `nbfx-action-api`, `nbfx-view-api`, `nbfx-status-api`, `nbfx-editor-api`, `nbfx-progress-api`,
-   `nbfx-project-api` (ide), plus `nbfx.nodes` (model, already), and implementations move to `*.impl` or
-   the UI modules. Each split module gets its own specification version.
-3. Anything not intended as a contract becomes package-private or stays in a non-public package; a
+2. **Tier first.** Every module gets a tier from the table below before its packages are touched
+   ([`32`](32-api-tiers-and-plugin-contract.md) §2); T0 exports nothing, T1/T2 carry the governance
+   artefacts of §2.
+3. `com.gluonhq.netbeans.nbfx.api` (which today exports `api.actions`, `api.editor`, `api.elements`,
+   `api.icons`, `api.progress`, `api.project`, `api.status`, `api.view`, …) is split **per capability**
+   into `com.gluonhq.netbeans.nbfx.api.<capability>` modules (doc 32 §5.1), plus `nbfx.nodes` (model),
+   and implementations move to `*.impl`/UI modules. Each split module gets its own specification version.
+4. Anything not intended as a contract becomes package-private or stays in a non-public package; a
    `<friend>` dependency (see §5) is never a substitute for a contract.
-4. The inventory is a tracked artefact: a table (module → public packages → contract? owner → doc) kept in
-   this doc and updated by the `refactor/api-split` step; the governance guard in §6 fails the build when
-   a public package has no `arch.xml` entry.
+5. The table below **is** the tracked inventory (module → exported packages → tier → owner → action); the
+   `refactor/api-split` step updates it and the governance guard (§6) fails the build when a T1/T2 public
+   package has no `arch.xml` entry or a T0 module exports a package.
+
+### 1.1 Inventory and tier assignment
+
+`sub` = whole package subtree exported (must be listed explicitly or justified); `—` = no export.
+
+| Module | Exported package(s) | Tier (target) | Action |
+|---|---|---|---|
+| `nbfx.annotations` | `sub …annotations` | **T2** | split the registration annotations into `nbfx.api.*` annotation modules (doc 29/32); core keeps shell annotations |
+| `nbfx.api` | `sub …api` | **T2** | split into `nbfx.api.{actions,view,status,editor,progress,project,…}` |
+| `nbfx.docking` | `…docking` | T0 | no plugin needs it; privatise (or T1 if the shell SPI moves) |
+| `nbfx.menus` | `sub …menus` | T0 | implementation; registration via annotations |
+| `nbfx.options` | `sub …options` | **T2** | move the SPI/annotations to `nbfx.api.options`; keep the window in `nbfx.options.ui.fx` |
+| `nbfx.output` | `sub …output` | T0 | `api.io` is the public contract; privatise |
+| `nbfx.statusbar` | `sub …statusbar` | T0 | `FxStatusBar` is an implementation type; move the status SPI to `nbfx.api.status` |
+| `nbfx.windows` | `sub …windows` | T0 | shell implementation |
+| `nbfx.wizard` | `sub …wizard` | **T2** | move the SPI/annotation to `nbfx.api.wizard`; keep the dialog in `nbfx.wizard.ui.fx` |
+| `nbfx.debug` | `sub …debug` | T0 | engine/UI internals; the backend SPI is T2-*proposed* (doc 32 §3) |
+| `nbfx.file.actions` | `…file.actions` | T0 | implementation |
+| `nbfx.launcher` | `sub …launcher` | T0 | application entry point |
+| `nbfx.plugins` | `sub …plugins` | T0 | the plugin *manager* is a UI; the plugin **contract** is T2 (doc 32) |
+| `nbfx.project` | `sub …project` | **T2** | the project model (`ProjectModel`) is a plugin extension point |
+| `nbfx.project.context` | `sub …project.context` | T1 | shared between nbfx layers; no external promise |
+| `nbfx.project.customizer` | `sub …project.customizer` | **T2** | project-type customizer SPI (plugins add project types) |
+| `nbfx.project.ui` | `sub …project.ui` | T0 | New File/Project UI; templates are the plugin surface |
+| `nbfx.project.ui.api` | `sub …project.ui.api` | **T2** | build/run action SPI used by project types |
+| `nbfx.propertysheet` | `sub …propertysheet` | **T2** | move `PropertyModel`/`PropertyEditor` to `nbfx.api.property`; keep the sheet in the UI module |
+| `nbfx.run` | `sub …run` | **T2** | run-configuration SPI used by project types |
+| `nbfx.structure` | `sub …structure` | T1 | language-provider SPI between layers |
+| `nbfx.ui` | `sub …ui` | T0 | shell/UI glue |
+| `nbfx.vcs` | `sub …vcs` | **T2-proposed** | VCS SPI once designed/tested (doc 32 §3) |
+| `nbfx.project.ui.java` | `sub …project.ui.java` | T0 | Java usage implementation |
+| `nbfx.lib.javafx` | `sub javafx`, `sub com.sun.*`, `sub jfx.*` | **L** | external library (not an API; keep the licence/allowlist) |
+
+Modules with an empty `<public-packages/>` (T0 today): `nbfx.actions`, `nbfx.context`, `nbfx.editor`,
+`nbfx.editor.actions`, `nbfx.findinprojects`, `nbfx.findusages`, `nbfx.macos`, `nbfx.project.actions`,
+`nbfx.build.ant`, `nbfx.project.ui.ant`, `nbfx.project.ui.gradle`, `nbfx.project.ui.maven`,
+`nbfx.structure.java` — keep them empty.
+
+Owner for every nbfx module: **Sven** (single-maintainer project at this point); the owner is recorded so
+that the register is never anonymous. Re-assign if the team grows.
 
 ## 2. Per-package governance artefacts
 
@@ -123,8 +167,8 @@ on new violations or expired exemptions.
 
 ## 7. Startup and laziness budget
 
-Add a measured budget **with numbers** (targets, measurement method, recording and regression policy are
-in [`34-upstream-sync-and-budget.md`](34-upstream-sync-and-budget.md) §2):
+Add a measured budget **baselined at the walking skeleton** (targets, reference machine, deltas and
+regression policy are in [`34-upstream-sync-and-budget.md`](34-upstream-sync-and-budget.md) §2):
 
 - **startup** (cold start to the main window, and to "usable"),
 - **module count** in the nbfx clusters,
@@ -141,9 +185,9 @@ first use, views are created lazily by the docking layer.
 
 | Patch | Accesses | Why not API | Upstream proposal | Owner | Deadline |
 |---|---|---|---|---|---|
-| `patches/0001-friend-core-startup.patch` | `core.startup` internals from `nbfx.launcher` | friend is a private agreement | propose the launcher hook as an API (or replace the access with a documented entry point) | tbd | before M1 freeze |
-| `patches/0002-friend-maven.patch` | `maven` internals from `nbfx.project.ui.maven` | ditto | propose a Maven project API extension | tbd | before M2 |
-| `patches/0003-friend-maven-embedder.patch` | `maven.embedder` internals | ditto | propose an embedder API (or move to process-based Maven, doc 15) | tbd | before M2 |
+| `patches/0001-friend-core-startup.patch` | `core.startup` internals from `nbfx.launcher` | friend is a private agreement | propose the launcher hook as an API (or replace the access with a documented entry point) | Sven | M1 freeze (2027-03) |
+| `patches/0002-friend-maven.patch` | `maven` internals from `nbfx.project.ui.maven` | ditto | propose a Maven project API extension | Sven | M2 (2027-07) |
+| `patches/0003-friend-maven-embedder.patch` | `maven.embedder` internals | ditto | propose an embedder API (or move to process-based Maven, doc 15) | Sven | M2 (2027-07) |
 
 Rule: **no new friend patch** without an entry here, an upstream proposal and a deadline; a friend patch
 without a proposal is a fork we have not admitted.
@@ -152,8 +196,8 @@ without a proposal is a fork we have not admitted.
 
 | Dependency | What we use | Is it API? | Risk | Decision | Milestone |
 |---|---|---|---|---|---|
-| `org.netbeans.modules.debugger.jpda` / `.projects` | engine, models, source paths (doc 16) | no (`modules.*` internals) | breaks on upstream refactors | propose the needed entry points as API; vendor+patch if refused | M2 |
-| `org.netbeans.modules.java.hints`, `spi.java.hints` | `HintsInvoker`, hint implementations (doc 20) | partially SPI | internals | propose `HintsInvoker` as SPI; else vendored fork with upgrade cadence | M2 |
+| `org.netbeans.modules.debugger.jpda` / `.projects` | engine, models, source paths (doc 16) | no (`modules.*` internals) | breaks on upstream refactors | propose the needed entry points as API; vendor+patch with a monthly rebase if refused (owner Sven) | M2 |
+| `org.netbeans.modules.java.hints`, `spi.java.hints` | `HintsInvoker`, hint implementations (doc 20) | partially SPI | internals | propose `HintsInvoker` as SPI; else vendored fork with a monthly rebase (owner Sven) | M2 |
 | `org.netbeans.modules.refactoring.java`, `ide/refactoring.api` | refactoring plugins (doc 19) | SPI + internals | internals | reuse the SPI, upstream the plugin entry points we need | M2 |
 | `org.netbeans.lib.profiler` (`heap/*`, `results/*`, `.nps`) | HPROF parser, `.nps` reader (doc 17) | no (library internals + private serialization) | format/impl drift | reuse the heap parser; `.nps` import documented as best-effort; upstream an API or keep vendored | M2 |
 | `org.netbeans.modules.extexecution.base` / `.process` | process model (doc 15) | no | internals | prefer an nbfx-native model; reuse only if it proves stable | M0 |
