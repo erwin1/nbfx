@@ -433,11 +433,11 @@ class that imports a JDK `javax.swing` type passes and the two new clusters are 
 
 | Milestone | Target | Content | Exit |
 |---|---|---|---|
-| **M0 — Shell & platform** | 2026-12 | shell/docking/actions/menus/status, dialogs, progress, theme, options, settings UI, nodes+property views, output, execution, terminal, quick search, credentials, favourites, templates, wizard | the walking-skeleton scenario (open→edit→build→run→output→commit) runs on a **placeholder project** (no real project type until M2); the `projectuiapi.base` bridge in `launcher`/`ui` is **removed** and the M0 rows of the retirement matrix are absent; `refactor/module-names` + `refactor/api-split` landed; all guards green; budget baseline recorded |
+| **M0 — Shell & platform** | 2026-12 | shell/docking/actions/menus/status, dialogs, progress, theme, options, settings UI, nodes+property views, output, execution, terminal, quick search, credentials, favourites, templates, wizard, packaging (run from the built distribution) | the walking-skeleton scenario (open→edit→build→run→output→commit) runs on a **placeholder project** (no real project type until M2); the `projectuiapi.base` bridge in `launcher`/`ui` is **removed** and the M0 rows of the retirement matrix are absent; `refactor/module-names` + `refactor/api-split` landed; all guards green; budget baseline recorded |
 | **M1 — IDE core** | 2027-03 | project model, editor (core + Java), structure, search, usages (generic + Java), file actions, VCS+Git, diff, local history, tests **UI**, libraries, task list/bookmarks, plugins UI | open/edit/search/find/commit/run-tests in FX on a J2SE project; every explorer panel renders through `api.nodes` (except popups) — [Appendix F](appendix/F-node-and-view-migration.md); the M1 rows of the retirement matrix absent; guards green |
 | **M2 — Java tooling** | 2027-07 | project types (J2SE/Maven/Gradle/Ant), Java Platforms, editor intelligence (goto, usages, hints, refactoring, codegen, Javadoc), debugger, profiler, Java tests engines/coverage | daily Java work on a Maven **and** an Ant project; the M2 rows of the retirement matrix absent; guards green |
 | **M3 — JavaFX usage** | 2027-09 | JavaFX project, FXML editing, SceneBuilder | a JavaFX project opens, edits FXML, and runs; `javafx.enabled` round-trips |
-| **M4 — Breadth** | 2027-12 | i18n, beans, JShell, remote debug/profiler, export/import, accessibility, multi-window, module graph view | the intended feature scope is present; guards green; a11y pass recorded |
+| **M4 — Breadth** | 2027-12 | i18n, beans, JShell, remote debug/profiler, export/import, accessibility, multi-window, module graph view, OS bundles/installers (jpackage, Decision 19) | the intended feature scope is present; guards green; a11y pass recorded |
 | **M5 — Ecosystem** | 2028 | plugin API hardening, compatibility reports, update centers, docs/tutorials | a third-party plugin builds against the published API and is published |
 
 ### 10.1 Critical path
@@ -575,7 +575,14 @@ toolkit-free `PanelModel`/`FieldModel`; revisit generics only if a second compon
 **W8 — Upstream and retirement.** `chore/upstream-sync` (monthly pin/patch rebase, patch register, patch
 budget, CI), `refactor/swing-retirement` (execute the retirement matrix of
 [Appendix D.4](appendix/D-bridge-and-retirement-matrix.md); `check-packaging` asserts the absence),
-`feature/plugin-api` (contract docs, sample plugin, trust).
+`feature/plugin-api` (contract docs, sample plugin, trust), `feature/plugin-quickstart` (the skeleton plugin,
+its NBM build and a view + a command — [Appendix E.6.1](appendix/E-contracts.md)).
+
+**W10 — Packaging and distribution.** `feature/packaging`: the app image built from `nbbuild/netbeans` (M0),
+then OS bundles/installers (M4) carrying the `libs.*` natives and the licences
+([Appendix G](appendix/G-licences-and-notices.md)); branding (icons, splash, about), first-run and the update
+centers. **Decide jpackage vs NBI here** (Decision 19). Acceptance: a clean machine installs, launches and
+passes `check-licences`/`check-baseline`/`check-figures` on the packaged image.
 
 **W9 — Upstream proposals.** Per [Appendix H](appendix/H-upstream-proposals.md), each with a tracked upstream
 issue, a prototype in nbfx and a recorded fallback: `chore/upstream-module-tools` (the portable `nbbuild`
@@ -638,6 +645,9 @@ Order and the per-proposal credibility test are in [H.8](appendix/H-upstream-pro
     milestone.**
 18. **Baseline**: JDK 25, JavaFX 27, `javac.release=25`, FX on the classpath (unnamed module) with the
     `--add-exports` list centralised if that ever changes, agent-free profiling, Monocle for tests (§8.1).
+19. **Packaging**: build the app image from `nbbuild/netbeans` at M0, and produce OS bundles/installers with
+    **jpackage** at M4 unless a spike shows it cannot meet the requirement (then NBI). Plugins are built as
+    **NBMs** with the NetBeans `nbm` Ant harness (Appendix E.6.1).
 
 ## 14. Open questions
 

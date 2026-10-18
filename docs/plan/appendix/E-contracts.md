@@ -105,6 +105,22 @@ enough to build a plugin. The allowlist becomes:
 The published API modules of the extension points the plugin implements; nothing else. State it as a table in
 `api.plugins`' `arch.xml` (the plugin-author doc).
 
+### E.6.1 Registering things (what a plugin actually does)
+
+| The plugin wants to… | It registers | Mechanism |
+|---|---|---|
+| add a command / menu item | `@ActionRegistration` + `@ActionReference` | layer, via `api.actions` |
+| add a view | `@ViewRegistration` | layer, via `api.views` |
+| add an options panel | `@OptionsRegistration` | layer, via `api.options` |
+| provide a service | `@ServiceProvider(service = X.class)` | `META-INF/services` |
+| handle a file type | a `DataLoader`/`MultiFileLoader` + MIME type | `openide.loaders` (`DataObject`/`DataFolder`) — **never `DataNode`** |
+| add a project type | `@ProjectTypeRegistration` + `ProjectFactory`/`LookupProvider` | `api.project` + `org.netbeans.api.project` |
+| build the plugin | — | an **NBM** via the NetBeans `nbm` Ant harness (what the module system expects), JDK 25, compiled against the T2-FX/M modules it implements |
+
+The quickstart (skeleton plugin + build + a view and a command) is the deliverable
+`feature/plugin-quickstart` (W8); a `nbm-maven-plugin` path is documented only if a maintained version exists.
+Without this, M5's exit ("a third-party plugin builds") is untestable.
+
 ## E.7 Typed factories — remove the speculative generics
 
 `PLAN.md` §5.2 proposes `OptionsPanelFactory<C>`, `WizardUi<C>`, `PropertyEditorFactory<C>`, `ViewFactory<C>`
