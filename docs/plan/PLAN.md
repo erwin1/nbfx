@@ -134,10 +134,13 @@ Governed set today: `nbfx.api`, `nbfx.annotations`, `nbfx.project.ui.api`, `nbfx
 T0 modules carry no specification version.
 
 **Plugin contract.** A plugin may use: the registration annotations, the T2-FX/M API modules of the
-extension points it implements, and the platform core (`org.openide.util`, `org.openide.filesystems`,
-`org.openide.util.lookup`). It may not use: T0 modules, layer paths, `*Impl` classes, view layouts, theme
-CSS classes. A `Node`-returning API documents ownership (new node per call; the shell owns what a view
-hands over). Menu contributions are FX `MenuItem`s.
+extension points it implements, the platform core (`org.openide.util`, `org.openide.filesystems`,
+`org.openide.util.lookup`), plus `org.openide.loaders` **API only** (`DataObject`/`DataFolder`, never
+`DataNode`) and `org.netbeans.api.project` up to `Project` — the full allowlist is
+[Appendix E.6](appendix/E-contracts.md). It may not use: T0 modules, layer paths (`LayerPaths`), `*Impl`
+classes, view layouts, theme CSS classes. A `Node`-returning API documents ownership (new node per call; the
+shell owns what a view hands over) and the shell sets an `AccessibleRole` where the plugin does not. Menu
+contributions are FX `MenuItem`s.
 
 **Trust (proposed until shipped).** NBM JAR signature verification with a system/pinned trust anchor, HTTPS
 update centers, pinned SHA-256 for bundled native artifacts, install-time capability display.
@@ -148,11 +151,12 @@ update centers, pinned SHA-256 for bundled native artifacts, install-time capabi
    explorer context; the platform provides the FX views (tree, tree-table, table, list) and the property
    sheet. The navigator, structure view, breakpoints, test results, variables and task list all render
    through it.
-2. **Typed factories, one SPI many toolkits.** Component-producing SPIs (options, wizard, property editor,
-   views, dialogs, menu chrome) are generic over the toolkit's component type `C`:
-   `OptionsPanelFactory<C>`, `WizardUi<C>`, `PropertyEditorFactory<C>`, `ViewFactory<C>`. The shell binds
-   `C = javafx.scene.Node`; a test front end binds a test node; nothing casts. A raw
-   `Lookup.lookup(OptionsPanelFactory.class)` is forbidden.
+2. **Model-first panels, concrete FX factories.** Component-producing SPIs are **concrete and FX-typed**
+   (`OptionsPanelFactory` returning `javafx.scene.Node`), because there is exactly one front end; the
+   portability lives in the toolkit-free model (`PanelModel`, `FieldModel`, `Validator`), which a future
+   front end binds. The `OptionsPanelFactory<C>`/`WizardUi<C>`/`ViewFactory<C>` generics are removed: NetBeans
+   `Lookup` cannot resolve a parameterised type, so the plan forbade the only mechanism it needed. See
+   [Appendix E.7](appendix/E-contracts.md).
 3. **Model-first panels.** A panel that is only fields/validation is a `PanelModel` (ordered `FieldModel`s
    with a `PropertyEditorRef`, actions as command ids, a validator) rendered by the property sheet — no
    component factory at all. Use the factory only for genuinely custom visualisations.
@@ -172,6 +176,10 @@ update centers, pinned SHA-256 for bundled native artifacts, install-time capabi
    platform never import them. The editor's text model is the FX rich-text model, and the semantic layer
    deals in character offsets — never in a Swing `Document`. See
    [Appendix B](appendix/B-java-source-isolation.md).
+10. **Every SPI states its thread; every subscription is owned and disposed; every published view is
+    accessible.** The thread rule per SPI, the disposal/ownership rules (a `subscribe` returns a resource),
+    the leak test and the a11y requirement are normative in
+    [Appendix E](appendix/E-contracts.md) §§E.1–E.3.
 
 ## 6. Module catalogue
 
@@ -391,6 +399,10 @@ on day one** with the current exemptions and fails only on a new violation or an
 | `check-api` *(new)* | exported set ⊆ `arch.xml` set; dependant spec versions exist | a subtree export, a missing `arch.xml` `<api>` entry |
 | `check-naming` *(new)* | no `Fx*`/`Impl`/`Object`-factory in public API; layer-path constants only in the owning `api.*` module | a forbidden public name |
 | `check-budget` *(new)* | startup, "usable", first completion, module count, memory | >20 % regression vs the milestone baseline |
+| `check-i18n` *(new)* | every user-visible string is an `NbBundle` key present in `Bundle.properties` | a missing key, a hardcoded string |
+| `check-logging` *(new)* | no `System.out`/`printStackTrace`; `Logger` named after the module | a stray print |
+| `check-lookup` *(new, test)* | the `Lookups.forPath` invocation count is constant across N user actions (Appendix E.5) | a per-action layer lookup |
+| lifecycle *(new, test)* | the leak test: open/close a view N times; listener count returns to baseline and the view is weakly reachable (Appendix E.2) | a leaked subscription |
 
 The old, grep-only `check-jars` greps the *file list* of three cluster directories for `javax/swing/`, so a
 class that imports a JDK `javax.swing` type passes and the two new clusters are unscanned; that is the gap
@@ -524,6 +536,6 @@ budget, CI), `refactor/swing-retirement` (execute the retirement matrix of
 | [B — Java source isolation](appendix/B-java-source-isolation.md) | the `java.source` audit, the existing seams, the `java.model` bridge, the module split, the policy and the migration steps |
 | [C — Naming and rename table](appendix/C-naming-and-rename-table.md) | the rule per location, all 53 public `Fx*` types and their targets, `api.layer.LayerPaths`, the `refactor/api-naming` step |
 | D — [Bridge and retirement matrix](appendix/D-bridge-and-retirement-matrix.md) | every upstream module (Swing API bridges, the 45 editor/Java modules, the indexing dependency, the compiler choice) with mechanism, owner, milestone and exemptions, plus the retirement matrix per milestone |
-| E — Contracts *(next iteration)* | threading per SPI, disposal/ownership + leak test, accessibility, error/logging, Lookup rule, plugin allowlist, core SPI signatures (incl. `C`-binding) |
+| E — [Contracts](appendix/E-contracts.md) | threading per SPI, disposal/ownership + the leak test, accessibility, error/logging, the precise `Lookup` rule, the plugin allowlist, and the removal of the generic-`C` factories |
 | F — Node/view migration *(next iteration)* | the 25 tree/table view files and their models → `api.nodes`, owners, milestones |
 | G — Licences and notices *(next iteration)* | JavaFX (GPLv2+CE), async-profiler, JLine, jgit, JaCoCo; NOTICE check |
