@@ -10,11 +10,19 @@ disagree, the rule wins (or the rule is changed here first).
 nbfx-libs → nbfx-api → nbfx-platform → nbfx-ide → nbfx-java / nbfx-javafx
 ```
 
-- **Downward dependencies only.** No upward edges, no cycles, no cross-sibling edges. The module graph is a
-  DAG and is enforced by the build.
+- **Downward dependencies only (nbfx edges).** No upward edges, no cycles. Siblings only in the declared
+  order `java` → `javafx`. An **upstream reuse edge** (an nbfx module on a NetBeans module) is not a layer
+  edge: it is recorded with a justification and a retirement plan ([Appendix A](plan/appendix/A-toolkit-policy.md)).
+  The module graph is a DAG and is enforced by the build.
 - **No split packages.** Every package has exactly one owning module.
-- **Model modules are toolkit-free.** No `javafx.*`, no `javax.swing`/`java.awt`, no legacy NetBeans UI in
+- **Model modules are toolkit-free.** No `javafx.*`, no `javax.swing`/`java.awt` in an M module, except
+  the named, owned exemptions of [Appendix A](plan/appendix/A-toolkit-policy.md) (interfaces that an
+  upstream SPI forces into a signature, never components); no legacy NetBeans UI in
   any module a headless engine or plugin backend consumes.
+- **One semantic boundary per language.** The Java layer is the only place that may import
+  `org.netbeans.api.java.source`/`libs.javacapi`; every other layer consumes the toolkit-free seams
+  (`EditorDocument`, `OpenSources`, `api.elements`). `javax.swing.text.Document` is banned everywhere
+  ([Appendix B](plan/appendix/B-java-source-isolation.md)).
 - **The UI toolkit lives in implementations**, never in an API type name.
 - **`main` is the truth.** A statement in the plan refers to `main`; local branches are named explicitly.
 
@@ -34,8 +42,9 @@ nbfx-libs → nbfx-api → nbfx-platform → nbfx-ide → nbfx-java / nbfx-javaf
   `javafx`), APIs under `…nbfx.api.<capability>`, libraries under `…nbfx.libs.<lib>`. Package == module
   code-name.
 - **API/SPI types**: capability nouns (`OptionsPanelController`, `WizardIterator`, `ViewProvider`,
-  `ProjectModel`, `NodeModel`, `Settings`). **No `Fx*`/`Sw*` prefixes, no `*Impl`, no public layer-path
-  constants, no `Object`-typed factories.**
+  `ProjectModel`, `NodeModel`, `Settings`). **No `Fx*`/`Sw*` prefixes, no `*Impl`, no `Object`-typed
+  factories, no `com.sun.source`/`javax.lang.model` types in a value type** (convert at the boundary —
+  nb-javac duplicates those classes; see Appendix A.4).
 - **Registration annotations**: `@<Capability>Registration`, living in the owning `api.*` module (there are
   no separate annotation modules).
 - **Implementations**: may use the toolkit prefix, but only in non-public classes of the implementation
@@ -57,8 +66,10 @@ public only if it is a contract; never `<subpackages>` for a whole tree.
 
 **Registration ownership**: an annotation lives in the API module of the capability it registers; only
 shell registrations (actions/views/menus/toolbars/status) belong to their respective shell API modules.
-Layer paths are private constants per processor/reader, with a test asserting the generated layer contains
-the folders the readers query.
+Layer paths are a **contract**: the folder constants are public and versioned in the owning `api.*` module
+(or annotation attributes with public defaults), and a contract test builds a layer from a sample annotated
+class and reads it back through the reader API. "Private constants per reader" is rejected — no test can
+compare two privates.
 
 **Plugin contract**: a plugin depends only on the annotation-bearing `api.*` modules, the T2-FX/M modules of
 the extension points it implements, and the platform core (`org.openide.util`, `org.openide.filesystems`,
@@ -103,7 +114,7 @@ run); no module starts a process itself.
   L jars allowlisted;
 - API governance: `arch.xml` + `apichanges` + signature tests; dependant spec versions exist;
 - public-package audit: explicit packages, tiers derived from the audit; T0 with consumers is an error;
-- naming: no toolkit/`Impl`/`Object` in public API; no public layer-path constants;
+- naming: no toolkit/`Impl`/`Object` in public API; layer-path constants only in the owning `api.*` module;
 - budget: startup, "usable", first completion, module count, memory; >20 % regression blocks a milestone.
 
 The guardrail must be **green on day one** with the current exemptions; it fails only on new violations or

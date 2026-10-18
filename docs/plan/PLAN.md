@@ -43,13 +43,22 @@ clusters (build order, dependencies downward only):
 
 **Rules.**
 
-1. **Downward only.** `java`/`javafx` → `ide` → `platform` → `api` → `libs`. No upward edges, no cycles,
-   no siblings across layers. Enforced by the module-graph guard.
+1. **Downward only (nbfx edges).** `java`/`javafx` → `ide` → `platform` → `api` → `libs`. No upward
+   edges, no cycles. Siblings are allowed only in the declared order `java` → `javafx`. **Upstream reuse
+   edges** (an nbfx module depending on a NetBeans module) are not layer edges; they are allowlisted
+   separately with a justification (Appendix A). Enforced by the module-graph guard.
 2. **No split packages.** A package has exactly one owning module.
 3. **Models are toolkit-free.** Any module that a headless engine or a plugin backend uses contains no
    `javafx.*`, no `javax.swing`/`java.awt`, no legacy NetBeans UI.
 4. **The UI toolkit lives in implementations**, never in an API type name.
 5. **State the tree.** A claim in this plan refers to `main`; local branches are named explicitly.
+6. **One semantic boundary per language.** The Java semantic layer (`java.*`) is the only place that may
+   import `org.netbeans.api.java.source`/`org.netbeans.libs.javacapi`; every other layer consumes the
+   toolkit-free seams (`api.editor.EditorDocument`, `api.editor.OpenSources`, `api.elements.*`). See
+   [Appendix B](appendix/B-java-source-isolation.md).
+7. **The toolkit policy is Appendix A.** Allowed/forbidden types per tier, the exemption register and the
+   guard mechanism live in [Appendix A](appendix/A-toolkit-policy.md); §9 states the guard, Appendix A
+   states the rule.
 
 ## 3. Naming conventions
 
@@ -86,9 +95,13 @@ factories, `Map`-parameters with string keys.
 
 ### 3.3 Layer paths
 
-Layer folder names are **implementation detail**: each processor and each reader owns a
-`private static final String` and a test asserts that the generated layer contains the folders the readers
-query. No public constants for layer paths.
+Layer folder names are a **contract**, not an implementation detail: the writer (annotation processor) and
+the reader (the shell) must query the same folder. Today `nbfx.annotations.FxLayer` publishes the folders
+(`NbFx/Views`, `NbFx/Menus`, …) as public constants, and that is the right shape. Decision: the folder
+constants stay **public and versioned in the owning `api.*` module** (or as annotation attributes with
+public defaults). The writer/reader agreement is asserted by a **contract test** that builds a layer from a
+sample annotated class and reads it back through the reader API. "Private constant per reader" is rejected:
+no test can compare two privates, so a typo becomes a silent runtime no-op.
 
 ## 4. API tiers and governance
 
@@ -103,7 +116,17 @@ query. No public constants for layer paths.
 **Governance per T1/T2-FX/M module:** explicit `<public-packages>` (one package per capability, never
 `<subpackages>`), `arch.xml` `<api>` entries, `apichanges.xml` on every change, `@since` on new elements,
 a signature test, and a **starting specification version of 1.0** with the bump rule: additive → 1.1,
-incompatible → 2.0. The guard checks that a dependant's `<specification-version>` exists.
+incompatible → 2.0. The guard checks that a dependant's `<specification-version>` exists. The
+signature-test harness is the NetBeans `sigtest` support in `nbbuild`; name the target per module.
+
+**Today's reality — the split exists to fix this.** `nbfx.api` and `nbfx.annotations` export their whole
+subtree (`<subpackages>`, `nbfx.api/nbproject/project.xml:76-78`, `nbfx.annotations/…:47-49`), so every
+class in them — including `ActionLayerReader`, `FxActionRef`, `LayerMenuBuilder` — is public API, and
+`nbfx.api/arch.xml` has no `<api>` entries. The split replaces the subtree export with explicit
+per-module packages plus real `arch.xml` `<api>` entries, and the guard asserts *exported set ⊆ arch set*.
+Governed set today: `nbfx.api`, `nbfx.annotations`, `nbfx.project.ui.api`, `nbfx.propertysheet`,
+`nbfx.project.customizer`, `nbfx.options`, `nbfx.output`, `nbfx.statusbar`, `nbfx.windows`, `nbfx.wizard`.
+T0 modules carry no specification version.
 
 **Plugin contract.** A plugin may use: the registration annotations, the T2-FX/M API modules of the
 extension points it implements, and the platform core (`org.openide.util`, `org.openide.filesystems`,
@@ -139,6 +162,11 @@ update centers, pinned SHA-256 for bundled native artifacts, install-time capabi
    find-usages and Go-to are providers over the same index.
 8. **One theme.** Semantic token CSS for every FX surface, light/dark, brandable (doc: theming section in
    the archived research).
+9. **One Java semantic boundary.** `java.source`/`libs.javacapi` are confined to the Java layer behind one
+   bridge (`java.model`) and the toolkit-free seams; the editor core, the generic usages engine and the
+   platform never import them. The editor's text model is the FX rich-text model, and the semantic layer
+   deals in character offsets — never in a Swing `Document`. See
+   [Appendix B](appendix/B-java-source-isolation.md).
 
 ## 6. Module catalogue
 
@@ -156,8 +184,10 @@ update centers, pinned SHA-256 for bundled native artifacts, install-time capabi
 | `api.output` | M | `OutputConsole`, `OutputWriter`, hyperlinks, folds, colours |
 | `api.execution` | M | `ExecutionService`, `ExecutionDescriptor`, `ExecutionHandle`, `PtySupport` |
 | `api.terminal` | M | `TerminalModel`, `PtyProcess`, `TerminalSession` |
-| `api.nodes` | M | `NodeModel`, `ChildrenModel`, `ChildFactory`, `PropertyModel`, `PropertySetModel`, `ExplorerContext`, `PropertyChange` events |
-| `api.property` | T2-FX | `PropertyEditor`, `PropertyEditorRegistration`, `PropertyEnv`, `PropertyEditorRef` |
+| `api.elements` | M | `SourceElementKind`, `SourceTypeKind`, `SourceModifiers`, `SourceLocation`, `ElementIcons` — the toolkit-free, nb-javac-safe element boundary (Appendix A.4) |
+| `api.nodes` | M | `NodeModel`, `ChildrenModel`, `ChildFactory`, `PropertyModel`, `PropertySetModel`, `PropertyEditorRef` (opaque handle), `ExplorerContext`, property-change events |
+| `api.property` | T2-FX | `PropertyEditor`, `PropertyEditorRegistration`, `PropertyEnv`; depends on `api.nodes` (the handle lives there — M never depends on a T2-FX module) |
+| `api.usages` | M | `UsagesProvider`, `UsageResult`, `UsageKind` — the generic usages engine SPI; the Java provider is `java.usages` |
 | `api.project` | M | `ProjectModel`, `ProjectRegistry`, `ProjectFactory`, `ProjectFile`/`Directory`/`Library`, `@ProjectTypeRegistration`, `ProjectKindProvider` |
 | `api.build` | M | `BuildActionProvider`, `BuildExecution`, `BuildOutput`, `BuildProgress`, `BuildCommands`, `RunConfiguration` |
 | `api.project.customizer` | T2-FX | `ProjectCustomizerPanel`, `@CustomizerRegistration`, `ProjectCustomizerPanel` rendering |
@@ -183,6 +213,7 @@ T0/T1 inside the owning module and promote deliberately.
 | Module | Purpose | Notes |
 |---|---|---|
 | `platform.shell` | main window, session restore, app state | replaces current `nbfx.ui` |
+| `platform.editor` | FX code area, buffers, decorations, search/replace, completion popup; **no language** | from `nbfx.editor` (Appendix B.4) |
 | `platform.workspace` | docking model + FX docking view | replaces `nbfx.docking`/`nbfx.windows` |
 | `platform.actions` | command registry, keymap, action context impl | replaces `nbfx.actions` + `nbfx.context` |
 | `platform.menus` | menu/toolbar/context-menu assembly from the layer | replaces `nbfx.menus` |
@@ -203,7 +234,9 @@ T0/T1 inside the owning module and promote deliberately.
 | `platform.wizard` | wizard framework + themed shell | replaces `nbfx.wizard` |
 | `platform.launcher` | application entry point | replaces `nbfx.launcher` |
 | `platform.macos` | macOS integration (menus, file associations) | replaces `nbfx.macos` |
-| `platform.annotations` | shell annotations (action/view/menu/toolbar/status) + processors | dissolved into `api.*`; only if a shared processor module is needed |
+
+*(Shell annotations — action/view/menu/toolbar/status — live in their `api.*` module, not in a separate
+`platform.annotations` module; the annotation processors ship in the same jar. See Decision 4.)*
 
 ### 6.3 `nbfx-ide` — IDE building blocks
 
@@ -214,12 +247,12 @@ T0/T1 inside the owning module and promote deliberately.
 | `ide.project.actions` | project commands/menus | replaces `nbfx.project.actions` |
 | `ide.project.customizer` | customizer host + built-in categories | on `api.project.customizer` |
 | `ide.build` | build/run orchestration on `api.build` + `api.execution` | replaces `nbfx.run` |
-| `ide.editor` | FX editor (code area, completion, breadcrumbs, find/replace, actions) | replaces `nbfx.editor` + `nbfx.editor.actions` |
-| `ide.editor.intelligence` | goto/search, usages, hierarchies, hints, refactoring, codegen engines + UI | new |
+| `ide.editor.xml`, `ide.editor.css` | XML/CSS syntax decoration and breadcrumbs (language modules, not core) | from `nbfx.editor` |
+| `ide.editor.intelligence` | UI for goto/search, usages, hierarchies, hints, refactoring preview, codegen, Javadoc | new; engines/SPIs are `api.editor.intelligence` (M) |
 | `ide.javadoc` | Javadoc viewing/index/completion | new |
 | `ide.structure` | structure/navigator view on `api.nodes` | replaces `nbfx.structure` |
 | `ide.search` | find in projects + results view | replaces `nbfx.findinprojects` |
-| `ide.usages` | find usages | replaces `nbfx.findusages` |
+| `ide.usages` | generic usages engine + results tree/UI over `api.usages` | generic half of `nbfx.findusages` |
 | `ide.file` | file actions/desktop API | replaces `nbfx.file.actions` |
 | `ide.debug` | debugger views + session UI on `api.debug` | replaces `nbfx.debug` UI |
 | `ide.profiler` | profiler views on `api.profile` | new |
@@ -245,8 +278,11 @@ T0/T1 inside the owning module and promote deliberately.
 | `java.projecttype.gradle` | Gradle project type |
 | `java.projecttype.ant` | Ant project support |
 | `java.build.ant` | Ant runner (in-process listeners) |
-| `java.editor` | Java semantics: parser services, completion, hints, refactoring, codegen, Javadoc |
+| `java.model` | **T0 bridge** over `org.netbeans.api.java.source`/`libs.javacapi`: classpath cache, in-memory `FileObject`, task runner, position↔offset, nb-javac normalisation into `api.elements` (Appendix B) |
+| `java.editor` | Java semantics of the editor: lexer decoration, semantic completion, mark-occurrences, highlights, diagnostics, Java breadcrumbs, hints/refactoring/codegen/Javadoc engines |
 | `java.structure` | Java structure provider |
+| `java.usages` | Java provider for `api.usages` (Java search over `java.model`) |
+| `java.navigation` | open-at-caret / `TreeNav` |
 | `java.debug` | JPDA backend (`api.debug`) |
 | `java.profiler` | JFR + async-profiler backends (`api.profile`) |
 | `java.tests` | JUnit/TestNG + Ant/Maven/Gradle + JaCoCo (`api.tests`) |
@@ -270,7 +306,7 @@ T0/T1 inside the owning module and promote deliberately.
 
 | Current module | Target |
 |---|---|
-| `nbfx.api` | split into `api.actions`, `api.views`, `api.status`, `api.editor`, `api.project`, `api.build`, `api.file`→`api.editor`/`ide.file`, `api.elements`→`api.views`/`api.editor`, `api.icons`→`api.views`, `api.progress`, `api.search`, `api.breadcrumbs`/`api.completion`→`api.editor` |
+| `nbfx.api` (61 classes in 12 packages + 4 root classes) | `api.actions`; `api.views` (from `api.view` + `api.icons`); `api.status`; `api.editor` (from `api.editor` + `api.breadcrumbs` + `api.completion`); `api.elements` **(kept as its own M module)**; `api.project`; `api.build`; `api.progress`; `api.search`; `api.file` → `api.editor`/`ide.file`. Root classes: `Cancellation` → `api.progress`, `ContentManager` → `api.editor`, `ErrorReporter` → `api.dialogs`, `FxApplicationMenu` → `api.views`/`platform.menus` |
 | `nbfx.annotations` | dissolved: annotations move into their `api.*` module; path constants private per reader + test |
 | `nbfx.actions`, `nbfx.context` | `platform.actions` |
 | `nbfx.docking`, `nbfx.windows` | `platform.workspace` |
@@ -290,31 +326,46 @@ T0/T1 inside the owning module and promote deliberately.
 | `nbfx.project.context` | `api.project` (context service) or `ide.project` |
 | `nbfx.project.customizer` | `ide.project.customizer` (+ `api.project.customizer`) |
 | `nbfx.run` | `ide.build` (+ `api.build`, `api.execution`) |
-| `nbfx.editor`, `nbfx.editor.actions` | `ide.editor` (+ `api.editor`) |
+| `nbfx.editor`, `nbfx.editor.actions` (88 files) | `platform.editor` (Java-free core, ~50 files) + `java.editor` (Java, ~36 files) + `ide.editor.{xml,css}` + `api.editor` (seam) |
 | `nbfx.structure` | `ide.structure` |
 | `nbfx.findinprojects` | `ide.search` |
-| `nbfx.findusages` | `ide.usages` |
+| `nbfx.findusages` (34 files) | `ide.usages` (generic engine + UI) + `java.usages` (Java search) + `api.usages` |
 | `nbfx.file.actions` | `ide.file` (+ `api.views` file context) |
 | `nbfx.debug` | `ide.debug` (+ `api.debug` + `java.debug`) |
 | `nbfx.vcs` | `ide.vcs` (+ `ide.vcs.git` + `api.vcs`) |
 | `nbfx.plugins` | `ide.plugins` (+ `api.plugins`) |
 | `nbfx.build.ant` | `java.build.ant` |
-| `nbfx.project.ui.java` | `java.projecttype.java` |
+| `nbfx.project.ui.java` | `java.projecttype.java` (+ `java.navigation` for `utils/TreeNav`) |
 | `nbfx.project.ui.maven` | `java.projecttype.maven` |
 | `nbfx.project.ui.gradle` | `java.projecttype.gradle` |
 | `nbfx.project.ui.ant` | `java.projecttype.ant` |
-| `nbfx.structure.java` | `java.structure` |
+| `nbfx.structure.java` | `java.structure` (+ `java.model`) |
 
-The rename is one step (`refactor/module-names`), mechanical, with the cluster fragments and the
-`public-packages` updated; no behaviour change. It runs **before** the API split so the API modules get the
-final names.
+The table is **total**: every current module and every root-package class has exactly one target. The tree
+has 38 modules / 546 source files (`nbfx.editor` 88, `nbfx.api` 62, `nbfx.ui` 41, `nbfx.findinprojects` 39,
+`nbfx.structure.java` 36, `nbfx.findusages` 34). A reverse index (target ← sources) is added when the split
+starts; a target with neither a source nor a "new" note is a bug in the table.
+
+The rename is one step (`refactor/module-names`), mechanical in *code*, and it runs **before** the API split
+so the API modules get the final names. It is **not** behaviour-free: a module code-name change moves the
+`NbPreferences` root, the `Modules/<code-name>` layer namespace, the autoupdate id and the cluster/guard
+paths. Pre-1.0 that is allowed (no released version ⇒ code-name churn is permitted); the rule to record is
+**code-names freeze at 1.0**, and the step adds a settings/layer round-trip test before and after.
 
 ## 8. Data and compatibility
 
 - **Project properties** keep the NetBeans names (`javac.classpath`, `run.classpath`, `javadoc.*`, …) so
   Ant/Maven/Gradle projects round-trip; the customizer is the only FX part.
+- **Project type ids are user data.** An existing project stores `<type>` in `nbproject/project.xml`
+  (J2SE: `org.netbeans.modules.java.j2seproject`). Our modules may be renamed, but the *provided project
+  type id* and the `javafx.enabled` property must match the NetBeans convention exactly, or every existing
+  project stops opening. This is a hard rule, not a preference.
+- **nb-javac duplicates JDK types.** The IDE can run on nb-javac, which bundles its own
+  `javax.lang.model` classes; never compare element/modifier identity across the semantic boundary —
+  convert by name (Appendix A.4, `api.elements.SourceModifiers`).
 - **Preferences** keep the NetBeans nodes where a reused headless module owns them; nbfx-specific keys use
-  `nbfx.<capability>.<key>`.
+  `nbfx.<capability>.<key>`. Module code-name changes move `NbPreferences` roots: covered by a round-trip
+  test in `refactor/module-names`, and code-names freeze at 1.0.
 - **Formats**: we *read* `.nps`, `.hprof`, `.jfr`; we write only formats we own or that are public.
 - **Keymap/breakpoints/platform storage** stay in the platform storage; the UI reads/writes them.
 - **Debuggees/VCS/native tools** are launched through `api.execution` (PTY by default for run), so no
@@ -322,28 +373,34 @@ final names.
 
 ## 9. Guardrails (structural, in the build)
 
-| Check | Rule |
-|---|---|
-| module graph | no cycles; no upward layer edge; nbfx → nbfx edges only downward |
-| dependency allow| forbidden NetBeans UI modules (`openide.awt/nodes/explorer/windows/dialogs`, `core.windows`) absent from the runtime path, or exempted with owner + deadline |
-| bytecode — M | M jars contain no `javafx.*`, no `javax.swing`/`java.awt`, no legacy UI |
-| bytecode — T2-FX | no `javax.swing`/`java.awt`; JavaFX allowed |
-| bytecode — L | allowlisted; their packages forbidden in M jars |
-| API governance | every T1/T2-FX/M public package has `arch.xml` + `apichanges` + signature test; dependant spec versions exist |
-| public-package audit | every module's packages listed explicitly; T0 with external consumers is an error; tiers derived from the audit, re-run per milestone |
-| naming | no toolkit/`Impl`/`Object` in public API; no public layer-path constants |
-| budget | startup, "usable", first completion, module count, memory recorded per milestone; >20 % regression blocks |
+The rule is [Appendix A](appendix/A-toolkit-policy.md); this is the implementation. Every check is **green
+on day one** with the current exemptions and fails only on a new violation or an expired exemption.
+
+| Target (extend `check-purity.xml`) | Mechanism | Fails when |
+|---|---|---|
+| `check-sources` | import denylist + per-module allowlist | a forbidden import family outside its declared owner |
+| `check-sources` (Java boundary) | `org.netbeans.api.java.source`/`libs.javacapi` only in the `java.*` semantic modules | imported anywhere else (Appendix B.5) |
+| `check-dependencies` | walk each `project.xml` graph | a forbidden NetBeans UI module, or an upward layer edge |
+| `check-jars` | `jdeps` (references) **and** jar listing (bundled classes), on **all** clusters (`nbfx-libs`, `nbfx-api`, `nbfx-platform`, `nbfx-ide`, `nbfx-java`, `nbfx-javafx`) | a reference/bundle of a forbidden package outside an allowed tier or exemption |
+| `check-packaging` | the retirement matrix (absent modules per milestone) | a retired module reappears in the distribution |
+| `check-api` *(new)* | exported set ⊆ `arch.xml` set; dependant spec versions exist | a subtree export, a missing `arch.xml` `<api>` entry |
+| `check-naming` *(new)* | no `Fx*`/`Impl`/`Object`-factory in public API; layer-path constants only in the owning `api.*` module | a forbidden public name |
+| `check-budget` *(new)* | startup, "usable", first completion, module count, memory | >20 % regression vs the milestone baseline |
+
+The old, grep-only `check-jars` greps the *file list* of three cluster directories for `javax/swing/`, so a
+class that imports a JDK `javax.swing` type passes and the two new clusters are unscanned; that is the gap
+`jdeps` closes.
 
 ## 10. Roadmap
 
 | Milestone | Target | Content | Exit |
 |---|---|---|---|
-| **M0 — Shell & platform** | 2026-12 | shell/docking/actions/menus/status, dialogs, progress, theme, options, settings UI, nodes+property views, output, execution, terminal, quick search, credentials, favourites, templates, wizard | app usable end-to-end for one project type; M0 Swing modules retired; guardrails green; budget baseline recorded; module/API rename + split landed |
-| **M1 — IDE core** | 2027-03 | projects, editor, structure, search, usages, file actions, VCS+Git, diff, local history, tests UI, libraries, task list/bookmarks, plugins UI, module graph | open/edit/search/find/commit/test/manage in FX; M1 Swing retired |
-| **M2 — Java tooling** | 2027-07 | project types (J2SE/Maven/Gradle/Ant), Java Platforms, editor intelligence (goto, usages, hints, refactoring, codegen, Javadoc), debugger, profiler, Java tests/coverage | daily Java work in nbfx; M2 Swing retired |
-| **M3 — JavaFX usage** | 2027-09 | JavaFX project, FXML editing, SceneBuilder | original JavaFX-cluster capability |
-| **M4 — Breadth** | 2027-12 | module graph, i18n, beans, JShell, remote debug/profiler, export/import, accessibility, multi-window | feature parity with the intended IDE scope |
-| **M5 — Ecosystem** | 2028 | plugin API hardening, compatibility reports, update centers, docs/tutorials | third-party plugin can be built and published |
+| **M0 — Shell & platform** | 2026-12 | shell/docking/actions/menus/status, dialogs, progress, theme, options, settings UI, nodes+property views, output, execution, terminal, quick search, credentials, favourites, templates, wizard | the walking-skeleton scenario (open→edit→build→run→output→commit) runs on a **placeholder project** (no real project type until M2); the `projectuiapi.base` bridge in `launcher`/`ui` is **removed** and the M0 rows of the retirement matrix are absent; `refactor/module-names` + `refactor/api-split` landed; all guards green; budget baseline recorded |
+| **M1 — IDE core** | 2027-03 | project model, editor (core + Java), structure, search, usages (generic + Java), file actions, VCS+Git, diff, local history, tests **UI**, libraries, task list/bookmarks, plugins UI | open/edit/search/find/commit/run-tests in FX on a J2SE project; the M1 rows of the retirement matrix absent; guards green |
+| **M2 — Java tooling** | 2027-07 | project types (J2SE/Maven/Gradle/Ant), Java Platforms, editor intelligence (goto, usages, hints, refactoring, codegen, Javadoc), debugger, profiler, Java tests engines/coverage | daily Java work on a Maven **and** an Ant project; the M2 rows of the retirement matrix absent; guards green |
+| **M3 — JavaFX usage** | 2027-09 | JavaFX project, FXML editing, SceneBuilder | a JavaFX project opens, edits FXML, and runs; `javafx.enabled` round-trips |
+| **M4 — Breadth** | 2027-12 | i18n, beans, JShell, remote debug/profiler, export/import, accessibility, multi-window, module graph view | the intended feature scope is present; guards green; a11y pass recorded |
+| **M5 — Ecosystem** | 2028 | plugin API hardening, compatibility reports, update centers, docs/tutorials | a third-party plugin builds against the published API and is published |
 
 ## 11. Workstreams (the work, sliced)
 
@@ -353,12 +410,17 @@ workstream matters; across workstreams only the stated dependencies do.**
 **W0 — Walking skeleton & baseline.** `feature/walking-skeleton`: one project end-to-end (open → edit →
 build → run → output → commit) + the budget script and baseline. Everything else keeps it green.
 
-**W1 — Module names and API split.** `refactor/module-names` (rename to the §3.1 scheme, move to the §6
-clusters) → `refactor/api-split` (create the `api.*` modules; move packages **wholesale** — same package
-names, consumers update only their `project.xml`; topological order: elements/file/project → editor →
-actions/views → root last; no shims) → `refactor/constants` (`FxLayer` out; private constants + a
-layer-folder test) → `refactor/objects-not-statics` (services with lifecycles; typed contracts; no
-`Lookup.forPath` per call).
+**W1 — Containment, names and API split.** `refactor/guard-java-source` (denylist/allowlist guard over the
+current 4-module allowlist; [Appendix B.5](appendix/B-java-source-isolation.md)) → `refactor/java-plumbing`
+(`java.model` bridge; dedupe the three in-memory-file helpers and the position conversions) →
+`refactor/editor-split` (`platform.editor` / `java.editor` / `ide.editor.{xml,css}`) →
+`refactor/usages-split` (`api.usages` + `ide.usages` + `java.usages`) → `refactor/module-names` (rename to
+§3.1; settings/layer round-trip test) → `refactor/api-split` (create the `api.*` modules; move packages
+**wholesale** — same package names, consumers update only their `project.xml`; topological order:
+elements/file/project → editor → actions/views → root last; no shims) →
+`refactor/objects-not-statics` (services with lifecycles; typed contracts; no `Lookup.forPath` per call).
+Layer-path constants stay public and versioned (Decision 12); the writer/reader contract test belongs to
+`api-split`.
 
 **W2 — API governance.** `feature/api-governance`: `arch.xml`/`apichanges`/signature tests for every
 T1/T2-FX/M module, the version baseline (1.0 + bump rule) and the spec-version guard; the audit/guard
@@ -415,7 +477,17 @@ budget, CI), `refactor/swing-retirement` (matrix + exemptions; extend the existi
     patches require an upstream issue (delete `0002`, retire `0003` with the Maven process, keep `0001` with
     a `RunLevel` proposal).
 11. **Retirement is the deliverable**: a milestone is done when its Swing modules leave the distribution,
-    asserted by the guard.
+    asserted by the guard. For every upstream UI API, the mechanism is *reimplement behind the API* when the
+    API is provider-based, *replace with an nbfx API* otherwise ([Appendix A.3](appendix/A-toolkit-policy.md)).
+12. **Layer-path constants are public and versioned in the owning `api.*` module**, and the writer/reader
+    agreement is a contract test (§3.3). No "private constant per reader".
+13. **The Java semantic layer is the only importer of `java.source`/`libs.javacapi`**, behind the `java.model`
+    bridge; `javax.swing.text.Document` is banned everywhere
+    ([Appendix B](appendix/B-java-source-isolation.md)).
+14. **Upstream reuse edges are not layer edges**: an nbfx module depending on a NetBeans module is recorded
+    with a justification and a retirement plan; the layer rule constrains nbfx → nbfx edges only.
+15. **Project type ids and the `javafx.enabled` property match the NetBeans convention**
+    (`org.netbeans.modules.java.j2seproject`); module renames never change them (§8).
 
 ## 14. Open questions
 
@@ -425,4 +497,16 @@ budget, CI), `refactor/swing-retirement` (matrix + exemptions; extend the existi
 3. **Coverage licence**: JaCoCo is EPL-2.0 and already shipped by NetBeans; confirm the policy for a
    *published* nbfx feature before bundling.
 4. **Async jobs model**: fold into `api.progress` or a separate `api.jobs`? (Proposed: `api.progress`.)
-5. **`api.layer`**: none — confirm the private-constants + test decision holds at scale.
+5. **FX editor core**: is `jfx.incubator.scene.control.richtext` (the current code area, in `libs.javafx`)
+   acceptable long-term, given `platform.editor` also reaches into
+   `com.sun.jfx.incubator…RichTextAreaSkinHelper`/`VFlow`/`CaretInfo` (non-public FX internals)? If not, the
+   fallback is a `TextFlow`/`Skin` build; decide before M1 (Appendix B.7).
+
+## 15. Appendices
+
+| Appendix | Content |
+|---|---|
+| [A — Toolkit policy](appendix/A-toolkit-policy.md) | allowed/forbidden types per tier, the `java.awt`/`javax.swing` decision, the bridge-vs-replace table, the nb-javac rule, the exemption register, the guard mechanism |
+| [B — Java source isolation](appendix/B-java-source-isolation.md) | the `java.source` audit, the existing seams, the `java.model` bridge, the module split, the policy and the migration steps |
+| C — Bridge & retirement matrix *(to write)* | one row per upstream module (`ide/editor*` ×45, `java/java.source*`, `platform/openide.*`, `projectuiapi.base`, …): reuse / bridge / replace / drop, owner, milestone, guard |
+| D — API contract book *(to write)* | exported class list + tier per `api.*` module, signatures of the core SPIs, threading/ownership/a11y contracts, the test kit |
