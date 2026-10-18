@@ -151,3 +151,22 @@ the `javax.lang.model` identity hazard (Appendix A.4), the source-level support 
 features on older JDKs), and the licence/bundle size. **Decision proposed:** JDK javac by default, nb-javac
 only where the project's source level requires it; the choice is owned by `java.model` (Appendix B) and
 recorded in the module metadata.
+
+## D.7 Other language clusters (the second-implementation check)
+
+Measured ([`../figures.md`](../figures.md)); ~75 % of each cluster is headless, so the reuse / bridge / replace
+matrix generalizes at roughly **3:1**:
+
+| Cluster | modules | java files | Swing-touching |
+|---|---|---|---|
+| groovy | 11 | 259 | 73 (28 %) |
+| php | 38 | 1833 | 475 (26 %) |
+| enterprise (JavaEE) | 117 | 5079 | 1269 (25 %) |
+| webcommon | 59 | 1415 | 420 (30 %) |
+
+`groovy/groovy.antproject` (16 files, **0 Swing**), `groovy/libs.groovy` (0) and `groovy/maven.groovy` (1) are
+reusable as-is; `groovy/groovy.editor` (134, 34 Swing) and `groovy/groovy.refactoring` (47, 13) split like the
+Java editor. But **the Swing-in-the-API defect recurs**: `php/php.api.phpmodule` is **9/20 Swing (45 %)** — a
+Swing-typed API module — `php/php.project` 116/268, `php/php.refactoring` 18/28. So
+[Appendix H](H-upstream-proposals.md)'s splits apply to *any* language API module, not just `java.source`. The
+architecture is proven or broken by the spikes of [Appendix I](I-language-soundness.md).

@@ -24,7 +24,9 @@ A **pure-JavaFX IDE** built on the NetBeans runtime:
 - a **published plugin API** lets third parties build NBMs on nbfx.
 
 **Non-goals.** Web/JS/JavaEE/PHP/C++ languages, the Swing form editor, WebStart/JNLP execution, Java ME,
-`native-image`, JavaHelp topics, database/server tooling.
+`native-image`, JavaHelp topics, database/server tooling. These are **product** non-goals: the architecture is
+validated against a second language by the soundness spikes of [Appendix I](appendix/I-language-soundness.md)
+— a non-goal is not a licence for a hole.
 
 ## 2. Layers, clusters and dependency rules
 
@@ -56,7 +58,7 @@ clusters (build order, dependencies downward only):
 5. **State the tree.** A claim in this plan refers to `main`; local branches are named explicitly.
 6. **One semantic boundary per language.** The Java semantic layer (`java.*`) is the only place that may
    import `org.netbeans.api.java.source`/`org.netbeans.libs.javacapi`; every other layer consumes the
-   toolkit-free seams (`api.editor.EditorDocument`, `api.editor.OpenSources`, `api.elements.*`). See
+   toolkit-free seams (`api.editor.EditorDocument`, `api.editor.OpenSources`, `api.language.ElementRef`). See
    [Appendix B](appendix/B-java-source-isolation.md).
 7. **The toolkit policy is Appendix A.** Allowed/forbidden types per tier, the exemption register and the
    guard mechanism live in [Appendix A](appendix/A-toolkit-policy.md); §9 states the guard, Appendix A
@@ -79,7 +81,7 @@ com.gluonhq.netbeans.nbfx.libs.<library>              bundled external library  
 - A module that must expose a model to headless code but a UI elsewhere is split:
   `…ide.<capability>` (UI) + `…api.<capability>` (model). A module never mixes a public model with FX UI.
 - `<capability>` is a noun: `actions`, `views`, `status`, `dialogs`, `options`, `settings`, `progress`,
-  `output`, `execution`, `terminal`, `nodes`, `property`, `project`, `build`, `editor`, `wizard`,
+  `output`, `execution`, `terminal`, `language`, `nodes`, `property`, `project`, `build`, `editor`, `wizard`,
   `templates`, `search`, `debug`, `profile`, `tests`, `vcs`, `diff`, `tasklist`, `plugins`.
 
 ### 3.2 Types
@@ -182,6 +184,9 @@ update centers, pinned SHA-256 for bundled native artifacts, install-time capabi
     accessible.** The thread rule per SPI, the disposal/ownership rules (a `subscribe` returns a resource),
     the leak test and the a11y requirement are normative in
     [Appendix E](appendix/E-contracts.md) §§E.1–E.3.
+11. **One language registry.** `api.language` (M) is the only place a language is registered (`LanguageId`,
+    `LanguageRegistration`, `Languages`); every provider SPI is scoped by `LanguageId`, and syntax decoration
+    is a provider, not a `switch` in the core. See [Appendix I](appendix/I-language-soundness.md).
 
 ## 6. Module catalogue
 
@@ -199,7 +204,8 @@ update centers, pinned SHA-256 for bundled native artifacts, install-time capabi
 | `api.output` | M | `OutputConsole`, `OutputWriter`, hyperlinks, folds, colours |
 | `api.execution` | M | `ExecutionService`, `ExecutionDescriptor`, `ExecutionHandle`, `PtySupport` |
 | `api.terminal` | M | `TerminalModel`, `PtyProcess`, `TerminalSession` |
-| `api.elements` | M | `SourceElementKind`, `SourceTypeKind`, `SourceModifiers`, `SourceLocation`, `ElementIcons` — the toolkit-free, nb-javac-safe element boundary (Appendix A.4) |
+| `api.language` | M | `LanguageId`, `LanguageRegistration`, `Languages`, neutral `ElementRef`/`SourceLocation`/`ElementIcons` — the one language registry and the provider scope ([Appendix I](appendix/I-language-soundness.md)) |
+| `api.elements` | T1 → `java.elements` | the **Java** vocabulary (`SourceElementKind`, `SourceTypeKind`, `SourceModifiers`) moves to `java.elements`; only the neutral `ElementRef`/`SourceLocation`/`ElementIcons` stay in `api.language` (no `java.lang.reflect.Modifier` bits in a neutral API) |
 | `api.nodes` | M | `NodeModel`, `ChildrenModel`, `ChildFactory`, `PropertyModel`, `PropertySetModel`, `PropertyEditorRef` (opaque handle), `ExplorerContext`, property-change events |
 | `api.property` | T2-FX | `PropertyEditor`, `PropertyEditorRegistration`, `PropertyEnv`; depends on `api.nodes` (the handle lives there — M never depends on a T2-FX module) |
 | `api.usages` | M | `UsagesProvider`, `UsageResult`, `UsageKind` — the generic usages engine SPI; the Java provider is `java.usages` |
@@ -293,7 +299,8 @@ T0/T1 inside the owning module and promote deliberately.
 | `java.projecttype.gradle` | Gradle project type |
 | `java.projecttype.ant` | Ant project support |
 | `java.build.ant` | Ant runner (in-process listeners) |
-| `java.model` | **T0 bridge** over `org.netbeans.api.java.source`/`libs.javacapi`: classpath cache, in-memory `FileObject`, task runner, position↔offset, nb-javac normalisation into `api.elements` (Appendix B) |
+| `java.model` | **T0 bridge** over `org.netbeans.api.java.source`/`libs.javacapi`: classpath cache, in-memory `FileObject`, task runner, position↔offset, nb-javac normalisation into `api.language`/`java.elements` values (Appendix B) |
+| `java.elements` | the Java element vocabulary (`SourceElementKind`, `SourceTypeKind`, `SourceModifiers`) moved out of the neutral `api.*` ([Appendix I.3](appendix/I-language-soundness.md)) |
 | `java.editor` | Java semantics of the editor: lexer decoration, semantic completion, mark-occurrences, highlights, diagnostics, Java breadcrumbs, hints/refactoring/codegen/Javadoc engines |
 | `java.structure` | Java structure provider |
 | `java.usages` | Java provider for `api.usages` (Java search over `java.model`) |
@@ -321,7 +328,7 @@ T0/T1 inside the owning module and promote deliberately.
 
 | Current module | Target |
 |---|---|
-| `nbfx.api` (61 classes in 12 packages + 4 root classes) | `api.actions`; `api.views` (from `api.view` + `api.icons`); `api.status`; `api.editor` (from `api.editor` + `api.breadcrumbs` + `api.completion`); `api.elements` **(kept as its own M module)**; `api.project`; `api.build`; `api.progress`; `api.search`; `api.file` → `api.editor`/`ide.file`. Root classes: `Cancellation` → `api.progress`, `ContentManager` → `api.editor`, `ErrorReporter` → `api.dialogs`, `FxApplicationMenu` → `api.views`/`platform.menus` |
+| `nbfx.api` (61 classes in 12 packages + 4 root classes) | `api.actions`; `api.views` (from `api.view` + `api.icons`); `api.status`; `api.editor` (from `api.editor` + `api.breadcrumbs` + `api.completion`); `api.elements` → `api.language` (neutral `ElementRef`/`SourceLocation`/`ElementIcons`) + `java.elements` (`SourceElementKind`/`SourceTypeKind`/`SourceModifiers`); `api.project`; `api.build`; `api.progress`; `api.search`; `api.file` → `api.editor`/`ide.file`. Root classes: `Cancellation` → `api.progress`, `ContentManager` → `api.editor`, `ErrorReporter` → `api.dialogs`, `FxApplicationMenu` → `api.views`/`platform.menus` |
 | `nbfx.annotations` | dissolved: annotations move into their `api.*` module; path constants private per reader + test |
 | `nbfx.actions`, `nbfx.context` | `platform.actions` |
 | `nbfx.docking`, `nbfx.windows` | `platform.workspace` |
@@ -377,7 +384,7 @@ paths. Pre-1.0 that is allowed (no released version ⇒ code-name churn is permi
   project stops opening. This is a hard rule, not a preference.
 - **nb-javac duplicates JDK types.** The IDE can run on nb-javac, which bundles its own
   `javax.lang.model` classes; never compare element/modifier identity across the semantic boundary —
-  convert by name (Appendix A.4, `api.elements.SourceModifiers`).
+  convert by name (Appendix A.4, `java.elements.SourceModifiers`).
 - **Preferences** keep the NetBeans nodes where a reused headless module owns them; nbfx-specific keys use
   `nbfx.<capability>.<key>`. Module code-name changes move `NbPreferences` roots: covered by a round-trip
   test in `refactor/module-names`, and code-names freeze at 1.0.
@@ -424,6 +431,7 @@ on day one** with the current exemptions and fails only on a new violation or an
 | `check-licences` *(new)* | every bundled jar/native has a `NOTICE` entry; `javafx.web` absent; `LICENSE`/`THIRDPARTY` present ([Appendix G](appendix/G-licences-and-notices.md)) | an unnotified bundle |
 | `check-figures` *(new)* | `ant -f check-purity.xml check-figures` → `java docs/plan/tools/Counts.java --check`: every number the plan states matches the tree ([`figures.md`](figures.md)) | stale figures, a hand-typed count |
 | `check-baseline` *(new)* | one `javac.release` across nbfx modules; no `javafx.web` in the FX bundle; the launcher's `--add-exports` list is a single, documented file (§8.1) | a drifting JDK/FX/class-file baseline |
+| `check-languages` *(new)* | core (`platform.*`, neutral `api.*`) contains no `LanguageId`/content-type branch; language modules depend only downward, and decoration is a provider (Appendix I.4) | an `if (java)` in the core |
 
 The old, grep-only `check-jars` greps the *file list* of three cluster directories for `javax/swing/`, so a
 class that imports a JDK `javax.swing` type passes and the two new clusters are unscanned; that is the gap
@@ -521,6 +529,8 @@ workstreams only the stated dependencies do.**
 | W7 *(withdrawn)* | — |
 | W8 upstream/retirement | the milestone rows of the retirement matrix are absent (guard); `chore/upstream-sync` green |
 | W9 upstream proposals | ≥1 accepted upstream change; each proposal filed with its prototype, size and fallback |
+| W10 packaging | a clean machine installs, launches and passes the guards on the packaged image |
+| W11 language soundness | a second language (Groovy) is highlighted, completed and run without editing core; the PHP/web spikes decided `api.servers`; `check-languages` green |
 
 **W0 — Walking skeleton & baseline.** `feature/walking-skeleton`: one project end-to-end (open → edit →
 build → run → output → commit) + the budget script and baseline. Everything else keeps it green.
@@ -530,7 +540,9 @@ current 4-module allowlist; [Appendix B.5](appendix/B-java-source-isolation.md))
 ([Appendix C](appendix/C-naming-and-rename-table.md): drop `Fx*` from the 57 public types, move processors
 out of exported packages, introduce `api.layer.LayerPaths`; no behaviour change) →
 `refactor/java-plumbing` (`java.model` bridge; dedupe the three in-memory-file helpers and the position
-conversions) → `refactor/editor-split` (`platform.editor` / `java.editor` / `ide.editor.{xml,css}`) →
+conversions) → `refactor/editor-split` (`platform.editor` / `java.editor` / `ide.editor.{xml,css}`; delivers the
+`api.editor` decoration SPI + `api.language`, acceptance: XML/CSS are modules and the core contains no
+language branch) →
 `refactor/usages-split` (`api.usages` + `ide.usages` + `java.usages`) → `refactor/cluster-layout` (create the
 `nbfx-libs`, `nbfx-api` and `nbfx-javafx` clusters: `cluster/nbfx-cluster.properties.fragment`, `nbbuild`/CI
 wiring, and the `check-purity.xml` `check-jars` includes + `${nbfx.dist.dir}` scans extended to all five
@@ -583,6 +595,14 @@ then OS bundles/installers (M4) carrying the `libs.*` natives and the licences
 ([Appendix G](appendix/G-licences-and-notices.md)); branding (icons, splash, about), first-run and the update
 centers. **Decide jpackage vs NBI here** (Decision 19). Acceptance: a clean machine installs, launches and
 passes `check-licences`/`check-baseline`/`check-figures` on the packaged image.
+
+**W11 — Language soundness.** Per [Appendix I](appendix/I-language-soundness.md): `spike/lang-groovy` (JVM,
+no build, no server — the headline exercise of `api.language`), `spike/lang-php` (no build, interpreter +
+dev server — decides `api.servers`), `spike/web-javaee` (a thin project-type + deploy slice). Time-boxed, after
+`platform.editor` + `api.*` and before the M5 freeze; the deliverable is a **hole list + the smallest core API
+fix**, and the core freeze (`check-languages`) is the acceptance. No feature growth — the cut list kills a
+spike that becomes a language IDE.
+
 
 **W9 — Upstream proposals.** Per [Appendix H](appendix/H-upstream-proposals.md), each with a tracked upstream
 issue, a prototype in nbfx and a recorded fallback: `chore/upstream-module-tools` (the portable `nbbuild`
@@ -648,6 +668,10 @@ Order and the per-proposal credibility test are in [H.8](appendix/H-upstream-pro
 19. **Packaging**: build the app image from `nbbuild/netbeans` at M0, and produce OS bundles/installers with
     **jpackage** at M4 unless a spike shows it cannot meet the requirement (then NBI). Plugins are built as
     **NBMs** with the NetBeans `nbm` Ant harness (Appendix E.6.1).
+20. **Language registry**: `api.language` (M) is the one registry; providers are scoped by `LanguageId`;
+    syntax decoration is a provider, not a core branch; the neutral `ElementRef` lives in `api.language` and the
+    Java vocabulary moves to `java.elements` ([Appendix I](appendix/I-language-soundness.md)). The core must not
+    branch on a language (`check-languages`).
 
 ## 14. Open questions
 
@@ -674,6 +698,7 @@ Order and the per-proposal credibility test are in [H.8](appendix/H-upstream-pro
 | F — [Node and view migration](appendix/F-node-and-view-migration.md) | the 25 tree/table/list view files, today's item models, the target `api.nodes` model, and the migration order |
 | G — [Licences and notices](appendix/G-licences-and-notices.md) | JavaFX 27 (GPLv2+CE), async-profiler, JLine, jgit, JaCoCo; the NOTICE rules and the `check-licences` guard |
 | H — [Upstream proposals](appendix/H-upstream-proposals.md) | the Swing-free API agenda for upstream NetBeans (`java.source`, `api.progress`, `openide.awt`, `openide.nodes`, the editor SPI, the `nbbuild` checks, the friend APIs) and where nbfx prototypes each one first |
+| I — [Language soundness](appendix/I-language-soundness.md) | the second-implementation test: the four holes (core `switch`, unscoped providers, the Java-shaped `api.elements`, missing servers/build-less capabilities), the `api.language` design and core freeze, the Groovy/PHP/web spikes, and the measured reuse ratio across the other clusters |
 
 ## 16. Risks
 

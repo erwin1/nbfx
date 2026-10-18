@@ -200,6 +200,34 @@ public final class Counts {
             rows.add(new String[]{"upstream editor/Java modules (ide/editor*, java/java.source*, java.java.hints*)",
                     String.valueOf(upstream.size())});
             rows.add(new String[]{"of their source files, Swing/AWT-touching", swing + " of " + total});
+
+            // Other language clusters: the second-implementation soundness test (Appendix I).
+            for (String cluster : new String[]{"groovy", "php", "enterprise", "webcommon"}) {
+                Path dir = netbeans.resolve(cluster);
+                if (!Files.isDirectory(dir)) {
+                    continue;
+                }
+                int clusterModules = 0;
+                int clusterJava = 0;
+                int clusterSwing = 0;
+                try (DirectoryStream<Path> children = Files.newDirectoryStream(dir)) {
+                    for (Path module : children) {
+                        if (!Files.isDirectory(module.resolve("src"))) {
+                            continue;
+                        }
+                        clusterModules++;
+                        for (Path file : javaFiles(module.resolve("src"))) {
+                            clusterJava++;
+                            String text = read(file);
+                            if (text.contains("import javax.swing") || text.contains("import java.awt")) {
+                                clusterSwing++;
+                            }
+                        }
+                    }
+                }
+                rows.add(new String[]{"upstream `" + cluster + "` cluster (modules / java files / Swing-touching)",
+                        clusterModules + " / " + clusterJava + " / " + clusterSwing});
+            }
         }
 
         StringBuilder out = new StringBuilder();

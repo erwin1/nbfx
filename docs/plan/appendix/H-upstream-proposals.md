@@ -91,6 +91,11 @@ on it and keeps the widgets; re-export for compatibility; spec version bump.
 into `api.actions.core` (T1) that is a *class-for-class mirror* of the upstream neutral classes; the FX menu
 layer depends on it. The donation is then literally the file set. Step `spike/actions-neutral-core` (M0).
 
+**Same defect class — language API modules.** The Swing-typing of `java.source` is not unique: upstream
+`php/php.api.phpmodule` is **9/20 Swing-touching (45 %)** — a Swing-typed *API* module — `php/php.project`
+116/268, `php/php.refactoring` 18/28 ([Appendix D.7](D-bridge-and-retirement-matrix.md)). The rule generalizes:
+**any language API module with Swing types is a split candidate**, and the same additive recipe applies.
+
 ## H.4 `openide.nodes`: headless core, Swing shell, neutral icon source
 
 **Problem.** `Node.getIcon(int)` returns `java.awt.Image`

@@ -55,7 +55,7 @@ These are toolkit-free and Java-free, and they already carry the cross-layer tra
 - `api.editor.OpenSources` — `Set<FileObject> modifiedFiles()` + `String textOf(FileObject)`; exactly the
   "unsaved text for a parser running outside the editor" seam. `findusages` consumes it today
   (`SourceSet.java`, `MemorySources.copyOf(file, openTextOf(file))`).
-- `api.elements.*` — the toolkit-free element model (`SourceElementKind`, `SourceTypeKind`,
+- `api.language` (`ElementRef`, `SourceLocation`, `ElementIcons`) + `java.elements` — the element boundary (`SourceElementKind`, `SourceTypeKind`,
   `SourceModifiers`, `SourceLocation`, `ElementIcons`), and the nb-javac-safe conversion (Appendix A.4).
 - `api.editor.EditorSettings` — editor preferences, no Java types.
 
@@ -65,7 +65,7 @@ These are toolkit-free and Java-free, and they already carry the cross-layer tra
 java layer (may import org.netbeans.api.java.source / libs.javacapi):
   java.model        T0 bridge: ClasspathInfo cache, in-memory FileObject, task runner,
                     com.sun.source positions -> offsets, nb-javac normalisation,
-                    converts RM elements into api.elements value types
+                    converts RM elements into `java.elements`/`api.language.ElementRef` value types
   java.editor       Java semantics of the editor: lexer decoration, semantic completion,
                     mark-occurrences, highlights, diagnostics, Java breadcrumbs
   java.structure    members/navigator/go-to scanners
@@ -111,14 +111,14 @@ public interface SourceAnalysis {
 
 Consumers in `java.editor`/`java.structure`/`java.usages` may still use `CompilationInfo` and
 `com.sun.source.*` (JDK/`java.source` types) — they are *Java-layer* code. What they must not do is hand
-those types to a non-Java module; they return `api.elements` values, offsets, or `FileObject`s.
+those types to a non-Java module; they return `java.elements`/`ElementRef` values, offsets, or `FileObject`s.
 
 ## B.5 The policy (machine-checkable)
 
 1. `org.netbeans.api.java.source.*`, `org.netbeans.libs.javacapi*` are importable **only** in modules whose
    metadata declares `java-semantics` (today: `java.model`, `java.editor`, `java.structure`, `java.usages`,
    `java.navigation`). The guard fails elsewhere.
-2. `platform.*` and `ide.*` must not import them; they use `api.editor`/`api.elements`/`api.usages` only.
+2. `platform.*` and `ide.*` must not import them; they use `api.editor`/`api.language`/`api.usages` only.
 3. No `javax.swing.text.Document` (Appendix A.2). Offsets and `FileObject` are the currency.
 4. No `ElementHandle`/`TypeElement`/`ClassIndex` in any `api.*` signature (Appendix A.4).
 5. `java.model` has no `public-packages` (T0): it is implementation, published nowhere, and may change.
@@ -138,7 +138,7 @@ those types to a non-Java module; they return `api.elements` values, offsets, or
    (generic engine + UI) + `java.usages` (Java provider over `java.model`); remove the `ide → java` edge.
 5. **`refactor/java-navigation`** — move `TreeNav` out of `project.ui.java` into `java.navigation`.
 6. **`refactor/java-source-shrink`** *(optional, later)* — if a non-Java module ever needs semantic data,
-   extend `api.elements` rather than exposing `java.source`. Only extend when a second consumer exists.
+   extend `api.language`/`java.elements` rather than exposing `java.source`. Only extend when a second consumer exists.
 
 ## B.7 Risks and non-goals
 
@@ -149,7 +149,7 @@ those types to a non-Java module; they return `api.elements` values, offsets, or
   across the boundary — convert by name (Appendix A.4; the code already does this in `SourceModifiers`).
 - **`libs.javacapi` vs `libs.nbjavacapi`** are separate modules; `java.model` is the one place that picks.
 - **Non-goal:** a full "language model" SPI. Java is the only semantic language for the foreseeable
-  roadmap; the abstraction lives at `api.elements` + `api.usages`, not at `java.source`.
+  roadmap; the abstraction lives at `api.language` + `api.usages`, not at `java.source`.
 - **Also hide the FX internals leak.** `nbfx.editor` reaches into `com.sun.jfx.incubator.scene.control.
   richtext.{RichTextAreaSkinHelper,VFlow,CaretInfo}` (`CompletionController.java:9-11`). Those are
   non-public JavaFX internals; keep them behind one adapter (`platform.editor` `RichTextView`) so an FX

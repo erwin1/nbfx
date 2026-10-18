@@ -60,7 +60,7 @@ mechanisms. Use *reimplement behind the API* whenever the API is already provide
 | `TopComponent`, window system (`core.windows`) | **replace** with nbfx `platform.workspace` | the API *is* the Swing window system; no provider seam worth keeping |
 | `Node`/explorer | **replace** with `api.nodes` (M) | `Node` pulls `java.awt.Image` and the explorer; nbfx already ignores it |
 | `EditorCookie`, `Document`-based editor services | **replace** with `api.editor` + offsets | the Swing text model is the thing being replaced |
-| hints/refactoring (`Fix`, `ChangeInfo`) | **bridge** in the Java layer, convert to nbfx value types (`api.elements`) | `ChangeInfo` is Swing-typed; the UI is already ours |
+| hints/refactoring (`Fix`, `ChangeInfo`) | **bridge** in the Java layer, convert to nbfx value types (`java.elements`/`api.language.ElementRef`) | `ChangeInfo` is Swing-typed; the UI is already ours |
 
 The work is the *table*, per upstream module, with an owner and a milestone. This appendix fixes the
 policy; the per-module matrix is Appendix B (Java) and the still-to-write `appendix/C` (platform/IDE).
@@ -72,7 +72,7 @@ policy; the per-module matrix is Appendix B (Java) and the still-to-write `appen
 bundles its own `javax.lang.model.element.Modifier` class: an identity check against the JDK enum silently
 never matches. The tree already solved this once, and that solution is the rule:
 
-- `api.elements.SourceModifiers.toModifierBits(Set<?>)` matches flags **by enum name**, exactly because
+- `java.elements.SourceModifiers.toModifierBits(Set<?>)` matches flags **by enum name**, exactly because
   "at runtime the set may hold constants of nb-javac's own copy" (`SourceModifiers.java:19-24`).
 
 So: the bridge converts element/modifier/type information into nbfx value types (`SourceElementKind`,

@@ -29,6 +29,9 @@ policy; the check is mechanical (`check-licences`).
    module's jar (the bytecode guard already forbids foreign packages in M).
 5. **The plugin ecosystem** (`api.plugins`) states the licence of the API (Apache-2.0) and that a plugin's
    own licence is its business; the plugin manager displays it.
+6. **A language runtime ships as `libs.<language>` with a NOTICE entry** (the upstream `groovy/libs.groovy`
+   pattern); an interpreter or agent binary (PHP, async-profiler) is listed per OS/arch with a SHA-256
+   ([Appendix I.7](I-language-soundness.md)).
 
 ## G.3 The check
 
