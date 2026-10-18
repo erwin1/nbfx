@@ -74,8 +74,8 @@ milestone and its dependencies; a step enters the board only when its prerequisi
 | 9 | `feature/plugin-api` (T2 contract + trust + sample plugin) | Sven | M1 | 5, 7, 8 |
 | 10 | `refactor/swing-retirement` (matrix + exemptions + prune guard) | Sven | M0/M1 | 7 |
 
-*Immediately after the board:* `feature/options-foundation` (with `fx-dialogs`/`theming`), which depends on
-`api-naming`, `services-not-statics` and the component factory.
+*Immediately after the board:* `spi-factory-migration` (options/views/wizards/property editors; depends on the
+component-factory spike and `api-naming`) and `feature/options-foundation` (with `fx-dialogs`/`theming`).
 
 **Critical path.**
 

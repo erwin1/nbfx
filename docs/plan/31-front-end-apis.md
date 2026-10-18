@@ -13,15 +13,19 @@ Governance (versions, `apichanges`, registers, guardrails, budget) is [30-api-go
 
 1. **SPI type names say the capability**, never the toolkit: `OptionsPanelController`, `WizardIterator`,
    `PropertyEditor`, `ViewRegistration`, `DialogDescriptor`, `ProgressPresenter`, `ViewProvider`.
-2. **SPI signatures are toolkit-neutral**: no `javafx.*`, no `javax.swing.*`, no `java.awt.*` in an SPI
-   package (checkable structurally, doc 30 §6). Where a component must be produced, the SPI exposes a
-   *factory* service or returns an opaque handle the front end resolves.
+2. **Signatures follow the tier, not a slogan** (doc 32 §2): the **published plugin API is a JavaFX API**
+   (T2-FX) — `Node`, `ObservableValue`, `KeyCombination` are allowed and already used (28 files in
+   `nbfx.api`); **models/backends (M)** are toolkit-free (no `javafx.*`, no Swing/AWT). Where a component
+   must be produced, the SPI exposes a typed factory; Node-returning APIs document ownership.
 3. **The toolkit lives in the implementation module name** (`…options.ui.fx`) and in private classes.
 4. **One SPI, many implementations**: the front end registers its factories in `Lookup`
    (`OptionsPanelFactory<C>`, `WizardUi<C>`, `PropertyEditorFactory<C>`, `ViewFactory<C>`, `DialogFactory<C>`, `MenuFactory<C>`, …); the SPI
-   code never references a toolkit.
+   declares the *capability* and its factory; it never names a toolkit. Menu items are FX controls
+   (`MenuItem`) in T2-FX — not a toolkit-neutral model.
 5. **Upstreamability is a design requirement**: the factory hook must be additive so the Swing
    implementation in `apache/netbeans` keeps working untouched.
+6. **Rename is not redesign.** `refactor/api-naming` changes names only (same members/signatures); the
+   factory shape change is `spi-factory-migration`, one SPI at a time, after the factory spike.
 
 ## 2. The pattern (three layers of API, per capability)
 

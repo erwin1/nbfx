@@ -24,43 +24,48 @@ proportional.
 
 ## 2. The tiers
 
-| Tier | Who consumes it | Public packages | Governance | Change policy |
+| Tier | Who consumes it | Toolkit | Governance | Change policy |
 |---|---|---|---|---|
-| **T0 — implementation** | only its own module (and friends, avoided) | **none** (`<public-packages/>` empty) | none | free to change |
-| **T1 — shared API** | other nbfx layers | explicit list | `arch.xml` `<api type="export">`, `apichanges`, `@since`, signature test | additive preferred; spec minor/major; no third-party promise |
-| **T2 — published plugin API** | third-party plugins | explicit list | full (T1 + compatibility contract, docs/tutorial, deprecation policy, plugin-version range, compatibility report in CI) | strict: additive only within a major; deprecate → remove after a major |
+| **T0 — implementation** | only its own module | any | none (`<public-packages/>` empty) | free to change |
+| **T1 — shared API** | other nbfx layers | per package, documented | `arch.xml` `<api>`, `apichanges`, `@since`, signature test | additive preferred; spec minor/major; no third-party promise |
+| **T2-FX — published JavaFX plugin API** | third-party plugins | **JavaFX is allowed** (`Node`, `ObservableValue`, `KeyCombination`) | full T1 + compatibility contract, docs/tutorial, deprecation, plugin version range, signature diff | strict: additive within a major; deprecate → remove after a major |
+| **M — model/backend API** | nbfx layers and plugins | **toolkit-free** (`java.beans`/`Lookup`; no `javafx.*`, no Swing/AWT) | full T1; published where a plugin implements a backend | additive; no toolkit types |
+| **L — external library** | nbfx | bundled library | licence/notice + allowlist | pinned; never exposed as nbfx API |
 
-**Module assignment.** The authoritative per-module assignment is the inventory table in
-[`30-api-governance.md`](30-api-governance.md) §1.1 (every existing module: exported packages → tier →
-action). Summary of the target T2 set:
+**The API is JavaFX.** The audit shows **28 files** in `nbfx.api` importing `javafx.*`: `Command` returns
+`Node`/`KeyCombination`/`ReadOnlyBooleanProperty`, `ViewProvider` returns `Node`/`ObservableValue`,
+`EditorSettings` returns `BooleanProperty`, and menu models use `MenuItem`. That is correct for a JavaFX
+plugin API — the **naming** rule ("no toolkit in a name") still applies, but the **signature** rule is
+per-tier: T2-FX may expose FX types; M must not.
 
-- **T2 now** (plugin-facing, implemented or being moved): the registration annotations and the SPIs a
-  plugin needs today — `nbfx.api.actions`, `nbfx.api.view`, `nbfx.api.status`, `nbfx.api.options`,
-  `nbfx.api.settings`, `nbfx.api.wizard`, `nbfx.api.property`, `nbfx.api.project`, `nbfx.nodes`
-  (model + `PropertyModel`), `nbfx.project.ui.api` (build/run actions), `nbfx.project.customizer`,
-  `nbfx.run`, and the public annotations module(s).
-- **T2-proposed** (do **not** promise until implemented + signature-tested + documented): the debugger,
-  profiler, test-runner and VCS backends (`DebuggerBackend`, `ProfileBackend`, `TestRunner`,
-  `VcsProvider`). They are listed as *proposed* in the plugin contract; promotion is a deliberate step
-  after the corresponding feature lands (docs 16/17/23/24).
-- **T1**: shared between nbfx layers, not promised externally (e.g. `nbfx.templates`, `nbfx.structure`,
-  `nbfx.project.context`, `nbfx.settings` implementation).
-- **T0**: everything else — implementations, UIs, engines.
+**Node ownership contract (T2-FX).** Any API returning a `Node` must document ownership: a `Node` has one
+parent, so `Command.getIcon()`/`ViewProvider.getIcon()` return a **new** node per call, and
+`ViewProvider.getView()` hands ownership of the returned node to the shell. A plugin must not reuse the same
+node in two surfaces; the shell must not reparent a node it did not create. Menu items are FX controls
+(`MenuItem`), not a toolkit-neutral model.
 
-**T2 annotations live in annotation-only API modules.** A plugin must be able to write
-`@OptionsRegistration`/`@WizardRegistration`/`@PropertyEditorRegistration`/`@ProjectTypeRegistration`
-**without depending on the corresponding UI module**. Therefore (doc 29): the T2 annotations + processors
-live in `nbfx.api.<capability>` annotation modules (no UI, no implementation); the UI module depends on
-them; the plugin depends on them. Placing a T2 annotation inside the UI module is forbidden.
+**Module assignment.** The authoritative table is [`30`](30-api-governance.md) §1.1. Summary:
 
-**The plugin dependency manifest.** A plugin depends on exactly: the annotation modules it uses, the API
-modules of the extension points it implements, and the platform core (`org.openide.util`,
-`org.openide.filesystems`, `org.openide.util.lookup`). This set is documented in the plugin guide with
-version ranges; a plugin never depends on a T0 module.
+- **T2-FX**: registration annotations (in annotation-only modules) and the component/plugin SPIs:
+  `nbfx.api.actions`, `.view`, `.status`, `.editor`, `.options`, `.wizard`, `.property`, `.file`, `.icons`,
+  `.elements`, `.progress`, `.project`; `nbfx.nodes` (node model); `nbfx.project.customizer`;
+  `nbfx.api.project` (project types).
+- **M (toolkit-free)**: `nbfx.settings`, `nbfx.nodes` model types where applicable, the debug/profiler/
+  test/VCS **backend** SPIs (T2-*proposed* until implemented + signature-tested): `DebuggerBackend`,
+  `ProfileBackend`, `TestRunner`, `VcsProvider`.
+- **T1**: `nbfx.templates`, `nbfx.structure`, `nbfx.project.context`, `nbfx.output` service,
+  `nbfx.project.ui.api` (build/run model, split from its UI part), `nbfx.run`.
+- **T0**: implementations/UIs/engines.
+- **T2 annotations live in annotation-only API modules** (`nbfx.api.options`, `.wizard`, `.property`,
+  `.project`, …), so a plugin compiles against them **without any UI module** (doc 29). `nbfx.api.*`
+  modules themselves are T2-FX; the annotation modules are FX-free.
 
-**Rule.** A module starts at **T0**. Promotion to T1/T2 is a deliberate change with the artefacts above —
-never a default. Demotion (T2 → T0) is a breaking change and needs a deprecation cycle. **Tier assignment
-comes before every package move or annotation split.**
+**The plugin dependency manifest.** A plugin depends on exactly: the annotation modules it uses, the T2-FX
+API modules of the extension points it implements, the M modules of its backend, and the platform core
+(`org.openide.util`, `org.openide.filesystems`, `org.openide.util.lookup`). It never depends on a T0 module.
+
+**Rule.** A module starts at **T0**. Promotion to T1/T2-FX/M is deliberate. **Tier assignment comes before
+every package move or annotation split.** Demotion is a breaking change with a deprecation cycle.
 
 ## 3. The plugin contract
 

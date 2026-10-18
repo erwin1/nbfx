@@ -109,6 +109,8 @@ to a measurement before the milestone exit.
   expired exemption fails the build.
 - The **cluster audit** lists what the nbfx clusters actually pull in (module graph + `config/Modules`),
   so "transitive" is measured, not assumed.
+- The same graph check enforces **no cycles** and **no upward layer edge** (`nbfx-platform` must not depend
+  on `nbfx-ide`/`nbfx-java`); the propertsheet/project-model moves (doc 30 §1.4) are the first tests.
 - The **Swing surface audit** checks the built distribution for remaining `javax.swing`/`java.awt` usage
   reachable from nbfx UI modules (jdeps over the cluster) and reports the owning modules.
 - Each milestone's demo script proves the retired capability now works through nbfx.

@@ -98,8 +98,8 @@ generated in the plugin's own layer — verify this in the plugin sample (doc 32
   `nbfx.annotations`, and `FxLayer` is used at runtime by `OptionsRegistry`, `StatusElementRegistry`,
   `ViewRegistry`, `WizardRegistry` and `ActionLayerReader` (in `nbfx.api`). The **constant split comes
   first**: move each path constant into its reader (`private static final`), fix `ActionLayerReader` to
-  own `REF_SUFFIX`, and only then claim "compile-only". The compile-only cleanup is a prerequisite, not a
-  post-split chore.
+  own `REF_SUFFIX`, and **remove the `nbfx.api → nbfx.annotations` module edge** (update `project.xml`,
+  bump the spec version, `apichanges` entry) in the same slice. Only then claim "compile-only".
 - **Compile-only (nbfx) vs compile dependency (plugin)**: for nbfx feature modules the annotation module is
   a build prerequisite without a run dependency *after* the constants move; for a **plugin** it is a
   normal compile dependency (the plugin's `project.xml` declares it). The plugin's build is the reason the

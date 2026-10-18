@@ -31,7 +31,7 @@ implementation should differ from the Swing original is in
 | `nbfx-java` | M2 | Java Platforms, (J2SE/Platform) customizers, Build actions, Run lifecycle, Run configurations, Ant runtime, Java editor semantics, Java debug backend, Java profiler backends, Java test integration + coverage, Module support, i18n, Beans, JShell |
 | `nbfx-javafx` | M3 | JavaFX cluster, JavaFX project, JavaFX customizers, FXML completion, SceneBuilder embedding/editor |
 | `libs.*` | M0–M2 | JLine (terminal PTY), async-profiler per OS/arch (profiler), jgit/JaCoCo (reuse) |
-| **cross-cutting** | M0/M1 | **Walking skeleton**, public-package inventory + `nbfx.api` split, capability naming, services-not-statics + typed contracts, structural guardrails, front-end component factory (spike + upstream), **plugin API + trust**, **Swing retirement guard**, **upstream sync**, **module moves & service extraction** |
+| **cross-cutting** | M0/M1 | **Walking skeleton**, public-package inventory + `nbfx.api` split, capability naming, services-not-statics + typed contracts, structural guardrails, front-end component factory (spike + upstream), **plugin API + trust**, **Swing retirement guard**, **upstream sync**, **module moves & service extraction**, **SPI factory migration** |
 
 **Execution board.** This backlog is the library of steps, not the schedule: the next ten steps, the
 dependency graph and the owners live in [`34-upstream-sync-and-budget.md`](34-upstream-sync-and-budget.md)
@@ -74,13 +74,28 @@ exist yet, so it is not an acceptance item here.
   `FxWizard`→`WizardIterator`, …); **15 annotations** → `@XxxRegistration` in the T2 annotation modules;
   **9 processors** follow; **12 implementation widgets** → `…ui.fx`/privatised
   (`FxOptionsDialog`, `FxPropertySheet`, `FxStatusBar`, `FxWizardDialog`, …); **`FxLayer`** constants →
-  private per reader. Mechanical, with **layer output invariance** and `apichanges.xml` entries.
+  private per reader. **Renames are source-compatible only** (same members/return types) — the factory
+  shape change is `spi-factory-migration`, not this step. Mechanical, with **layer output invariance** and
+  `apichanges.xml` entries.
 - **Acceptance**: no toolkit name in an SPI type/annotation/public constant; build/tests green; generated
   layer identical. **Freeze**: mark every in-flight branch/PR with "rename required", record the
   known-violations baseline (**53 public production `Fx*` types**, 2026-10-18) and add the naming check to
   the guardrail step. Target names are **to create** — no doc may imply they exist.
 - **Depends**: Public-package inventory (to know what is public).
 - **Ordering**: before M1's API freeze; coordinate with doc 31's factory migration.
+- **Landed**: n/a.
+
+## SPI factory migration (options, views, wizards, property editors)
+→ detail: [`31-front-end-apis.md`](31-front-end-apis.md) §2/§4 · branch: `spi-factory-migration`
+- **Scope**: after `spike/front-end-component-factory` proves the pattern, change the component-producing
+  SPIs one at a time to the typed factory (`OptionsPanelFactory<C>`, `ViewFactory<C>`,
+  `WizardUi<C>`, `PropertyEditorFactory<C>`), with a deprecated shim for the old method and a Swing/test
+  factory proving the abstraction. This is where `ViewProvider.getView(): Node` becomes factory-produced;
+  it is **not** part of the rename.
+- **Acceptance**: each migrated SPI has a headless/test factory and an FX factory; old clients compile with
+  deprecation; no toolkit name in the SPI; `apichanges` + signature tests updated.
+- **Depends**: `spike/front-end-component-factory`, `refactor/api-naming`.
+- **Ordering**: after the factory spike; before the options/views UI steps.
 - **Landed**: n/a.
 
 ## Services, not statics + typed contracts
@@ -471,17 +486,26 @@ exist yet, so it is not an acceptance item here.
 ## Module moves & service extraction (aligning plan with main)
 → detail: [`30-api-governance.md`](30-api-governance.md) §1.4–1.5 · branch: `refactor/module-moves`
 - **Scope**: the moves the tier audit requires but no step owned:
-  1. **`nbfx.propertysheet` → `nbfx-platform`** (doc 26 §3.1), with the `PropertyModel`/`PropertyEditor` SPI
-     extracted to `nbfx.api.property` (T2) and the sheet UI kept as `…ui.fx`;
+  1. **`nbfx.propertysheet` → `nbfx-platform`** (doc 26 §3.1), **after** moving `ProjectPropertiesProvider`
+     out of it (it imports `project.ui.api.ProjectKindProvider`/`ProjectKinds`; otherwise the move creates
+     an upward edge), with the `PropertyModel`/`PropertyEditor` SPI extracted to `nbfx.api.property`
+     (T2-FX) and the sheet UI kept as `…ui.fx`;
   2. **project model**: extract `nbfx.api.project` (`OpenProject`, `ProjectRegistry`, `ProjectOpener`,
-     `ProjectIconProvider`; 14 consumers) into `nbfx.api.project` (T2, `nbfx-ide`), with a deprecated shim
-     and the `nbfx.project` wizards moved to `nbfx.project.ui` (depends on `refactor/project-modularity`);
+     `ProjectIconProvider`; 14 consumers) into `nbfx.api.project` (T2-FX, `nbfx-ide`) **together with its
+     `api.editor`/root consumers**, with a deprecated shim; move the `nbfx.project` wizards to
+     `nbfx.project.ui` (depends on `refactor/project-modularity`), and move the `project → wizard` edge with
+     them;
   3. **output service**: move `FxOutput`/`FxConsole` to `nbfx.api.output` (T1) and switch `run`/`debug` to
      it (or to `api.io`), keeping the console view in `nbfx.output.ui.fx`;
   4. **`FxLayer` constants**: move each path constant into its reader; fix `ActionLayerReader` to own
-     `REF_SUFFIX` (prerequisite of `refactor/annotations-split`);
-  5. **status/file/docking/menus/windows/ui**: either keep T1 or move the consumed types into the shell
-     module (`nbfx.api.status`, `nbfx.api.file`, …) — decide per the audit, not by intuition.
+     `REF_SUFFIX` **and remove the `nbfx.api → nbfx.annotations` module edge** (prerequisite of
+     `refactor/annotations-split`);
+  5. **status/file**: create `nbfx.api.status` (T2-FX: `StatusElement` + `@StatusRegistration`) and
+     `nbfx.api.file` (T2-FX: `DesktopActions`); keep the bars/actions as T1/T0; `docking`/`menus`/`windows`/
+     `ui` stay T1 unless the consumed types move into the shell;
+  6. **`EditorSettings` migration**: move `nbfx.api.editor.EditorSettings` (a model with `BooleanProperty`)
+     to `nbfx.settings` (M, toolkit-free) + a UI adapter; update the editor and launcher consumers;
+  7. **`project.ui.api` split**: headless build/run model → `nbfx.api.project.build` (M); UI parts stay T1.
 - **Acceptance**: the audit table is updated; every moved module builds and the consumers compile; no
   package is split between modules; the branch-reality table (doc 30 §1.4) is reflected in the step
   dependencies.

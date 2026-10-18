@@ -56,6 +56,7 @@ the module allocation per step is in [`27-layer-module-map.md`](27-layer-module-
 | Swing retirement guard | `refactor/swing-retirement` |
 | Upstream sync (cadence, patches, CI) | `chore/upstream-sync` |
 | Module moves & service extraction (propertysheet, project model, output, FxLayer constants) | `refactor/module-moves` |
+| SPI factory migration (options/views/wizards/property editors) | `spi-factory-migration` |
 | Credentials / keyring (platform service) | `feature/credentials` |
 | Favorites (platform view) | `feature/favorites` |
 | Split the annotation modules (annotation+processor ownership by layer) | `refactor/annotations-split` |

@@ -89,6 +89,9 @@ and there is no Swing bridge.
    `extide/options.java`): `nbfx.theme` → Appearance, `nbfx.editor` → Editor/Fonts & Colors,
    platform/Maven/Gradle/Ant modules → Java, etc. `nbfx.options` must not depend on every feature.
 10. **Advanced settings browser as a development aid**, behind a show/hide toggle (hidden by default).
+11. **`EditorSettings` migrates**: the existing `nbfx.api.editor.EditorSettings` (`BooleanProperty`) moves to
+    `nbfx.settings` (M, toolkit-free) + a UI adapter in `refactor/module-moves`; the editor and launcher
+    consume the new service (doc 30 §1.5).
 11. **Export/import, including importing an export from the original NetBeans**, is its own step.
 
 ## Target architecture

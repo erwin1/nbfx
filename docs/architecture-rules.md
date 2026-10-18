@@ -158,10 +158,12 @@ capability rather than being a kitchen sink. See [`plan/30-api-governance.md`](p
 ## Tiered API and the plugin contract
 
 Not every module is an API. **T0**: implementation — exports nothing, no promise. **T1**: shared API
-between nbfx layers — `arch.xml`/`apichanges`/`@since`/signature test, additive changes preferred.
-**T2**: the **published plugin API** — everything a third-party NBM may compile against, with a
+between nbfx layers. **T2-FX**: the **published plugin API**, which is a **JavaFX API** — `Node`,
+`ObservableValue`, `KeyCombination` are allowed (28 files in `nbfx.api` already use them), with a
 compatibility promise, version ranges, documentation and trust (signing, HTTPS update centers, native
-artifact checksums). A module starts at T0; promotion is deliberate. See
+artifact checksums). **M**: model/backend API — **toolkit-free** (no `javafx.*`, no Swing/AWT). A module
+starts at T0; promotion is deliberate. Any T2-FX API returning a `Node` documents ownership (one parent;
+new node per call; the shell owns what a view hands over). See
 [`plan/32-api-tiers-and-plugin-contract.md`](plan/32-api-tiers-and-plugin-contract.md).
 
 Naming follows the tier: capability names in SPI/annotations/constants (`OptionsPanelController`,
@@ -189,14 +191,22 @@ classes; module code-names `…nbfx.<capability>` (T0) / `…nbfx.api.<capabilit
 - **Data compatibility, not format ownership.** We may *read* upstream private formats (`.nps`, `.hprof`,
   `.jfr`) but only *write* formats we own or that are public; writing someone else's private serialization
   is a promise we cannot keep.
-- **Tiers are empirical.** Assign T0/T1/T2 from the **source audit** (exports × consumers × plugin need),
-  not by intuition: a T0 module whose package is imported by another module is an error. Splits are
-  per-capability with deprecated shims (no split packages across modules). Re-run the audit each milestone.
+- **Tiers are empirical.** Assign T0/T1/T2-FX/M from the **source audit** (exports × consumers × plugin
+  need × toolkit), not by intuition: a T0 module whose package is imported by another module is an error.
+  Splits are per-capability in **topological order** with deprecated shims (no split packages across
+  modules). Re-run the audit each milestone. The published plugin API is JavaFX (T2-FX); models/backends
+  are toolkit-free (M).
 - **Compile-only is earned.** An annotation module may be compile-only only after its runtime path
-  constants are private to the readers; a T2 API must never depend on an annotation module for a string.
+  constants are private to the readers and the module edge is removed; a T2 API must never depend on an
+  annotation module for a string.
 - **State the tree.** Steps and tier claims must say whether they target `main` or a local branch
   (`refactor/project-modularity`, `feature/newfile-templates`, `feature/progress-ui`); do not assume an
   unmerged move. `check-models`/`-prune-excluded` exist only on those branches.
+- **The module graph is a DAG.** No cycles and no upward layer edge (platform must not depend on
+  ide/java). Moves that would create one (e.g. propertsheet to platform while it imports
+  `project.ui.api`, or `api.project` to ide while `api.editor` imports it) must cut the dependency first.
+- **Rename is not redesign.** A naming step is source-compatible; changing an SPI shape (component
+  factories) is a separate migration with deprecation and its own signature tests.
 - **Bundled libraries are allowlisted.** `lib.*` modules (e.g. the JavaFX bundle) are external libraries:
   the bytecode guard allowlists them as a whole and still forbids their packages in nbfx model/SPI jars.
 
