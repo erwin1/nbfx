@@ -7,7 +7,12 @@
 | [`PLAN.md`](PLAN.md) | Vision, layers/clusters, naming conventions, API tiers and governance, module catalogue, migration map, guardrails, roadmap (M0–M5), workstreams, decisions |
 | [`appendix/A-toolkit-policy.md`](appendix/A-toolkit-policy.md) | What each tier may reference; the `java.awt`/`javax.swing` decision; bridge-vs-replace per upstream API; nb-javac rule; exemption register; guard mechanism |
 | [`appendix/B-java-source-isolation.md`](appendix/B-java-source-isolation.md) | How the prototype uses `java.source`, why it is already contained, the `java.model` bridge, the module split and the migration steps |
-| [`../architecture-rules.md`](../architecture-rules.md) | The durable cross-cutting rules (the plan's §§2–5 and 9 in rule form) |
+| [`appendix/C-naming-and-rename-table.md`](appendix/C-naming-and-rename-table.md) | The naming rule per location and the rename table for the 53 public `Fx*` types; `api.layer.LayerPaths` |
+| [`appendix/D-bridge-and-retirement-matrix.md`](appendix/D-bridge-and-retirement-matrix.md) | Every upstream module: reuse / bridge / replace / drop, exemptions, the 45 editor/Java modules, retirement per milestone, indexing, compiler choice |
+| [`appendix/E-contracts.md`](appendix/E-contracts.md) | Threading per SPI, disposal/ownership + leak test, accessibility, error/logging, the `Lookup` rule, plugin allowlist, removal of generic `C` factories |
+| [`appendix/F-node-and-view-migration.md`](appendix/F-node-and-view-migration.md) | The 25 view files, their item models, the `api.nodes` target and the migration order |
+| [`appendix/G-licences-and-notices.md`](appendix/G-licences-and-notices.md) | JavaFX 27 (GPLv2+CE), native/lib licences, NOTICE rules, `check-licences` |
+| [`../architecture-rules.md`](../architecture-rules.md) | A one-screen **index** of every rule and its normative source (no rule detail — that lives in the plan/appendices) |
 | [`archive/README.md`](archive/README.md) | Historical research and earlier plan revisions — **evidence only, not maintained** |
 | [`../repo-and-build.md`](../repo-and-build.md) | Build harness, clusters, submodule patches |
 | [`../MVP.md`](../MVP.md) | Historical MVP draft (superseded by the plan) |

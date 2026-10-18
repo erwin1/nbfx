@@ -405,6 +405,7 @@ on day one** with the current exemptions and fails only on a new violation or an
 | `check-logging` *(new)* | no `System.out`/`printStackTrace`; `Logger` named after the module | a stray print |
 | `check-lookup` *(new, test)* | the `Lookups.forPath` invocation count is constant across N user actions (Appendix E.5) | a per-action layer lookup |
 | lifecycle *(new, test)* | the leak test: open/close a view N times; listener count returns to baseline and the view is weakly reachable (Appendix E.2) | a leaked subscription |
+| `check-licences` *(new)* | every bundled jar/native has a `NOTICE` entry; `javafx.web` absent; `LICENSE`/`THIRDPARTY` present ([Appendix G](appendix/G-licences-and-notices.md)) | an unnotified bundle |
 
 The old, grep-only `check-jars` greps the *file list* of three cluster directories for `javax/swing/`, so a
 class that imports a JDK `javax.swing` type passes and the two new clusters are unscanned; that is the gap
@@ -420,6 +421,50 @@ class that imports a JDK `javax.swing` type passes and the two new clusters are 
 | **M3 — JavaFX usage** | 2027-09 | JavaFX project, FXML editing, SceneBuilder | a JavaFX project opens, edits FXML, and runs; `javafx.enabled` round-trips |
 | **M4 — Breadth** | 2027-12 | i18n, beans, JShell, remote debug/profiler, export/import, accessibility, multi-window, module graph view | the intended feature scope is present; guards green; a11y pass recorded |
 | **M5 — Ecosystem** | 2028 | plugin API hardening, compatibility reports, update centers, docs/tutorials | a third-party plugin builds against the published API and is published |
+
+### 10.1 Critical path
+
+The chain that decides the dates; everything else can slip around it:
+
+```
+refactor/guard-java-source → refactor/api-naming → refactor/module-names → refactor/api-split
+  → refactor/nodes-model (platform.nodes)         → feature/editor (platform.editor)
+  → refactor/java-plumbing (java.model)           → refactor/editor-split (java.editor)
+  → feature/project-model (api.project)           → feature/projecttypes.java (J2SE)
+  → feature/build-run (api.execution)             → feature/debugger (java.debug)
+```
+
+The editor branch (`platform.editor` → `java.editor`) and the project branch
+(`api.project` → `java.projecttype.java`) run in parallel after `api-split`; they meet at
+`feature/build-run`. M2 ("daily Java work") is gated by `feature/debugger`.
+
+### 10.2 Cut list (in cut order)
+
+If a date is missed, cut in this order; each cut is a plan change, not a silent slip:
+1. **M4 breadth** — JShell, beans/i18n tooling, module-graph view, remote debug/profiler, multi-window.
+2. **M3 SceneBuilder** — FXML editing stays; the embedded SceneBuilder editor goes.
+3. **Profiler** beyond JFR sampling; heap-dump analysis visualisation.
+4. **Non-Git VCS** providers.
+5. **Maven/Gradle** project types — J2SE + Ant first, Maven/Gradle later (the M2 exit changes to "Ant and
+   J2SE", the original JavaFX-cluster scope).
+Not cuttable: the walking skeleton, the guards, the API split, the editor core, the J2SE project type.
+
+### 10.3 Test kit (decided here, implemented in W2)
+
+- **FX headless**: Monocle (`-Dglass.platform=Monocle -Dmonocle.platform=Headless`) for every FX test; no test
+  opens a real window in CI.
+- **UI**: TestFX (`FxRobot`) for the shell scenarios; not for unit tests.
+- **Harness**: NetBeans `nbjunit` (already used: 26 test classes today) + `nbbuild` `sigtest` targets for the
+  governed API modules.
+- **Required test types**: unit (model, `M` modules), contract (threading per SPI, layer writer/reader), leak
+  (open/close, Appendix E.2), budget (startup/usable/first completion, `check-budget`), smoke
+  (walking skeleton, W0). Baseline to beat: **26 test classes, zero signature tests, zero FX tests** — state
+  the number in the W2 acceptance.
+
+### 10.4 Owners and capacity
+
+A plan without owners is a wish. Every step in §11 must have an owner and a size (S/M/L) before M0 starts;
+the table is maintained in the issue tracker, not here. Until then, no step is "in progress".
 
 ## 11. Workstreams (the work, sliced)
 
@@ -480,8 +525,9 @@ budget, CI), `refactor/swing-retirement` (execute the retirement matrix of
 - The **archived** documents under `docs/plan/archive/` hold the research that justifies each workstream
   (NetBeans class/file references, counts, formats, licences). Consult them for evidence; do not treat
   them as the plan.
-- `docs/architecture-rules.md` holds the durable cross-cutting rules (this plan section 2–5 in rule form).
-- `docs/repo-and-build.md` documents the harness; `docs/MVP.md` is a historical draft.
+- `docs/architecture-rules.md` is a one-screen **index** of every rule and its normative source in this plan;
+  it deliberately restates no rule detail. `docs/repo-and-build.md` documents the harness; `docs/MVP.md` is a
+  historical draft.
 
 ## 13. Decisions (locked unless revised here)
 
@@ -543,4 +589,4 @@ budget, CI), `refactor/swing-retirement` (execute the retirement matrix of
 | D — [Bridge and retirement matrix](appendix/D-bridge-and-retirement-matrix.md) | every upstream module (Swing API bridges, the 45 editor/Java modules, the indexing dependency, the compiler choice) with mechanism, owner, milestone and exemptions, plus the retirement matrix per milestone |
 | E — [Contracts](appendix/E-contracts.md) | threading per SPI, disposal/ownership + the leak test, accessibility, error/logging, the precise `Lookup` rule, the plugin allowlist, and the removal of the generic-`C` factories |
 | F — [Node and view migration](appendix/F-node-and-view-migration.md) | the 25 tree/table/list view files, today's item models, the target `api.nodes` model, and the migration order |
-| G — Licences and notices *(next iteration)* | JavaFX (GPLv2+CE), async-profiler, JLine, jgit, JaCoCo; NOTICE check |
+| G — [Licences and notices](appendix/G-licences-and-notices.md) | JavaFX 27 (GPLv2+CE), async-profiler, JLine, jgit, JaCoCo; the NOTICE rules and the `check-licences` guard |
