@@ -5,7 +5,7 @@
 | Document | Purpose |
 |---|---|
 | [`PLAN.md`](PLAN.md) | Vision, layers/clusters, naming conventions, API tiers and governance, module catalogue, migration map, guardrails, roadmap (M0–M5), workstreams, decisions |
-| [`figures.md`](figures.md) | **Generated** — every number the plan states, derived from the tree by [`tools/counts.py`](tools/counts.py); `counts.py --check` fails when it is stale |
+| [`figures.md`](figures.md) | **Generated** — every number the plan states, derived from the tree by [`tools/Counts.java`](tools/Counts.java); `Counts.java --check` fails when it is stale |
 | [`appendix/A-toolkit-policy.md`](appendix/A-toolkit-policy.md) | What each tier may reference; the `java.awt`/`javax.swing` decision; bridge-vs-replace per upstream API; nb-javac rule; exemption register; guard mechanism |
 | [`appendix/B-java-source-isolation.md`](appendix/B-java-source-isolation.md) | How the prototype uses `java.source`, why it is already contained, the `java.model` bridge, the module split and the migration steps |
 | [`appendix/C-naming-and-rename-table.md`](appendix/C-naming-and-rename-table.md) | The naming rule per location and the rename table for the 53 public `Fx*` types; `api.layer.LayerPaths` |
