@@ -17,7 +17,9 @@ A **pure-JavaFX IDE** built on the NetBeans runtime:
 - nbfx provides JavaFX replacements for every **user-facing** service of the NetBeans platform, IDE and
   Java clusters;
 - the NetBeans **headless engines** are reused as-is (project model, parsing/indexing, `java.source`,
-  build/execution primitives, debugger, profiler, VCS, templates, autoupdate);
+  build/execution primitives, debugger, profiler, VCS, templates, autoupdate) — "as-is" means **per the
+  matrix in [Appendix D](appendix/D-bridge-and-retirement-matrix.md)**: reuse / bridge / replace / drop, one
+  row per upstream module, with owners and milestones;
 - **no Swing renders**; Swing modules are retired from the distribution, not merely unused;
 - a **published plugin API** lets third parties build NBMs on nbfx.
 
@@ -433,7 +435,9 @@ implementation (`refactor/guardrails`); the exemption register with owners and d
 **W3 — Shell and platform services.** Per service, on its own branch: `feature/shell`,
 `feature/workspace`, `feature/dialogs`, `feature/progress`, `feature/theme`, `feature/settings-ui`,
 `feature/options`, `feature/nodes-views`, `feature/output`, `feature/execution`, `feature/terminal`,
-`feature/quicksearch`, `feature/credentials`, `feature/favorites`, `feature/templates`, `feature/wizard`.
+`feature/quicksearch`, `feature/credentials`, `feature/favorites`, `feature/templates`, `feature/wizard`,
+`feature/indexing` (reuse `parsing.api`/`parsing.indexing`; index-on-open with progress, cancellation and a
+memory budget — [Appendix D.5](appendix/D-bridge-and-retirement-matrix.md)).
 
 **W4 — IDE core.** `feature/project-model`, `feature/project-ui`, `feature/editor`,
 `feature/navigation-search`, `feature/refactoring`, `feature/hints`, `feature/codegen`,
@@ -450,7 +454,8 @@ implementation (`refactor/guardrails`); the exemption register with owners and d
 `spi-factory-migration` (options → views → wizard → property editors, one at a time, with a test factory).
 
 **W8 — Upstream and retirement.** `chore/upstream-sync` (monthly pin/patch rebase, patch register, patch
-budget, CI), `refactor/swing-retirement` (matrix + exemptions; extend the existing `check-packaging`),
+budget, CI), `refactor/swing-retirement` (execute the retirement matrix of
+[Appendix D.4](appendix/D-bridge-and-retirement-matrix.md); `check-packaging` asserts the absence),
 `feature/plugin-api` (contract docs, sample plugin, trust).
 
 ## 12. Mirror and evidence
@@ -481,8 +486,10 @@ budget, CI), `refactor/swing-retirement` (matrix + exemptions; extend the existi
     patches require an upstream issue (delete `0002`, retire `0003` with the Maven process, keep `0001` with
     a `RunLevel` proposal).
 11. **Retirement is the deliverable**: a milestone is done when its Swing modules leave the distribution,
-    asserted by the guard. For every upstream UI API, the mechanism is *reimplement behind the API* when the
-    API is provider-based, *replace with an nbfx API* otherwise ([Appendix A.3](appendix/A-toolkit-policy.md)).
+    asserted by the guard, per the matrix of
+    [Appendix D.4](appendix/D-bridge-and-retirement-matrix.md). For every upstream UI API, the mechanism is
+    *reimplement behind the API* when the API is provider-based (and the bridge carries the documented Swing
+    exemption), *replace with an nbfx API* otherwise ([Appendix A.3](appendix/A-toolkit-policy.md)).
 12. **Layer-path constants are public and versioned in the owning `api.*` module**, and the writer/reader
     agreement is a contract test (§3.3). No "private constant per reader".
 13. **The Java semantic layer is the only importer of `java.source`/`libs.javacapi`**, behind the `java.model`
@@ -492,6 +499,9 @@ budget, CI), `refactor/swing-retirement` (matrix + exemptions; extend the existi
     with a justification and a retirement plan; the layer rule constrains nbfx → nbfx edges only.
 15. **Project type ids and the `javafx.enabled` property match the NetBeans convention**
     (`org.netbeans.modules.java.j2seproject`); module renames never change them (§8).
+16. **Compiler**: JDK `javac` by default, nb-javac only where the project's source level requires it; the
+    choice is owned by `java.model` and recorded in the module metadata
+    ([Appendix D.6](appendix/D-bridge-and-retirement-matrix.md)).
 
 ## 14. Open questions
 
@@ -513,7 +523,7 @@ budget, CI), `refactor/swing-retirement` (matrix + exemptions; extend the existi
 | [A — Toolkit policy](appendix/A-toolkit-policy.md) | allowed/forbidden types per tier, the `java.awt`/`javax.swing` decision, the bridge-vs-replace table, the nb-javac rule, the exemption register, the guard mechanism |
 | [B — Java source isolation](appendix/B-java-source-isolation.md) | the `java.source` audit, the existing seams, the `java.model` bridge, the module split, the policy and the migration steps |
 | [C — Naming and rename table](appendix/C-naming-and-rename-table.md) | the rule per location, all 53 public `Fx*` types and their targets, `api.layer.LayerPaths`, the `refactor/api-naming` step |
-| D — Bridge & retirement matrix *(next iteration)* | one row per upstream module (`ide/editor*`, `java/java.source*`, `platform/openide.*`, `projectuiapi.base`, …): reuse / bridge / replace / drop, owner, milestone, guard, exemptions |
+| D — [Bridge and retirement matrix](appendix/D-bridge-and-retirement-matrix.md) | every upstream module (Swing API bridges, the 45 editor/Java modules, the indexing dependency, the compiler choice) with mechanism, owner, milestone and exemptions, plus the retirement matrix per milestone |
 | E — Contracts *(next iteration)* | threading per SPI, disposal/ownership + leak test, accessibility, error/logging, Lookup rule, plugin allowlist, core SPI signatures (incl. `C`-binding) |
 | F — Node/view migration *(next iteration)* | the 25 tree/table view files and their models → `api.nodes`, owners, milestones |
 | G — Licences and notices *(next iteration)* | JavaFX (GPLv2+CE), async-profiler, JLine, jgit, JaCoCo; NOTICE check |
