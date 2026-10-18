@@ -134,12 +134,23 @@ in doc 30 §1 records the target. No new module without this scheme.
 | Services | capability nouns | `FxOptionsDisplayer` → `OptionsDisplayer`; `FxOutput`/`FxConsole` → `OutputConsole`/`InputOutputProvider` (new code); `FxProgress` → `ProgressHandle` |
 | IDs | identifiers in one vocabulary with `@since` | `ActionIds.*`, `TemplateIds.*`; no ad-hoc strings |
 
-### 5.3 Current code vs target
+### 5.3 The 53 public `Fx*` types are four different problems
 
-Docs 12/13/14/15/16/29 contain `Fx*` names in two senses: **current code** (landed classes, e.g.
-`FxProperty`, `FxOutput`, `FxOptionsPanel`) and **proposed designs**. From this doc on, the *proposed*
-names are the capability names; `Fx*` mentions are marked as current/legacy. The rename step below fixes
-the code.
+The audit (excluding test classes) yields **53 public production types** — not "57 to rename":
+
+| Category | Count | Examples | Action |
+|---|---|---|---|
+| **Registration annotations** | 15 | `@FxActionRegistration`, `@FxViewRegistration`, `@FxOptionsRegistration`, `@FxProjectTypeRegistration`, `@FxWizardRegistration` | rename to `@ActionRegistration`/… in the **T2 annotation-only modules** (doc 29) |
+| **Processors** | 9 | `FxOptionsRegistrationProcessor`, `FxViewRegistrationProcessor`, … | follow their annotation (package-private where possible) |
+| **SPI types** | 16 | `FxOptionsPanel`, `FxProperty`/`FxPropertySet`/`FxPropertyEditor`, `FxPropertiesProvider`, `FxWizard`/`FxWizardPanel`, `FxOutput`/`FxConsole`, `FxActionContext`, `FxStatusElement`, `FxProjectCustomizerPanel`, `FxProgress` | rename to capability names (`OptionsPanelController`, `PropertyModel`, `PropertyEditor`, `WizardIterator`, `OutputConsole`, `ActionContext`, `StatusElement`, `ProjectCustomizerPanel`) and move to `nbfx.api.*` |
+| **Implementation widgets** | 12 | `FxOptionsDialog`, `FxPropertySheet`, `FxStatusBar`, `FxWizardDialog`, `FxProjectCustomizerDialog`, `FxOutputImpl`, `FxProgressImpl`, `FxActionContextImpl`, `FxApplicationMenu`, `FxGuiRunLevel`, `FxStructurePanel`, `FxWindowSystem` | **move to `…ui.fx`** and/or privatise; they are not API |
+| **Constants** | 1 | `FxLayer` | path constants become **private** per reader (doc 30 §1.5) |
+| **Tests** (excluded above) | 3+ | `FxAnnotationsProcessorTest`, `FxAreaTest`, `FxOutputTest` | rename with their subject; never part of the API |
+
+Docs 12/13/14/15/16/29 use `Fx*` in the **current-code** sense unless marked *target*; the target names in
+this plan are **to create**. The authoritative mapping (current class → target, or "new") is the table
+above plus doc 31 §3; a doc must not imply that a target module (`nbfx.api.options`, `nbfx.nodes`,
+`PropertyModel`, …) already exists.
 
 ## 6. Ordering: rename → split → freeze
 

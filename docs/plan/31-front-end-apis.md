@@ -1,7 +1,7 @@
 # 31 — Front-end APIs: one SPI, many toolkits
 
 The review's second structural demand: **the toolkit must not be in the SPI, and the SPI must not be
-forked per toolkit**. Today nbfx has 57 public `Fx*` types and parallel SPIs (`FxOptionsPanel` vs
+forked per toolkit**. Today nbfx has 53 public production `Fx*` types and parallel SPIs (`FxOptionsPanel` vs
 `OptionsPanelController`, `FxWizardPanel` vs `WizardDescriptor.Panel`, `FxPropertyEditor`,
 `FxViewRegistration`, `FxDialogDescriptor`, …). This doc defines the target: capability-named SPI +
 a **front-end component factory** resolved from `Lookup`, so one SPI serves Swing, JavaFX (and later a

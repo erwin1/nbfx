@@ -107,6 +107,7 @@ Repo-wide docs: [`../architecture-rules.md`](../architecture-rules.md) (model/UI
 | **cross-cutting** | Plugin API + trust (T2 contract) | `feature/plugin-api` | planned |
 | **cross-cutting** | Swing retirement guard | `refactor/swing-retirement` | planned |
 | **cross-cutting** | Upstream sync (cadence, patches, CI) | `chore/upstream-sync` | planned |
+| **cross-cutting** | Module moves & service extraction (propertysheet, project model, output, constants) | `refactor/module-moves` | planned |
 | **platform** | Output window + execution service + terminal | `feature/output-window`, `feature/execution-service`, `feature/terminal-*` | planned |
 | **platform** | Quick search (command palette) | `feature/quicksearch` | planned |
 | **platform** | Credentials/keyring | `feature/credentials` | planned |

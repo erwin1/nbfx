@@ -184,10 +184,21 @@ classes; module code-names `…nbfx.<capability>` (T0) / `…nbfx.api.<capabilit
   [`plan/34-upstream-sync-and-budget.md`](plan/34-upstream-sync-and-budget.md).
 - **No invented APIs in docs.** A plan may not specify an extension point that does not exist
   (`@FxProjectNodeFactory` was one); it either designs a real SPI with its artefact set or marks it as a
-  proposal to be upstreamed.
+  proposal to be upstreamed. Target names are **to create**; the current code names are recorded in the
+  mapping (doc 31/32).
 - **Data compatibility, not format ownership.** We may *read* upstream private formats (`.nps`, `.hprof`,
   `.jfr`) but only *write* formats we own or that are public; writing someone else's private serialization
   is a promise we cannot keep.
+- **Tiers are empirical.** Assign T0/T1/T2 from the **source audit** (exports × consumers × plugin need),
+  not by intuition: a T0 module whose package is imported by another module is an error. Splits are
+  per-capability with deprecated shims (no split packages across modules). Re-run the audit each milestone.
+- **Compile-only is earned.** An annotation module may be compile-only only after its runtime path
+  constants are private to the readers; a T2 API must never depend on an annotation module for a string.
+- **State the tree.** Steps and tier claims must say whether they target `main` or a local branch
+  (`refactor/project-modularity`, `feature/newfile-templates`, `feature/progress-ui`); do not assume an
+  unmerged move. `check-models`/`-prune-excluded` exist only on those branches.
+- **Bundled libraries are allowlisted.** `lib.*` modules (e.g. the JavaFX bundle) are external libraries:
+  the bytecode guard allowlists them as a whole and still forbids their packages in nbfx model/SPI jars.
 
 ## Registration ownership (layer-generating annotations)
 

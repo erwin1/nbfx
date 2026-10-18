@@ -31,7 +31,7 @@ implementation should differ from the Swing original is in
 | `nbfx-java` | M2 | Java Platforms, (J2SE/Platform) customizers, Build actions, Run lifecycle, Run configurations, Ant runtime, Java editor semantics, Java debug backend, Java profiler backends, Java test integration + coverage, Module support, i18n, Beans, JShell |
 | `nbfx-javafx` | M3 | JavaFX cluster, JavaFX project, JavaFX customizers, FXML completion, SceneBuilder embedding/editor |
 | `libs.*` | M0–M2 | JLine (terminal PTY), async-profiler per OS/arch (profiler), jgit/JaCoCo (reuse) |
-| **cross-cutting** | M0/M1 | **Walking skeleton**, public-package inventory + `nbfx.api` split, capability naming, services-not-statics + typed contracts, structural guardrails, front-end component factory (spike + upstream), **plugin API + trust**, **Swing retirement guard**, **upstream sync** |
+| **cross-cutting** | M0/M1 | **Walking skeleton**, public-package inventory + `nbfx.api` split, capability naming, services-not-statics + typed contracts, structural guardrails, front-end component factory (spike + upstream), **plugin API + trust**, **Swing retirement guard**, **upstream sync**, **module moves & service extraction** |
 
 **Execution board.** This backlog is the library of steps, not the schedule: the next ten steps, the
 dependency graph and the owners live in [`34-upstream-sync-and-budget.md`](34-upstream-sync-and-budget.md)
@@ -53,11 +53,12 @@ dependency graph and the owners live in [`34-upstream-sync-and-budget.md`](34-up
 
 ## Public-package inventory + `nbfx.api` split
 → detail: [`30-api-governance.md`](30-api-governance.md) §1 · branch: `refactor/api-split`
-- **Scope**: inventory every module's public packages (today **38 modules** declare them, **21 export whole
-  subtrees**); list packages **explicitly**; split `com.gluonhq.netbeans.nbfx.api` into per-capability
-  modules (`nbfx.api.actions`, `nbfx.api.view`, `nbfx.api.status`, `nbfx.api.editor`, `nbfx.api.progress`,
-  `nbfx-project-api` in ide); move implementations to `*.impl`/UI modules; privatise what is not a
-  contract; give each API module its own specification version.
+- **Scope**: regenerate the **usage-derived inventory** (doc 30 §1.1: 25 exporting modules, 21 subtree
+  exports, 13 empty; `nbfx.api` 25 consumers, `nbfx.annotations` 20, `nbfx.project` 10, …); assign every
+  module a tier (T0/T1/T2) and every T0-with-consumers a **named move**; split
+  `com.gluonhq.netbeans.nbfx.api` per capability **with the consumer counts and a deprecated shim per
+  slice** (doc 30 §1.3; no split packages); create the T2 API/annotation modules and move implementations
+  to `*.impl`/UI modules; give each API module its own specification version.
 - **Acceptance**: the inventory table (doc 30 §1.1) is complete and accurate; every module is **tiered**
   (T0/T1/T2); no `<subpackages>` without a written justification; dependants bumped to the new API
   modules; build/tests green. The structural guard (next step) consumes this output — the guard does not
@@ -68,15 +69,16 @@ exist yet, so it is not an acceptance item here.
 
 ## Capability naming: remove the toolkit from the SPI
 → detail: [`31-front-end-apis.md`](31-front-end-apis.md) §3 · branch: `refactor/api-naming`
-- **Scope**: rename the **57 public `Fx*` types** (SPIs, registrations, annotations, constants) to
-  capability names — e.g. `FxOptionsPanel`→`OptionsPanelController`, `FxOptionsRegistration`→
-  `OptionsRegistration`, `FxWizardIterator`→`WizardIterator`, `FxViewRegistration`→`ViewRegistration`,
-  `FxPropertyEditorRegistration`→`PropertyEditorRegistration`, `FxDialogDescriptor`→`DialogDescriptor`;
-  `FxLayer` path constants become `private static final`; FX classes move to `…ui.fx` implementation
-  modules. Mechanical, with **layer output invariance** and `apichanges.xml` entries.
+- **Scope**: classify and fix the **53 public production `Fx*` types** (doc 32 §5.3): **16 SPI** → capability
+  names (`FxOptionsPanel`→`OptionsPanelController`, `FxProperty`→`PropertyModel`, `FxOutput`→`OutputConsole`,
+  `FxWizard`→`WizardIterator`, …); **15 annotations** → `@XxxRegistration` in the T2 annotation modules;
+  **9 processors** follow; **12 implementation widgets** → `…ui.fx`/privatised
+  (`FxOptionsDialog`, `FxPropertySheet`, `FxStatusBar`, `FxWizardDialog`, …); **`FxLayer`** constants →
+  private per reader. Mechanical, with **layer output invariance** and `apichanges.xml` entries.
 - **Acceptance**: no toolkit name in an SPI type/annotation/public constant; build/tests green; generated
   layer identical. **Freeze**: mark every in-flight branch/PR with "rename required", record the
-  known-violations baseline (57 public `Fx*` types, 26.10) and add the naming check to the guardrail step.
+  known-violations baseline (**53 public production `Fx*` types**, 2026-10-18) and add the naming check to
+  the guardrail step. Target names are **to create** — no doc may imply they exist.
 - **Depends**: Public-package inventory (to know what is public).
 - **Ordering**: before M1's API freeze; coordinate with doc 31's factory migration.
 - **Landed**: n/a.
@@ -464,6 +466,27 @@ exist yet, so it is not an acceptance item here.
   slice 4 (project types) after the project API extraction.
 - **Ordering / parallel**: after the tier assignment and rename; before the option/wizard/property-sheet/
   project steps to avoid churn.
+- **Landed**: n/a.
+
+## Module moves & service extraction (aligning plan with main)
+→ detail: [`30-api-governance.md`](30-api-governance.md) §1.4–1.5 · branch: `refactor/module-moves`
+- **Scope**: the moves the tier audit requires but no step owned:
+  1. **`nbfx.propertysheet` → `nbfx-platform`** (doc 26 §3.1), with the `PropertyModel`/`PropertyEditor` SPI
+     extracted to `nbfx.api.property` (T2) and the sheet UI kept as `…ui.fx`;
+  2. **project model**: extract `nbfx.api.project` (`OpenProject`, `ProjectRegistry`, `ProjectOpener`,
+     `ProjectIconProvider`; 14 consumers) into `nbfx.api.project` (T2, `nbfx-ide`), with a deprecated shim
+     and the `nbfx.project` wizards moved to `nbfx.project.ui` (depends on `refactor/project-modularity`);
+  3. **output service**: move `FxOutput`/`FxConsole` to `nbfx.api.output` (T1) and switch `run`/`debug` to
+     it (or to `api.io`), keeping the console view in `nbfx.output.ui.fx`;
+  4. **`FxLayer` constants**: move each path constant into its reader; fix `ActionLayerReader` to own
+     `REF_SUFFIX` (prerequisite of `refactor/annotations-split`);
+  5. **status/file/docking/menus/windows/ui**: either keep T1 or move the consumed types into the shell
+     module (`nbfx.api.status`, `nbfx.api.file`, …) — decide per the audit, not by intuition.
+- **Acceptance**: the audit table is updated; every moved module builds and the consumers compile; no
+  package is split between modules; the branch-reality table (doc 30 §1.4) is reflected in the step
+  dependencies.
+- **Depends**: `refactor/project-modularity` (for the wizards/project model) and the tier assignment.
+- **Ordering**: before `refactor/annotations-split` (constants) and before the output/debug/property steps.
 - **Landed**: n/a.
 
 ## Output window (api.io + ANSI + FX view)

@@ -55,6 +55,7 @@ the module allocation per step is in [`27-layer-module-map.md`](27-layer-module-
 | Plugin API + trust (T2 contract) | `feature/plugin-api` |
 | Swing retirement guard | `refactor/swing-retirement` |
 | Upstream sync (cadence, patches, CI) | `chore/upstream-sync` |
+| Module moves & service extraction (propertysheet, project model, output, FxLayer constants) | `refactor/module-moves` |
 | Credentials / keyring (platform service) | `feature/credentials` |
 | Favorites (platform view) | `feature/favorites` |
 | Split the annotation modules (annotation+processor ownership by layer) | `refactor/annotations-split` |

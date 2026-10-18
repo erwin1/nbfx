@@ -66,18 +66,21 @@ milestone and its dependencies; a step enters the board only when its prerequisi
 | 1 | `feature/walking-skeleton` (one project end-to-end + baseline) | Sven | M0 | current shell/launcher/docking/output (basic), Git status |
 | 2 | `refactor/api-split` (inventory + tiers + `nbfx.api.*` split) | Sven | M0 | — (inventory table in 30 §1.1) |
 | 3 | `refactor/api-naming` (capability names; freeze; mark in-flight PRs) | Sven | M0 | 2 |
-| 4 | `refactor/annotations-split` (T2 annotation-only modules) | Sven | M0 | 2, 3 |
-| 5 | `refactor/services-not-statics` (+ typed contracts) | Sven | M0 | 3 |
-| 6 | `refactor/guardrail-structural-checks` (jdeps/graph/governance/naming) | Sven | M0 | 2, 3 |
-| 7 | `spike/front-end-component-factory` (options prototype + upstream PR) | Sven | M0 | 3 |
-| 8 | `feature/plugin-api` (T2 contract + trust + sample plugin) | Sven | M1 | 4, 6, 7 |
-| 9 | `refactor/swing-retirement` (matrix + exemptions + prune guard) | Sven | M0/M1 | 6 |
-| 10 | `feature/options-foundation` (with fx-dialogs/theming) | Sven | M0 | 3, 5, 7 |
+| 4 | `refactor/module-moves` (constants, propertsheet→platform, project model, output service) | Sven | M0 | 2, `refactor/project-modularity` |
+| 5 | `refactor/annotations-split` (T2 annotation-only modules) | Sven | M0 | 2, 3, 4 |
+| 6 | `refactor/services-not-statics` (+ typed contracts) | Sven | M0 | 3 |
+| 7 | `refactor/guardrail-structural-checks` (jdeps/graph/governance/naming) | Sven | M0 | 2, 3 |
+| 8 | `spike/front-end-component-factory` (options prototype + upstream PR) | Sven | M0 | 3 |
+| 9 | `feature/plugin-api` (T2 contract + trust + sample plugin) | Sven | M1 | 5, 7, 8 |
+| 10 | `refactor/swing-retirement` (matrix + exemptions + prune guard) | Sven | M0/M1 | 7 |
+
+*Immediately after the board:* `feature/options-foundation` (with `fx-dialogs`/`theming`), which depends on
+`api-naming`, `services-not-statics` and the component factory.
 
 **Critical path.**
 
 ```
-walking-skeleton ──▶ api-split ──▶ api-naming ──▶ annotations-split ──▶ plugin-api
+walking-skeleton ──▶ api-split ──▶ api-naming ──▶ module-moves ──▶ annotations-split ──▶ plugin-api
                                     │
                                     ├─▶ services-not-statics
                                     ├─▶ guardrail-structural-checks ──▶ swing-retirement

@@ -86,7 +86,7 @@ on day one).
 
 ### Explicit exemptions (keep, with owner + deadline)
 
-| Module | Why it stays | Owner | Deadline / upstream proposal |
+| Module | Why it stays | Owner | Deadline / upstream proposal (planning target, re-baselined at M0) |
 |---|---|---|---|
 | `org.openide.text` | reused by editor/debugger engines (annotations) | Sven | M2 (2027-07) — replace with nbfx annotation SPI or an upstream headless API |
 | `openide.windows` (API classes) | transitive from engines using old IO | Sven | M2 (2027-07) — move engines to `api.io`; upstream |

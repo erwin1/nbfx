@@ -74,8 +74,8 @@ Two consequences for planning:
 
 | Block today | Move to | Why |
 |---|---|---|
-| `nbfx.api.project` (`OpenProject`, `ProjectRegistry`) inside `c.gluonhq.netbeans.nbfx.api` (nbfx-platform) | `nbfx-ide` (`nbfx-project-api`) | the project model is an IDE concept (`ide/projectapi`), not platform |
-| `nbfx.propertysheet` (nbfx-ide) | `nbfx-platform` (generic views) | the property sheet is a generic view; project *customizers* stay in `nbfx-ide` |
+| `nbfx.api.project` (`OpenProject`, `ProjectRegistry`, `ProjectOpener`, `ProjectIconProvider`) inside `c.gluonhq.netbeans.nbfx.api` (nbfx-platform) | `nbfx-ide` (`nbfx.api.project`, T2), with a deprecated shim during the split | the project model is an IDE concept (`ide/projectapi`), not platform; 14 modules import it today |
+| `nbfx.propertysheet` (nbfx-ide) | `nbfx-platform` (generic views) — **no step yet**, add `refactor/module-moves` | the property sheet is a generic view; project *customizers* stay in `nbfx-ide` |
 | `nbfx.debug`, `nbfx.run`, `nbfx.findusages`, `nbfx.vcs`, `nbfx.structure` (nbfx-ide) | stay `nbfx-ide` | language-agnostic UI; the JPDA/JFR **backends** move to `nbfx-java` |
 | `nbfx.build.ant`, `nbfx.project.ui.*`, `nbfx.structure.java` (nbfx-java) | stay `nbfx-java` | Java project types |
 | `nbfx.output` / future `nbfx.execution`, `nbfx.terminal` | `nbfx-platform` | generic services (used by build, debug, profiler, VCS, shell) |

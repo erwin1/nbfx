@@ -20,7 +20,7 @@ shells and tools that need a TTY.
 
 | Piece | File(s) | Limitation |
 |---|---|---|
-| Output service | `nbfx-platform/c.gluonhq.netbeans.nbfx.output`: `FxOutput`, `FxConsole`, `ConsoleModel`, `FxOutputImpl`, `FxThread` | bespoke API; not `org.netbeans.api.io`/`spi.io` |
+| Output service | `nbfx-platform/c.gluonhq.netbeans.nbfx.output`: `FxOutput`, `FxConsole`, `ConsoleModel`, `FxOutputImpl`, `FxThread` | bespoke API; not `org.netbeans.api.io`/`spi.io`; **consumed by `run` and `debug`, so the module is T1, and `FxOutput`/`FxConsole` move to `nbfx.api.output`** (doc 30 §1.1) |
 | Output view | `OutputViewProvider` | one read-only `TextArea` per console; no ANSI/links/folds/input/limits/search |
 | Process runner | `nbfx-ide/c.gluonhq.netbeans.nbfx.run`: `ProcessRunner` | `ProcessBuilder`, stderr merged, `readLine`, text append; no PTY, no cancel/exit API, UTF-8 only |
 | Build orchestration | `BuildRunner`, `BuildTool` | mvn/gradle/ant detection; in-process provider or CLI; plain text |

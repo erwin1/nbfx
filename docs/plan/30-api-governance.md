@@ -1,7 +1,7 @@
 # 30 — API governance, versioning and upstream strategy
 
 This doc responds to the "Jaroslav review": nbfx publishes an API in 38 modules where **everything is
-public by accident**, has only 10 modules with `arch.xml`/`apichanges.xml`, 57 public `Fx*` types, three
+public by accident**, has only 10 modules with `arch.xml`/`apichanges.xml`, 53 public production `Fx*` types, three
 `friend` patches, mutable statics as models, stringly-typed contracts and grep-based guardrails. An API is
 a promise; the plan must treat it as one.
 
@@ -10,70 +10,140 @@ Steps introduced here: `refactor/api-split`, `refactor/api-naming`, `refactor/se
 (`feature/walking-skeleton`) and budgets in [26-roadmap.md](26-roadmap.md)/[07-small-steps.md](07-small-steps.md).
 The front-end SPI/naming architecture is [31-front-end-apis.md](31-front-end-apis.md).
 
-## 1. Public-package inventory, and splitting the kitchen sink
+## 1. Public-package inventory, split strategy and branch reality
 
-**Measured facts (2026-10-18):** 38 nbfx modules declare a `<public-packages>` element; **25 export at least
-one package** and **13 declare it empty**; of the 25, **21 export their whole package subtree**
-(`<subpackages>`); only **10 modules** carry `arch.xml` + `apichanges.xml`. Known violations to burn down:
-**57 public `Fx*` types** (doc 32 §5).
+This section is **generated from the source tree** (imports + `project.xml` + `jdeps`), not from intuition.
+The audit is reproducible: `rg '^import com\.gluonhq\.netbeans\.nbfx\.' <module>/src` per module, joined with
+each module's `<public-packages>`; the same data is the governance guard's input.
 
-**Rules.**
+**Measured facts (2026-10-18):**
 
-1. A module declares `<public-packages>` **only** for packages that are contracts, and lists packages
-   **explicitly** (no `<subpackages>` for a whole tree; the tree form is allowed only with a written
-   justification in the module's `arch.xml`).
-2. **Tier first.** Every module gets a tier from the table below before its packages are touched
-   ([`32`](32-api-tiers-and-plugin-contract.md) §2); T0 exports nothing, T1/T2 carry the governance
-   artefacts of §2.
-3. `com.gluonhq.netbeans.nbfx.api` (which today exports `api.actions`, `api.editor`, `api.elements`,
-   `api.icons`, `api.progress`, `api.project`, `api.status`, `api.view`, …) is split **per capability**
-   into `com.gluonhq.netbeans.nbfx.api.<capability>` modules (doc 32 §5.1), plus `nbfx.nodes` (model),
-   and implementations move to `*.impl`/UI modules. Each split module gets its own specification version.
-4. Anything not intended as a contract becomes package-private or stays in a non-public package; a
-   `<friend>` dependency (see §5) is never a substitute for a contract.
-5. The table below **is** the tracked inventory (module → exported packages → tier → owner → action); the
-   `refactor/api-split` step updates it and the governance guard (§6) fails the build when a T1/T2 public
-   package has no `arch.xml` entry or a T0 module exports a package.
+- 38 modules declare `<public-packages>`; **25 export at least one package**, **13 are empty**; **21 of the
+  25 export a whole subtree** (`<subpackages>`); only **10 modules** have `arch.xml` + `apichanges.xml`.
+- **`nbfx.api` is imported by 25 modules**, `nbfx.annotations` by **20**, `nbfx.project` by **10**,
+  `nbfx.project.ui`/`.ui.api` by **9**, `nbfx.project.customizer`/`file.actions` by **3**,
+  `nbfx.output`/`statusbar`/`project.context` by **2**, and `docking`/`menus`/`windows`/`ui`/`run`/
+  `structure`/`wizard` by **1**.
+- **53 public production `Fx*` types** (plus test classes): 15 registration annotations, 9 processors,
+  16 SPI types, 12 implementation widgets and `FxLayer` (classification in doc 32 §5.3).
+- **22 modules declare a *run* dependency on `nbfx.annotations`**, and `FxLayer` is used at runtime by
+  five registries (`OptionsRegistry`, `StatusElementRegistry`, `ViewRegistry`, `WizardRegistry`,
+  `ActionLayerReader`). The "compile-only annotation modules" claim is therefore **false until the path
+  constants move** (§1.5).
 
-### 1.1 Inventory and tier assignment
+### 1.1 Inventory and tier assignment (usage-derived)
 
-`sub` = whole package subtree exported (must be listed explicitly or justified); `—` = no export.
+`sub` = whole package subtree exported. `Consumers` = number of other nbfx modules importing the package.
+**Tier rule:** consumers > 0 ⇒ the package is a shared API (T1) or must be moved; consumers = 0 ⇒ T0
+candidate; plugin-facing ⇒ T2 (usually a *new* API module, not the implementation module).
 
-| Module | Exported package(s) | Tier (target) | Action |
+| Module | Exported package(s) | Consumers | Tier (target) | Action |
+|---|---|---|---|---|
+| `nbfx.annotations` | `sub …annotations` | 20 | **T2** | constant split first (§1.5), then split annotations into `nbfx.api.*` annotation modules |
+| `nbfx.api` | `sub …api` | 25 | **T2** | split per capability with shims (§1.3) |
+| `nbfx.docking` | `…docking` | 1 (`ui`) | T1 | keep as shell API, or move the consumed types into `nbfx.ui` |
+| `nbfx.menus` | `sub …menus` | 1 (`ui`) | T1 | keep, or move `LayerMenuBuilder` into `nbfx.ui` |
+| `nbfx.options` | `sub …options` | **0** | **T0 today** | extract `OptionsPanelController`/annotations to `nbfx.api.options` (T2); window → `nbfx.options.ui.fx` |
+| `nbfx.output` | `sub …output` | 2 (`run`, `debug`) | **T1** | move `FxOutput`/`FxConsole` to `nbfx.api.output`; view → `nbfx.output.ui.fx` (doc 15) |
+| `nbfx.statusbar` | `sub …statusbar` | 2 (`ui`, `vcs`) | **T1** | move `FxStatusBar`/`StatusElement` to `nbfx.api.status` (T2: `@StatusRegistration`); bar → `ui.fx` |
+| `nbfx.windows` | `sub …windows` | 1 (`ui`) | T1 | keep, or move `FxWindowSystem`/`ViewRegistry` into `nbfx.ui` |
+| `nbfx.wizard` | `sub …wizard` | 1 (`project`) | T1 today | SPI + annotation → `nbfx.api.wizard` (T2); dialog → `nbfx.wizard.ui.fx` |
+| `nbfx.debug` | `sub …debug` | **0** | T0 | backend SPI is T2-*proposed* (doc 16) |
+| `nbfx.file.actions` | `…file.actions` | 3 | **T1** | move `DesktopActions` to `nbfx.api.file`, or keep T1 |
+| `nbfx.launcher` | `sub …launcher` | 0 | T0 | application entry point |
+| `nbfx.plugins` | `sub …plugins` | 0 | T0 | the manager is UI; the plugin contract is T2 (doc 32) |
+| `nbfx.project` | `sub …project` | 10 | **T1** (today: **New File/Project UI**) | after `refactor/project-modularity`: empty/reserved; the project model is `nbfx.api.project` → **`nbfx.api.project` (T2)** — see §1.4 |
+| `nbfx.project.context` | `sub …project.context` | 2 | T1 | shared between layers |
+| `nbfx.project.customizer` | `sub …project.customizer` | 3 | **T2** | extract the customizer SPI; keep the dialog in the UI |
+| `nbfx.project.ui` | `sub …project.ui` | 9 | T1 | New File/Project UI shared between layers |
+| `nbfx.project.ui.api` | `sub …project.ui.api` | 9 | **T2** | build/run action SPI used by project types |
+| `nbfx.propertysheet` | `sub …propertysheet` | **0** | **T0 today** | move module to `nbfx-platform`, extract `PropertyModel`/`PropertyEditor` to `nbfx.api.property` (T2), sheet → `ui.fx` |
+| `nbfx.run` | `sub …run` | 1 (`project.actions`) | T1 | implementation; the run-config API is `nbfx.project.ui.api` — **not** T2 |
+| `nbfx.structure` | `sub …structure` | 1 (`structure.java`) | T1 | language-provider SPI |
+| `nbfx.ui` | `sub …ui` | 1 (`launcher`) | T1 | shell glue |
+| `nbfx.vcs` | `sub …vcs` | **0** | T0 | VCS SPI is T2-*proposed* (doc 24) |
+| `nbfx.project.ui.java` | `sub …project.ui.java` | 0 | T0 | Java usage |
+| `nbfx.lib.javafx` | `javafx`, `com.sun.javafx`, `com.sun.glass`, `com.sun.prism`, `jfx.incubator`, `com.sun.jfx.incubator` | 30 (`javafx`) | **L** | external library; **allowlisted** in the guard (§1.6) |
+
+Empty `<public-packages/>` (T0 today): `nbfx.actions`, `nbfx.context`, `nbfx.editor`, `nbfx.editor.actions`,
+`nbfx.findinprojects`, `nbfx.findusages`, `nbfx.macos`, `nbfx.project.actions`, `nbfx.build.ant`,
+`nbfx.project.ui.ant`, `nbfx.project.ui.gradle`, `nbfx.project.ui.maven`, `nbfx.structure.java`.
+
+**To create (T2, do not exist yet):** `nbfx.api.actions`, `.view`, `.status`, `.editor`, `.progress`,
+`.file`, `.settings`, `.options`, `.wizard`, `.property`, `.project`; `nbfx.nodes` (model);
+`nbfx.settings` (T1). Their creation is `refactor/api-split`; a target name in a doc is **not** a module.
+
+Owner for every nbfx module: **Sven** (single-maintainer project; re-assign when the team grows).
+
+### 1.2 Usage audit as a guard
+
+The inventory is not a one-off table: the guard parses each module's `<public-packages>` and the import
+graph (or `jdeps`) and fails when
+
+1. a T0 module exports a package consumed by another module (T0-with-consumers is an error);
+2. a T1/T2 public package has no `arch.xml` `<api>` entry;
+3. a package is exported via `<subpackages>` without a written justification;
+4. a public type in an SPI package carries a toolkit prefix (`Fx*`/`Sw*`).
+
+The audit report (module → package → consumers → tier) is the table above, regenerated per milestone.
+
+### 1.3 `nbfx.api` split strategy (no split packages)
+
+`nbfx.api` has **25 consumers**; NetBeans modules must not share a package, so this is not a package move but
+a **per-capability migration with a shim**:
+
+| Slice | Package | Consumers | Force |
 |---|---|---|---|
-| `nbfx.annotations` | `sub …annotations` | **T2** | split the registration annotations into `nbfx.api.*` annotation modules (doc 29/32); core keeps shell annotations |
-| `nbfx.api` | `sub …api` | **T2** | split into `nbfx.api.{actions,view,status,editor,progress,project,…}` |
-| `nbfx.docking` | `…docking` | T0 | no plugin needs it; privatise (or T1 if the shell SPI moves) |
-| `nbfx.menus` | `sub …menus` | T0 | implementation; registration via annotations |
-| `nbfx.options` | `sub …options` | **T2** | move the SPI/annotations to `nbfx.api.options`; keep the window in `nbfx.options.ui.fx` |
-| `nbfx.output` | `sub …output` | T0 | `api.io` is the public contract; privatise |
-| `nbfx.statusbar` | `sub …statusbar` | T0 | `FxStatusBar` is an implementation type; move the status SPI to `nbfx.api.status` |
-| `nbfx.windows` | `sub …windows` | T0 | shell implementation |
-| `nbfx.wizard` | `sub …wizard` | **T2** | move the SPI/annotation to `nbfx.api.wizard`; keep the dialog in `nbfx.wizard.ui.fx` |
-| `nbfx.debug` | `sub …debug` | T0 | engine/UI internals; the backend SPI is T2-*proposed* (doc 32 §3) |
-| `nbfx.file.actions` | `…file.actions` | T0 | implementation |
-| `nbfx.launcher` | `sub …launcher` | T0 | application entry point |
-| `nbfx.plugins` | `sub …plugins` | T0 | the plugin *manager* is a UI; the plugin **contract** is T2 (doc 32) |
-| `nbfx.project` | `sub …project` | **T2** | the project model (`ProjectModel`) is a plugin extension point |
-| `nbfx.project.context` | `sub …project.context` | T1 | shared between nbfx layers; no external promise |
-| `nbfx.project.customizer` | `sub …project.customizer` | **T2** | project-type customizer SPI (plugins add project types) |
-| `nbfx.project.ui` | `sub …project.ui` | T0 | New File/Project UI; templates are the plugin surface |
-| `nbfx.project.ui.api` | `sub …project.ui.api` | **T2** | build/run action SPI used by project types |
-| `nbfx.propertysheet` | `sub …propertysheet` | **T2** | move `PropertyModel`/`PropertyEditor` to `nbfx.api.property`; keep the sheet in the UI module |
-| `nbfx.run` | `sub …run` | **T2** | run-configuration SPI used by project types |
-| `nbfx.structure` | `sub …structure` | T1 | language-provider SPI between layers |
-| `nbfx.ui` | `sub …ui` | T0 | shell/UI glue |
-| `nbfx.vcs` | `sub …vcs` | **T2-proposed** | VCS SPI once designed/tested (doc 32 §3) |
-| `nbfx.project.ui.java` | `sub …project.ui.java` | T0 | Java usage implementation |
-| `nbfx.lib.javafx` | `sub javafx`, `sub com.sun.*`, `sub jfx.*` | **L** | external library (not an API; keep the licence/allowlist) |
+| 1 | `api.actions` | **22** | largest surface; includes `ActionLayerReader`/`Command` |
+| 2 | `api.project` | **14** | `OpenProject`/`ProjectRegistry`/`ProjectOpener`/`ProjectIconProvider` |
+| 3 | `api.editor` | **16** | editor API (incl. `api.breadcrumbs`/`api.completion`) |
+| 4 | `api.view` | **12** | views/`DockLocation`/`ViewProvider` |
+| 5 | `api.file` | 5 | file API |
+| 6 | `api.elements` | 4 | element/icon model |
+| 7 | `api.icons`, `api.progress`, `api.search` | 2 each | small |
+| 8 | `api.breadcrumbs`, `api.completion` | 1 each | fold into `api.editor` |
+| 9 | root `…api` (base types) | 13 | last, after the leaves |
 
-Modules with an empty `<public-packages/>` (T0 today): `nbfx.actions`, `nbfx.context`, `nbfx.editor`,
-`nbfx.editor.actions`, `nbfx.findinprojects`, `nbfx.findusages`, `nbfx.macos`, `nbfx.project.actions`,
-`nbfx.build.ant`, `nbfx.project.ui.ant`, `nbfx.project.ui.gradle`, `nbfx.project.ui.maven`,
-`nbfx.structure.java` — keep them empty.
+Per slice: move the classes to `com.gluonhq.netbeans.nbfx.api.<capability>`, add a **deprecated delegating
+class** in the old package (one milestone), migrate the consumers, bump their spec versions, delete the
+shim, update `arch.xml`/`apichanges`. The shim is the only way to avoid a 25-module big-bang; it is
+removed before the milestone closes. `api.project` must be aligned with `nbfx.project` (§1.4).
 
-Owner for every nbfx module: **Sven** (single-maintainer project at this point); the owner is recorded so
-that the register is never anonymous. Re-assign if the team grows.
+### 1.4 Branch reality (main vs local branches)
+
+The split steps must state which tree they run on:
+
+| Capability | On `main` (this branch) | On a local branch |
+|---|---|---|
+| New File/Project UI | **`nbfx.project` still contains the wizards** (`NewFileWizard`, `NewProjectWizard`, `Wizards`, `WizardCommand`, …) | `refactor/project-modularity` moves them to `nbfx.project.ui` and leaves `nbfx.project` empty/reserved |
+| Project model | `nbfx.api.project` (`OpenProject`, `ProjectRegistry`, `ProjectOpener`, `ProjectIconProvider`) | target `ProjectModel`/`nbfx.api.project` extraction (`feature/fxproject-model`) |
+| Templates + `check-models` | absent | `feature/newfile-templates` adds `nbfx.templates` and the `check-models` guard |
+| Progress + prune | `nbfx.progress` absent; no `-prune-excluded` | `feature/progress-ui` (PR #2) adds them |
+
+Consequences: `refactor/api-split`/`annotations-split`/`swing-retirement` either **wait for those branches
+to merge** or explicitly target the post-merge tree; they must not assume `ProjectModel` exists in a module
+that currently holds wizards. The audit table above is the state of `main`.
+
+### 1.5 `FxLayer` constants are a runtime dependency (split them first)
+
+`FxLayer` lives in `nbfx.annotations` and is used at **runtime** by five registries plus
+`ActionLayerReader` (in `nbfx.api`). Therefore:
+
+1. move each path constant into its **reader** module (`private static final`, one per reader); remove the
+   public `FxLayer` (or keep a deprecated copy for one milestone);
+2. fix `ActionLayerReader` to own `REF_SUFFIX` (a T2 API must not depend on the annotations module for a
+   string);
+3. **then** make the annotation modules compile-only for nbfx modules (22 run dependencies → build
+   prerequisites) — and keep them as normal compile dependencies for **plugins**.
+
+This ordering is a prerequisite of `refactor/annotations-split`, not a cleanup after it.
+
+### 1.6 Guard allowlist for the bundled library
+
+`nbfx.lib.javafx` exports `javafx.*`, `com.sun.javafx.*`, `com.sun.glass.*`, `com.sun.prism.*`,
+`jfx.incubator.*` and `com.sun.jfx.incubator.*`. It is an **external library** (`L`), not an nbfx API:
+the `jdeps`/bytecode guard must treat `lib.*` modules as an allowlisted library (and still forbid those
+packages in nbfx model/SPI modules).
 
 ## 2. Per-package governance artefacts
 
@@ -106,7 +176,7 @@ promotes them (with the artefacts above) or privatises them.
 
 ## 3. Naming: capability names, toolkit in the implementation (details in doc 31)
 
-**Facts to fix:** 57 public `Fx*` types; the plan already renamed Nodes to `NodeModel` for this reason, then
+**Facts to fix:** 53 public production `Fx*` types; the plan already renamed Nodes to `NodeModel` for this reason, then
 kept `FxOptionsPanel`, `FxWizardIterator`, `FxViewRegistration`, `FxProjectTypeRegistration`,
 `FxPropertyEditorRegistration`, `FxDialogDescriptor`, … and the options/wizard/view/menu/toolbar/status
 **annotations** are `Fx*` too.
@@ -190,7 +260,8 @@ first use, views are created lazily by the docking layer.
 | `patches/0003-friend-maven-embedder.patch` | `maven.embedder` internals | ditto | propose an embedder API (or move to process-based Maven, doc 15) | Sven | M2 (2027-07) |
 
 Rule: **no new friend patch** without an entry here, an upstream proposal and a deadline; a friend patch
-without a proposal is a fork we have not admitted.
+without a proposal is a fork we have not admitted. Deadlines are **planning targets** re-baselined at M0
+(doc [34](34-upstream-sync-and-budget.md) §3), not commitments.
 
 ## 9. Reuse register (internals we depend on — decide, do not drift)
 
@@ -211,6 +282,7 @@ without a proposal is a fork we have not admitted.
 
 Rule: for every `modules.*`/`lib.*` internal, one of *upstream API*, *vendored fork (version + upgrade
 cadence)*, or *reimplement* must be recorded before the milestone closes. "Reuse" is not a decision.
+Dates are planning targets (doc 34 §3).
 
 ## 10. Upstream strategy
 

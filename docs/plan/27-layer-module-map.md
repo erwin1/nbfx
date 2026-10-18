@@ -4,7 +4,8 @@ The authoritative allocation of every nbfx building block to a cluster, its NetB
 status, the step/branch that delivers it and the detail doc. Read with [26-roadmap.md](26-roadmap.md)
 (layers/milestones), [32](32-api-tiers-and-plugin-contract.md) (API tiers + plugin contract),
 [33](33-swing-retirement.md) (retirement) and [`architecture-rules.md`](../architecture-rules.md) (the
-dependency rules).
+dependency rules). **The tier table and the split steps are derived from the source audit in
+[`30`](30-api-governance.md) §1.1–1.5** — the tree on `main` differs from the local branches (§1.4).
 
 Legend — **status**: `landed` (in the repo), `in-flight` (branch/PR), `planned` (step + branch agreed),
 `missing` (identified, not yet a step). **Layer**: `plat` = `nbfx-platform`, `ide` = `nbfx-ide`,
@@ -72,7 +73,7 @@ the project API module (ide). Annotation modules are **compile-only** (build pre
 | Module | Purpose | NetBeans counterpart | Status | Step / branch | Doc |
 |---|---|---|---|---|---|
 | `nbfx.project.api` *(new; split from `nbfx.api`)* | project model API (`FxProject`, registry, kinds) | `projectapi` | to extract | `feature/fxproject-model` | 02 |
-| `nbfx.project` | FxProject model (headless) | `projectapi`/project-type modules | planned | `feature/fxproject-model` | 02 |
+| `nbfx.project` | **On `main`: New File/Project wizards** (to move to `nbfx.project.ui` on `refactor/project-modularity`); after that: reserved for the project model. The project model today is `nbfx.api.project` (`OpenProject`/`ProjectRegistry`/`ProjectOpener`/`ProjectIconProvider`, 14 consumers) | `projectapi`/project-type modules | in transition | `refactor/project-modularity` + `feature/fxproject-model` | 02/26/30 §1.4 |
 | `nbfx.project.ui` / `.ui.api` / `.customizer` / `.actions` / `.context` | New File/Project wizards, project UI, customizer framework, project actions, context | `projectui`, `projectuiapi`, project customizer SPI | landed (moves done) | `refactor/project-modularity` + 02 steps | 02/07 |
 | `nbfx.editor` | FX editor framework: code area, completion, breadcrumbs, syntax decoration, annotations, find/replace | `editor`, `editor.lib*`, `editor.completion`, `editor.breadcrumbs` | landed (framework) | + `feature/editor-actions-parity` | 21 |
 | `nbfx.editor.actions` | editor commands (cut/copy/paste/undo/find/save) | `editor.actions` | landed | — | 21 |
@@ -80,7 +81,7 @@ the project API module (ide). Annotation modules are **compile-only** (build pre
 | `nbfx.structure` | structure/navigator framework | `editor.structure` | landed | migrate to nodes (12) | 12 |
 | `nbfx.findinprojects` | Find (and Replace) in Projects | `find`, `projectui` search | landed | replace-in-projects step | 18 |
 | `nbfx.findusages` | Find Usages (own usages query) | `refactoring.api` usages + `java.editor` | landed (parity work planned) | `feature/find-usages-parity` | 18 |
-| `nbfx.propertysheet` | property sheet (to move to platform) | `openide.explorer.propertysheet` | landed (to move) | 13 | 13 |
+| `nbfx.propertysheet` | **landed in `nbfx-ide`; to move to `nbfx-platform`** (step missing until `refactor/module-moves`) | `openide.explorer.propertysheet` | landed (to move) | `refactor/module-moves` + 13 | 13/26 |
 | `nbfx.run` | run/build orchestration + `ProcessRunner` | `extexecution` usage by project types | landed (basic) | `feature/execution-service` (adopt) | 15 |
 | `nbfx.debug` | debugger UI + session (split: `.core` model, `.java` backend) | `spi.debugger.ui`, `debugger.jpda.ui`, `java.navigation` | landed (basic) | 16 steps | 16 |
 | `nbfx.vcs` | VCS core + Git UI (currently CLI Git status only) | `versioning.core/util/ui`, `ide/git` (jgit) | landed (basic) | 24 steps | 24 |

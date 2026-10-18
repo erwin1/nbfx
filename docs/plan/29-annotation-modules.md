@@ -94,17 +94,25 @@ generated in the plugin's own layer — verify this in the plugin sample (doc 32
   module build output — this makes the refactor mechanical and reviewable.
 - **Public packages**: the core package keeps the platform annotations; moved annotations change imports
   in the declaring modules (mechanical; no runtime reference because retention is `SOURCE`).
-- **Runtime path constants**: only the *readers* need the path strings; keep them in the module that owns
-  the registry (or in the core `FxLayer` for the shell folders). Never let a runtime module depend on an
-  annotation module just for a string.
-- **Compile-only exclusion**: once sliced, the annotation modules can be dropped from the cluster
-  distribution (they are build-time only), reducing the shipped module count — unless a module still
-  references a `FxLayer` constant.
+- **`FxLayer` is a runtime dependency today** — 22 modules declare a *run* dependency on
+  `nbfx.annotations`, and `FxLayer` is used at runtime by `OptionsRegistry`, `StatusElementRegistry`,
+  `ViewRegistry`, `WizardRegistry` and `ActionLayerReader` (in `nbfx.api`). The **constant split comes
+  first**: move each path constant into its reader (`private static final`), fix `ActionLayerReader` to
+  own `REF_SUFFIX`, and only then claim "compile-only". The compile-only cleanup is a prerequisite, not a
+  post-split chore.
+- **Compile-only (nbfx) vs compile dependency (plugin)**: for nbfx feature modules the annotation module is
+  a build prerequisite without a run dependency *after* the constants move; for a **plugin** it is a
+  normal compile dependency (the plugin's `project.xml` declares it). The plugin's build is the reason the
+  annotation modules must exist as separate API modules (doc 32 §2).
+- **Compile-only exclusion**: once sliced and constants-free, the annotation modules can be dropped from
+  the nbfx distribution (they are build-time only for nbfx), reducing the shipped module count — but they
+  remain part of the **plugin build** contract.
 
 ## Migration steps (branch `refactor/annotations-split`, one reviewable commit per slice)
 
-**Prerequisite:** tier assignment (doc 30 §1.1) and the rename (`refactor/api-naming`) have landed; the
-moved annotations carry **capability names**, never `Fx*`.
+**Prerequisite:** the **constant split** (doc 30 §1.5: `FxLayer` out of the runtime path), tier assignment
+(doc 30 §1.1), the rename (`refactor/api-naming`) and `refactor/api-split`'s inventory. The moved
+annotations carry **capability names**, never `Fx*`.
 
 1. **Options** — move `@OptionsRegistration`/`Container`/`Sub` + processor into **`nbfx.api.options`**
    (annotation-only, T2); update `nbfx.options` (window/registry) and every declaring module; verify layer
