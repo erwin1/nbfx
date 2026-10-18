@@ -410,7 +410,7 @@ on day one** with the current exemptions and fails only on a new violation or an
 | Target (extend `check-purity.xml`) | Mechanism | Fails when |
 |---|---|---|
 | `check-sources` | import denylist + per-module allowlist | a forbidden import family outside its declared owner |
-| `check-sources` (Java boundary) | `org.netbeans.api.java.source`/`libs.javacapi` only in the `java.*` semantic modules | imported anywhere else (Appendix B.5) |
+| `check-java-source` *(new)* | `org.netbeans.api.java.source`/`libs.javacapi` only in the `java.*` semantic modules | imported anywhere else (Appendix B.5) |
 | `check-dependencies` | walk each `project.xml` graph | a forbidden NetBeans UI module, or an upward layer edge |
 | `check-jars` | `jdeps` (references) **and** jar listing (bundled classes), on **all** clusters (`nbfx-libs`, `nbfx-api`, `nbfx-platform`, `nbfx-ide`, `nbfx-java`, `nbfx-javafx`) | a reference/bundle of a forbidden package outside an allowed tier or exemption |
 | `check-packaging` | the retirement matrix (absent modules per milestone) | a retired module reappears in the distribution |
@@ -422,7 +422,7 @@ on day one** with the current exemptions and fails only on a new violation or an
 | `check-lookup` *(new, test)* | the `Lookups.forPath` invocation count is constant across N user actions (Appendix E.5) | a per-action layer lookup |
 | lifecycle *(new, test)* | the leak test: open/close a view N times; listener count returns to baseline and the view is weakly reachable (Appendix E.2) | a leaked subscription |
 | `check-licences` *(new)* | every bundled jar/native has a `NOTICE` entry; `javafx.web` absent; `LICENSE`/`THIRDPARTY` present ([Appendix G](appendix/G-licences-and-notices.md)) | an unnotified bundle |
-| `check-figures` *(new)* | `python3 docs/plan/tools/counts.py --check`: every number the plan states matches the tree ([`figures.md`](figures.md)) | stale figures, a hand-typed count |
+| `check-figures` *(new)* | `ant -f check-purity.xml check-figures` → `python3 docs/plan/tools/counts.py --check`: every number the plan states matches the tree ([`figures.md`](figures.md)) | stale figures, a hand-typed count |
 | `check-baseline` *(new)* | one `javac.release` across nbfx modules; no `javafx.web` in the FX bundle; the launcher's `--add-exports` list is a single, documented file (§8.1) | a drifting JDK/FX/class-file baseline |
 
 The old, grep-only `check-jars` greps the *file list* of three cluster directories for `javax/swing/`, so a
