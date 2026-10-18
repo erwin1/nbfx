@@ -386,6 +386,22 @@ paths. Pre-1.0 that is allowed (no released version ⇒ code-name churn is permi
 - **Debuggees/VCS/native tools** are launched through `api.execution` (PTY by default for run), so no
   module starts processes itself.
 
+### 8.1 Baseline (the compatibility contract)
+
+The plan stated none of this; a plugin author and the CI both need it.
+
+| Item | Value | Consequence |
+|---|---|---|
+| **Minimum JDK** | **25** (LTS) | every nbfx module compiles with `javac.release=25` (as `lib.javafx` does today) → class file 69 |
+| **JavaFX** | **27** (`lib.javafx/javafx.version`) | bundled jars in `libs.javafx/release/modules/ext/`: `javafx.base`, `javafx.graphics`, `javafx.controls`, `javafx.fxml`, `jfx.incubator.richtext`, `jfx.incubator.input`; **no `javafx.web`** (licence and size, [Appendix G](appendix/G-licences-and-notices.md)) |
+| **FX internals** | `platform.editor` uses `com.sun.jfx.incubator.scene.control.richtext.{RichTextAreaSkinHelper,VFlow,CaretInfo}` | reachable today because the FX jars sit on the **classpath (unnamed module)**; if FX ever moves to the module path, the launcher must add `--add-exports javafx.controls/com.sun.jfx.incubator.scene.control.richtext=ALL-UNNAMED` — centralised in one launcher config, never scattered |
+| **JPMS posture** | NetBeans module system on the classpath; FX is an autoload module (`is.autoload=true`) started by `launcher.FxGuiRunLevel` (`Application.launch`) | no module-path requirement today; a future `jpackage`/`jlink` step must revisit this ([§11 W10](PLAN.md)) |
+| **Profiler** | **agent-free** | the NetBeans profiler agent cannot read class files newer than **55 (JDK 11)** while the target is JDK 25 → profiling = JFR + bundled async-profiler + a JMX sampler. Record this, or someone will "fix" it by re-adding the agent |
+| **Test JVM** | Monocle headless (§10.3) | FX tests run without a window in CI |
+
+Checked by `check-baseline` (§9): one `javac.release` across nbfx modules; no `javafx.web` in the bundle; the
+launcher's `--add-exports` list is empty today and lives in one file.
+
 ## 9. Guardrails (structural, in the build)
 
 The rule is [Appendix A](appendix/A-toolkit-policy.md); this is the implementation. Every check is **green
@@ -407,6 +423,7 @@ on day one** with the current exemptions and fails only on a new violation or an
 | lifecycle *(new, test)* | the leak test: open/close a view N times; listener count returns to baseline and the view is weakly reachable (Appendix E.2) | a leaked subscription |
 | `check-licences` *(new)* | every bundled jar/native has a `NOTICE` entry; `javafx.web` absent; `LICENSE`/`THIRDPARTY` present ([Appendix G](appendix/G-licences-and-notices.md)) | an unnotified bundle |
 | `check-figures` *(new)* | `python3 docs/plan/tools/counts.py --check`: every number the plan states matches the tree ([`figures.md`](figures.md)) | stale figures, a hand-typed count |
+| `check-baseline` *(new)* | one `javac.release` across nbfx modules; no `javafx.web` in the FX bundle; the launcher's `--add-exports` list is a single, documented file (§8.1) | a drifting JDK/FX/class-file baseline |
 
 The old, grep-only `check-jars` greps the *file list* of three cluster directories for `javax/swing/`, so a
 class that imports a JDK `javax.swing` type passes and the two new clusters are unscanned; that is the gap
@@ -587,6 +604,8 @@ Order and the per-proposal credibility test are in [H.8](appendix/H-upstream-pro
     compatibility wrapper, `ModuleAutoDeps` carries the move, the surface is frozen by `sigtest`, a prototype in
     nbfx is the first customer, and a fallback is recorded. **At least one accepted upstream change per
     milestone.**
+18. **Baseline**: JDK 25, JavaFX 27, `javac.release=25`, FX on the classpath (unnamed module) with the
+    `--add-exports` list centralised if that ever changes, agent-free profiling, Monocle for tests (§8.1).
 
 ## 14. Open questions
 
