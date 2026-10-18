@@ -1,7 +1,7 @@
 # Appendix C — Naming and the rename table
 
-`PLAN.md` §3.2 forbids `Fx*`/`Sw*` names in public API. The tree has **53 public `Fx*` types**, ~52 of
-them in modules that export packages, so they are public API under today's `<subpackages>` exports. §7's
+`PLAN.md` §3.2 forbids `Fx*`/`Sw*` names in public API. The tree has **57 public `Fx*` types**, 56 of
+them in modules that export packages ([`../figures.md`](../figures.md)), so they are public API under today's `<subpackages>` exports. §7's
 migration map moves *modules*, not *names*, so every one survives the split. This appendix is the missing
 step: the rename, which is source-compatible and therefore belongs in W1 **before** the API split, so the
 new `api.*` modules are born with their final names.
@@ -21,7 +21,7 @@ processors and internal helpers (`FxViewRegistrationProcessor`, `FxPropertyEdito
 public API by accident. Two thirds of the rename cost is really *moving impl classes out of exported
 packages*, and that is a consequence of the split, not a renaming whim.
 
-## C.2 The table (all 53 public `Fx*` types)
+## C.2 The table (all 57 public `Fx*` types)
 
 Legend: **API** = exported today; **→** target name; **module** = target module (§6/§7); **(impl)** =
 not API after the split, `Fx*` may be kept.
@@ -55,7 +55,7 @@ not API after the split, `Fx*` may be kept.
 | `FxSubmenu` | `Submenu` | `api.views` |
 | `FxProgress` | `Progress` | `api.progress` |
 
-### Platform units that export today (12 types)
+### Platform units that export today (25 types)
 
 | Today | Target | Target module |
 |---|---|---|

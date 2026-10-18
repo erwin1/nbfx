@@ -50,7 +50,7 @@ column is what the bridge module must be allowed to carry permanently (Appendix 
 | `org.netbeans.modules.projectapi` | 9 modules | **reuse** (headless `Project` model) | all layers | — |
 | `nbjunit`, `libs.junit4` | tests | **reuse** (test only) | — | — |
 
-## D.3 The editor and Java-tooling matrix (45 upstream modules)
+## D.3 The editor and Java-tooling matrix (50 upstream modules in the measured set — [`../figures.md`](../figures.md))
 
 Swing ratio = files importing `javax.swing`/`java.awt` ÷ Java files (measured). This table is what makes M1
 and M2 schedulable.

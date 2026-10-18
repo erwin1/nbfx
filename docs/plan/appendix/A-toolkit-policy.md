@@ -5,12 +5,17 @@ the actual tree, not against the ideal.
 
 ## A.1 What the tiers mean for types
 
-| Tier | May reference | Never references |
+| Tier | May reference | Never references *(except the named register, A.6)* |
 |---|---|---|
 | **T0** implementation | anything its module needs | — (exports nothing; no spec version) |
 | **T1** shared | `org.openide.filesystems`, `org.openide.util*`, `java.*`, `javax.lang.model.*`, `com.sun.source.*` | `javafx.*` (unless the module also says so), `javax.swing.*`, `java.awt.*` |
 | **T2-FX** published UI API | `javafx.*` (`Node`, `ObservableValue`, `KeyCombination`, `Image`) + the T1 set | `javax.swing.*`, `java.awt.*`, `javafx.embed.swing.*` |
 | **M** published model/backend API | `org.openide.filesystems`, `org.openide.util*`, `java.*`, `javax.lang.model.*` **(converted, see A.4)**, `com.sun.source.*` (JDK `jdk.compiler`) | `javafx.*`, `javax.swing.*`, `java.awt.*`, `org.netbeans.modules.*` internals |
+
+The "never" column is absolute **with the exemptions registered in A.6**: an interface or constant an upstream
+SPI forces into a signature (`ChangeListener`, `javax.swing.Action`, `ActionListener`) — never a component
+(`JComponent`, `Window`, `SwingUtilities`, `SwingFXUtils`). A guard that does not read the register would
+contradict this table; that is why the exemptions are machine-readable (A.5).
 
 The three degrading questions for any type in a T1/T2-FX/M signature: *which classloader owns it, which
 thread may call it, and who disposes it?* If any answer is "the UI toolkit", the type is in the wrong tier.
@@ -85,7 +90,8 @@ Two rules, both machine-checkable:
 2. **The allowlist** — a module declares in **`nbproject/nbfx-policy.properties`** (read by the guard) its
    tier and the denylisted import families it may use, e.g. `tier=M`, `imports.allow=java.source,libs.javacapi`.
    The guard fails on any denylisted import outside the declaration. The Java layer's modules are the only
-   ones that may declare `java.source`; today that is 4 modules and ~50 files (Appendix B).
+   ones that may declare `java.source`; today that is 4 modules — 43 files importing `java.source`, 62
+   touching the semantic surface ([`../figures.md`](../figures.md)).
 
 The guard must **check references, not just bundled classes**: `check-jars` (`check-purity.xml:93-116`)
 greps the *file list* of three cluster directories, so a class that imports a JDK `javax.swing` type from

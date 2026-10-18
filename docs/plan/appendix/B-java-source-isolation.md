@@ -3,7 +3,8 @@
 Answers directly: **does the prototype use `java.source`, how, and can we hide it so it does not creep
 into the new codebase?**
 
-Short answer: **yes it uses it, in a bounded and already adapter-shaped way (4 modules, ~50 files), and it
+Short answer: **yes it uses it, in a bounded and already adapter-shaped way (4 modules; 43 files import
+`org.netbeans.api.java.source`, 62 touch the semantic surface — [`../figures.md`](../figures.md)), and it
 never touches `javax.swing.text.Document`.** Containment is therefore mostly *formalisation and a guard*,
 not a rewrite: one bridge module owns the coupling, the Java layer is the only place it may appear, and
 everything else keeps talking to the toolkit-free seams that already exist.
@@ -91,25 +92,20 @@ XML/CSS decorators become `ide.editor.xml` / `ide.editor.css` (or one `ide.edito
 
 Do **not** wrap `ClassIndex`/completion behind a generic "language model" abstraction; that is an
 abstraction over an abstraction and it will cost more than it saves. `java.model` does four mechanical
-things and nothing else:
+things and nothing else — and it is a **`Lookup` service with a project-scoped lifecycle**, not a bag of
+statics (W1 `refactor/objects-not-statics`; the cache is project-owned, Appendix E.2 rule 4):
 
 ```java
-// T0, java layer
-public final class Classpaths {                 // one cache, replaces 3 copies of the plumbing
-    static FileObject inMemory(FileObject original, String text);   // + line-separator handling
-    static ClasspathInfo of(FileObject owner, boolean refresh);
-}
-public final class SemanticTasks {              // runUserActionTask/CancellableTask packaging + logging
-    static <R> R read(FileObject file, String text, Function<CompilationInfo, R> body);
-    static TaskHandle analyze(FileObject file, String text, CancellableTask<CompilationController> task);
-}
-public final class Positions {                  // the TextOffsets counterpart
-    static int toOffset(CompilationInfo info, long pos);
-    static long toPos(CompilationInfo info, int offset);
-}
-public final class Elements {                   // nb-javac-safe conversion into api.elements value types
-    static SourceElementKind kindOf(Element e);
-    static Set<?> modifiersOf(Element e);       // consumers use SourceModifiers.toModifierBits
+// T0, java layer — obtained from SourceAnalysis.forProject(Project); dropped when the project closes
+public interface SourceAnalysis {
+    FileObject inMemoryFile(FileObject original, String text);          // + line-separator handling
+    ClasspathInfo classpath(FileObject owner, boolean refresh);         // one cache, replaces 3 copies
+    <R> R read(FileObject file, String text, Function<CompilationInfo, R> body);   // task packaging
+    TaskHandle analyze(FileObject file, String text, CancellableTask<CompilationController> task);
+    int toOffset(CompilationInfo info, long pos);                       // the TextOffsets counterpart
+    long toPos(CompilationInfo info, int offset);
+    SourceElementKind kindOf(Element e);                                // nb-javac-safe, A.4
+    Set<?> modifiersOf(Element e);                                      // SourceModifiers.toModifierBits
 }
 ```
 
