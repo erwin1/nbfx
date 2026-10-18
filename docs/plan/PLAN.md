@@ -90,18 +90,21 @@ com.gluonhq.netbeans.nbfx.libs.<library>              bundled external library  
 | Service | registered via `@ServiceProvider(service = X.class)` for singletons; via layer annotations for contributions | `Dialogs`, `Settings`, `ActionRegistry`, `FxOptions` |
 | Ids | one vocabulary per domain, `@since`-tagged | `ActionIds`, `TemplateIds`, `EditorCommands` |
 
-**Forbidden in public API:** `Fx*`/`Sw*` names, `*Impl` names, public layer-path constants, `Object`-typed
-factories, `Map`-parameters with string keys.
+**Forbidden in public API:** `Fx*`/`Sw*` names, `*Impl` names, `Object`-typed factories,
+`Map`-parameters with string keys. The only permitted shared constant class is `LayerPaths` (§3.3).
+The current tree has **53 public `Fx*` types** (~52 in exported packages); the rename is
+[Appendix C](appendix/C-naming-and-rename-table.md) and the step is `refactor/api-naming` (W1).
 
 ### 3.3 Layer paths
 
 Layer folder names are a **contract**, not an implementation detail: the writer (annotation processor) and
 the reader (the shell) must query the same folder. Today `nbfx.annotations.FxLayer` publishes the folders
-(`NbFx/Views`, `NbFx/Menus`, …) as public constants, and that is the right shape. Decision: the folder
-constants stay **public and versioned in the owning `api.*` module** (or as annotation attributes with
-public defaults). The writer/reader agreement is asserted by a **contract test** that builds a layer from a
-sample annotated class and reads it back through the reader API. "Private constant per reader" is rejected:
-no test can compare two privates, so a typo becomes a silent runtime no-op.
+(`NbFx/Views`, `NbFx/Menus`, …) as public constants, and that is the right shape. Decision: **one owner**,
+the module `nbfx.api.layer` (cluster `nbfx-api`, tier T1) with the class `LayerPaths`; every processor
+writes through it and every registry reads through it. The writer/reader agreement is asserted by a
+**contract test** that builds a layer from a sample annotated class and reads it back through the reader
+API. "Private constant per reader" is rejected: no test can compare two privates, so a typo becomes a
+silent runtime no-op. See [Appendix C](appendix/C-naming-and-rename-table.md) §C.3.
 
 ## 4. API tiers and governance
 
@@ -203,7 +206,7 @@ update centers, pinned SHA-256 for bundled native artifacts, install-time capabi
 | `api.diff` | M | `Diff`, `DiffResult`, `Patch`, `Merge` (headless engine) |
 | `api.tasklist` | M | `TaskProvider`, `Task`, `TaskScope` |
 | `api.plugins` | T1 | plugin metadata, install/update service surface |
-| `api.layer` *(internal)* | T1 | **not planned** — layer paths stay private per reader + test |
+| `api.layer` | T1 | `LayerPaths` — the one owner of the layer folder constants (`NbFx/Views`, …); nbfx-internal, not part of the published plugin API (§3.3, Appendix C.3) |
 
 **Rule of creation:** an `api.*` module exists only when a second module (or a plugin) needs it. Start with
 T0/T1 inside the owning module and promote deliberately.
@@ -410,17 +413,18 @@ workstream matters; across workstreams only the stated dependencies do.**
 **W0 — Walking skeleton & baseline.** `feature/walking-skeleton`: one project end-to-end (open → edit →
 build → run → output → commit) + the budget script and baseline. Everything else keeps it green.
 
-**W1 — Containment, names and API split.** `refactor/guard-java-source` (denylist/allowlist guard over the
-current 4-module allowlist; [Appendix B.5](appendix/B-java-source-isolation.md)) → `refactor/java-plumbing`
-(`java.model` bridge; dedupe the three in-memory-file helpers and the position conversions) →
-`refactor/editor-split` (`platform.editor` / `java.editor` / `ide.editor.{xml,css}`) →
+**W1 — Containment, naming and API split.** `refactor/guard-java-source` (denylist/allowlist guard over the
+current 4-module allowlist; [Appendix B.5](appendix/B-java-source-isolation.md)) → `refactor/api-naming`
+([Appendix C](appendix/C-naming-and-rename-table.md): drop `Fx*` from the 53 public types, move processors
+out of exported packages, introduce `api.layer.LayerPaths`; no behaviour change) →
+`refactor/java-plumbing` (`java.model` bridge; dedupe the three in-memory-file helpers and the position
+conversions) → `refactor/editor-split` (`platform.editor` / `java.editor` / `ide.editor.{xml,css}`) →
 `refactor/usages-split` (`api.usages` + `ide.usages` + `java.usages`) → `refactor/module-names` (rename to
 §3.1; settings/layer round-trip test) → `refactor/api-split` (create the `api.*` modules; move packages
 **wholesale** — same package names, consumers update only their `project.xml`; topological order:
 elements/file/project → editor → actions/views → root last; no shims) →
 `refactor/objects-not-statics` (services with lifecycles; typed contracts; no `Lookup.forPath` per call).
-Layer-path constants stay public and versioned (Decision 12); the writer/reader contract test belongs to
-`api-split`.
+The writer/reader layer contract test belongs to `api-split`.
 
 **W2 — API governance.** `feature/api-governance`: `arch.xml`/`apichanges`/signature tests for every
 T1/T2-FX/M module, the version baseline (1.0 + bump rule) and the spec-version guard; the audit/guard
@@ -508,5 +512,8 @@ budget, CI), `refactor/swing-retirement` (matrix + exemptions; extend the existi
 |---|---|
 | [A — Toolkit policy](appendix/A-toolkit-policy.md) | allowed/forbidden types per tier, the `java.awt`/`javax.swing` decision, the bridge-vs-replace table, the nb-javac rule, the exemption register, the guard mechanism |
 | [B — Java source isolation](appendix/B-java-source-isolation.md) | the `java.source` audit, the existing seams, the `java.model` bridge, the module split, the policy and the migration steps |
-| C — Bridge & retirement matrix *(to write)* | one row per upstream module (`ide/editor*` ×45, `java/java.source*`, `platform/openide.*`, `projectuiapi.base`, …): reuse / bridge / replace / drop, owner, milestone, guard |
-| D — API contract book *(to write)* | exported class list + tier per `api.*` module, signatures of the core SPIs, threading/ownership/a11y contracts, the test kit |
+| [C — Naming and rename table](appendix/C-naming-and-rename-table.md) | the rule per location, all 53 public `Fx*` types and their targets, `api.layer.LayerPaths`, the `refactor/api-naming` step |
+| D — Bridge & retirement matrix *(next iteration)* | one row per upstream module (`ide/editor*`, `java/java.source*`, `platform/openide.*`, `projectuiapi.base`, …): reuse / bridge / replace / drop, owner, milestone, guard, exemptions |
+| E — Contracts *(next iteration)* | threading per SPI, disposal/ownership + leak test, accessibility, error/logging, Lookup rule, plugin allowlist, core SPI signatures (incl. `C`-binding) |
+| F — Node/view migration *(next iteration)* | the 25 tree/table view files and their models → `api.nodes`, owners, milestones |
+| G — Licences and notices *(next iteration)* | JavaFX (GPLv2+CE), async-profiler, JLine, jgit, JaCoCo; NOTICE check |
