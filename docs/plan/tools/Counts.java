@@ -36,6 +36,9 @@ public final class Counts {
 
     private static Path root;
 
+    /** Swing-typed upstream API/SPI modules (the Appendix H offender list). */
+    private static final List<String> offenders = new ArrayList<>();
+
     public static void main(String[] args) throws IOException {
         boolean check = false;
         root = Paths.get(System.getProperty("user.dir"));
@@ -218,8 +221,10 @@ public final class Counts {
                         }
                         clusterModules++;
                         int moduleSwing = 0;
+                        int moduleJava = 0;
                         for (Path file : javaFiles(module.resolve("src"))) {
                             clusterJava++;
+                            moduleJava++;
                             String text = read(file);
                             if (text.contains("import javax.swing") || text.contains("import java.awt")) {
                                 clusterSwing++;
@@ -229,10 +234,19 @@ public final class Counts {
                         if (moduleSwing == 0) {
                             clusterSwingFree++;
                         }
+                        String moduleName = module.getFileName().toString().toLowerCase();
+                        if (moduleSwing > 0 && (moduleName.contains("api") || moduleName.contains("spi"))) {
+                            offenders.add(cluster + "/" + module.getFileName() + " "
+                                    + moduleSwing + "/" + moduleJava);
+                        }
                     }
                 }
                 rows.add(new String[]{"upstream `" + cluster + "` cluster (modules / Swing-free modules / java files / Swing-touching)",
                         clusterModules + " / " + clusterSwingFree + " / " + clusterJava + " / " + clusterSwing});
+            }
+            if (!offenders.isEmpty()) {
+                rows.add(new String[]{"upstream `api*`/`spi*` modules with Swing files (the offender list)",
+                        offenders.size() + ": " + String.join(", ", offenders)});
             }
         }
 

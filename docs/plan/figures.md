@@ -32,4 +32,5 @@ Every number the plan states is derived here from the tree. Regenerate with
 | upstream `php` cluster (modules / Swing-free modules / java files / Swing-touching) | 38 / 5 / 1833 / 475 |
 | upstream `enterprise` cluster (modules / Swing-free modules / java files / Swing-touching) | 117 / 47 / 5079 / 1269 |
 | upstream `webcommon` cluster (modules / Swing-free modules / java files / Swing-touching) | 59 / 22 / 1415 / 420 |
+| upstream `api*`/`spi*` modules with Swing files (the offender list) | 13: php/php.api.framework 8/16, php/php.api.executable 1/5, php/php.apigen 7/47, php/php.api.phpmodule 9/20, php/php.api.testing 1/17, php/php.api.documentation 4/7, enterprise/websvc.clientapi 2/24, enterprise/websvc.websvcapi 1/13, enterprise/web.jsfapi 1/20, enterprise/j2ee.api.ejbmodule 3/36, enterprise/websvc.restapi 2/31, enterprise/api.web.webmodule 2/17, webcommon/web.clientproject.api 28/64 |
 

@@ -217,17 +217,20 @@ update centers, pinned SHA-256 for bundled native artifacts, install-time capabi
 | `api.wizard` | T2-FX | `WizardIterator`, `WizardPanel`, `WizardDescriptor`, `@WizardRegistration` |
 | `api.templates` | M | `TemplateRegistry`, `TemplateCreator`, `@TemplateRegistration` |
 | `api.search` | T2-FX | `SearchProvider`, `SearchRequest`, `SearchResult`, `SearchScope` |
-| `api.debug` | M *(T2-proposed)* | `DebuggerBackend`, `DebuggerSession`, `Breakpoint`, `StackFrame`, `Variable` |
-| `api.profile` | M *(T2-proposed)* | `ProfileBackend`, `ProfileSession`, `StackTree`, `HeapSnapshot` |
-| `api.tests` | M *(T2-proposed)* | `TestRunner`, `TestSession`, `TestReportParser`, `CoverageProvider` |
-| `api.vcs` | M *(T2-proposed)* | `VcsProvider`, `VcsStatus`, `VcsHistoryProvider`, `VcsAnnotator` |
+| `api.debug` | M | `DebuggerBackend`, `DebuggerSession`, `Breakpoint`, `StackFrame`, `Variable` |
+| `api.profile` | M | `ProfileBackend`, `ProfileSession`, `StackTree`, `HeapSnapshot` |
+| `api.tests` | M | `TestRunner`, `TestSession`, `TestReportParser`, `CoverageProvider` |
+| `api.vcs` | M | `VcsProvider`, `VcsStatus`, `VcsHistoryProvider`, `VcsAnnotator` |
 | `api.diff` | M | `Diff`, `DiffResult`, `Patch`, `Merge` (headless engine) |
 | `api.tasklist` | M | `TaskProvider`, `Task`, `TaskScope` |
 | `api.plugins` | T1 | plugin metadata, install/update service surface |
 | `api.layer` | T1 | `LayerPaths` — the one owner of the layer folder constants (`NbFx/Views`, …); nbfx-internal, not part of the published plugin API (§3.3, Appendix C.3) |
 
 **Rule of creation:** an `api.*` module exists only when a second module (or a plugin) needs it. Start with
-T0/T1 inside the owning module and promote deliberately.
+T0/T1 inside the owning module and promote deliberately. The table is the **target catalogue**, not a backlog:
+`refactor/api-split` creates only the modules whose consumers exist at that point; the rest are created by their
+own step. A module with a planned consumer is `M`/T2-FX from the start and published `devel` when its first
+consumer lands — the word *proposed* does not appear in a tier column (Decision 21).
 
 ### 6.2 `nbfx-platform` — shell and platform services
 
@@ -319,10 +322,11 @@ T0/T1 inside the owning module and promote deliberately.
 | `javafx.fxml` | FXML editing/completion |
 | `javafx.scenebuilder` | embedded SceneBuilder (kit 26.0.0) |
 | `libs.javafx` | bundled JavaFX runtime |
-| `libs.jline` | PTY/termios for the terminal |
-| `libs.asyncprofiler.<os>-<arch>` | sampling agent binaries (OS/arch modules) |
-| `libs.jgit` | Git engine (reuse NetBeans' jgit modules) |
-| `libs.jacoco` | coverage (reuse the shipped `org.jacoco.core`) |
+
+**Deferred — created only when the owning step lands, never before:** `libs.jline` (terminal, W3),
+`libs.asyncprofiler.<os>-<arch>` (profiler, M2), `libs.jgit` (Git, W4 — reuse NetBeans' jgit modules),
+`libs.jacoco` (coverage, M2 — reuse the shipped `org.jacoco.core`). A `libs.*` module exists only when the step
+that needs it starts ([Appendix G](appendix/G-licences-and-notices.md) rule 6).
 
 ## 7. Module migration map (current → target)
 
@@ -411,27 +415,29 @@ launcher's `--add-exports` list is empty today and lives in one file.
 
 ## 9. Guardrails (structural, in the build)
 
-The rule is [Appendix A](appendix/A-toolkit-policy.md); this is the implementation. Every check is **green
-on day one** with the current exemptions and fails only on a new violation or an expired exemption.
+The rule is [Appendix A](appendix/A-toolkit-policy.md); this is the implementation. **Status is honest**: five
+checks exist today (`check-purity.xml` has `check-sources`, `check-dependencies`, `check-jars`,
+`check-packaging`, `check-figures`), the rest are `pending` with the step that lands them — a pending check is
+not a guardrail until `feature/ci` runs it (§11 W0/W12).
 
-| Target (extend `check-purity.xml`) | Mechanism | Fails when |
-|---|---|---|
-| `check-sources` | import denylist + per-module allowlist | a forbidden import family outside its declared owner |
-| `check-java-source` *(new)* | `org.netbeans.api.java.source`/`libs.javacapi` only in the `java.*` semantic modules | imported anywhere else (Appendix B.5) |
-| `check-dependencies` | walk each `project.xml` graph | a forbidden NetBeans UI module, or an upward layer edge |
-| `check-jars` | `jdeps` (references) **and** jar listing (bundled classes), on **all** clusters (`nbfx-libs`, `nbfx-api`, `nbfx-platform`, `nbfx-ide`, `nbfx-java`, `nbfx-javafx`) | a reference/bundle of a forbidden package outside an allowed tier or exemption |
-| `check-packaging` | the retirement matrix (absent modules per milestone) | a retired module reappears in the distribution |
-| `check-api` *(new)* | exported set ⊆ `arch.xml` set; dependant spec versions exist | a subtree export, a missing `arch.xml` `<api>` entry |
-| `check-naming` *(new)* | no `Fx*`/`Impl`/`Object`-factory in public API; layer-path constants only in the owning `api.*` module | a forbidden public name |
-| `check-budget` *(new)* | startup, "usable", first completion, module count, memory | >20 % regression vs the milestone baseline |
-| `check-i18n` *(new)* | every user-visible string is an `NbBundle` key present in `Bundle.properties` | a missing key, a hardcoded string |
-| `check-logging` *(new)* | no `System.out`/`printStackTrace`; `Logger` named after the module | a stray print |
-| `check-lookup` *(new, test)* | the `Lookups.forPath` invocation count is constant across N user actions (Appendix E.5) | a per-action layer lookup |
-| lifecycle *(new, test)* | the leak test: open/close a view N times; listener count returns to baseline and the view is weakly reachable (Appendix E.2) | a leaked subscription |
-| `check-licences` *(new)* | every bundled jar/native has a `NOTICE` entry; `javafx.web` absent; `LICENSE`/`THIRDPARTY` present ([Appendix G](appendix/G-licences-and-notices.md)) | an unnotified bundle |
-| `check-figures` *(new)* | `ant -f check-purity.xml check-figures` → `java docs/plan/tools/Counts.java --check`: every number the plan states matches the tree ([`figures.md`](figures.md)) | stale figures, a hand-typed count |
-| `check-baseline` *(new)* | one `javac.release` across nbfx modules; no `javafx.web` in the FX bundle; the launcher's `--add-exports` list is a single, documented file (§8.1) | a drifting JDK/FX/class-file baseline |
-| `check-languages` *(new)* | core (`platform.*`, neutral `api.*`) contains no `LanguageId`/content-type branch; language modules depend only downward; decoration is a provider; an unregistered MIME resolves to **plain text**; providers are language-scoped, never a global `lookupAll` (Appendix I.3/I.4) | an `if (java)` in the core, or an unknown language falling back to Java |
+| Target | Status | Mechanism | Fails when |
+|---|---|---|---|
+| `check-sources` | **exists** | import denylist + per-module allowlist | a forbidden import family outside its declared owner |
+| `check-dependencies` | **exists** | walk each `project.xml` graph | a forbidden NetBeans UI module, or an upward layer edge |
+| `check-jars` | **exists** (extend to 6 clusters + `jdeps`) | `jdeps` (references) **and** jar listing (bundled classes), on **all** clusters (`nbfx-libs`, `nbfx-api`, `nbfx-platform`, `nbfx-ide`, `nbfx-java`, `nbfx-javafx`) | a reference/bundle of a forbidden package outside an allowed tier or exemption |
+| `check-packaging` | **exists** (extend to the retirement matrix) | the retirement matrix (absent modules per milestone) | a retired module reappears in the distribution |
+| `check-figures` | **exists** | `ant -f check-purity.xml check-figures` → `java docs/plan/tools/Counts.java --check` | stale figures, a hand-typed count ([`figures.md`](figures.md)) |
+| `check-java-source` | pending (W1) | `org.netbeans.api.java.source`/`libs.javacapi` only in the `java.*` semantic modules | imported anywhere else (Appendix B.5) |
+| `check-languages` | pending (W1/W11) | core has no `LanguageId`/content-type branch; an unregistered MIME resolves to **plain text**; providers are language-scoped (Appendix I.3/I.4) | an `if (java)` in the core, or an unknown language falling back to Java |
+| `check-api` | pending (W2) | exported set ⊆ `arch.xml` set; dependant spec versions exist | a subtree export, a missing `arch.xml` `<api>` entry |
+| `check-naming` | pending (W1) | no `Fx*`/`Impl`/`Object`-factory in public API; `LayerPaths` is the only shared constants class | a forbidden public name |
+| `check-baseline` | pending (W1) | one `javac.release`; no `javafx.web`; one `--add-exports` file (§8.1) | a drifting JDK/FX/class-file baseline |
+| `check-i18n` | pending (W4) | every user-visible string is an `NbBundle` key in `Bundle.properties` | a missing key, a hardcoded string |
+| `check-logging` | pending (W1) | no `System.out`/`printStackTrace`; `Logger` named after the module | a stray print |
+| `check-lookup` | pending (W3) | the `Lookups.forPath` invocation count is constant across N user actions (Appendix E.5) | a per-action layer lookup |
+| leak test | pending (W3) | open/close a view N times; listener count returns to baseline and the view is weakly reachable (Appendix E.2) | a leaked subscription |
+| `check-licences` | pending (W10) | every bundled jar/native has a `NOTICE` entry; `javafx.web` absent (`LICENSE`/`THIRDPARTY` present) ([Appendix G](appendix/G-licences-and-notices.md)) | an unnotified bundle |
+| `check-budget` | pending (W0) | startup, "usable", first completion, module count, memory | >20 % regression vs the milestone baseline |
 
 The old, grep-only `check-jars` greps the *file list* of three cluster directories for `javax/swing/`, so a
 class that imports a JDK `javax.swing` type passes and the two new clusters are unscanned; that is the gap
@@ -453,7 +459,7 @@ class that imports a JDK `javax.swing` type passes and the two new clusters are 
 The chain that decides the dates; everything else can slip around it:
 
 ```
-refactor/guard-java-source → refactor/api-naming → refactor/module-names → refactor/api-split
+feature/walking-skeleton → feature/ci → refactor/guard-java-source → refactor/api-naming → refactor/module-names → refactor/api-split
   → refactor/nodes-model (platform.nodes)         → feature/editor (platform.editor)
   → refactor/java-plumbing (java.model)           → refactor/editor-split (java.editor)
   → feature/project-model (api.project)           → feature/projecttypes.java (J2SE)
@@ -531,9 +537,15 @@ workstreams only the stated dependencies do.**
 | W9 upstream proposals | ≥1 accepted upstream change; each proposal filed with its prototype, size and fallback |
 | W10 packaging | a clean machine installs, launches and passes the guards on the packaged image |
 | W11 language soundness | the conformance fixture passes in CI; a second language (Groovy) is highlighted, completed and run without editing core; the PHP/web spikes decided `api.servers`; `check-languages` green |
+| W12 CI | the workflow is red on a planted violation and green on the current tree |
 
-**W0 — Walking skeleton & baseline.** `feature/walking-skeleton`: one project end-to-end (open → edit →
-build → run → output → commit) + the budget script and baseline. Everything else keeps it green.
+**W0 — Walking skeleton & baseline (first on the critical path).** `feature/walking-skeleton`: make the
+existing shell modules run **open → edit → build → run → output → commit** on a J2SE project and record the
+budget baseline. The skeleton is the file set that **exists today** (`figures.md`): `nbfx.launcher` (2),
+`nbfx.ui` (41), `nbfx.docking` (5), `nbfx.windows` (9), `nbfx.menus` (1), `nbfx.statusbar` (4),
+`nbfx.output` (9), `nbfx.editor` (88), `nbfx.project.context` (1), `nbfx.api` (62) — **no new module, no split**.
+Acceptance: the scenario runs from a clean checkout and the budget numbers are recorded; everything else keeps
+it green (§11.0.6).
 
 **W1 — Containment, naming and API split.** `refactor/guard-java-source` (denylist/allowlist guard over the
 current 4-module allowlist; [Appendix B.5](appendix/B-java-source-isolation.md)) → `refactor/api-naming`
@@ -592,6 +604,10 @@ budget, CI), `refactor/swing-retirement` (execute the retirement matrix of
 [Appendix D.4](appendix/D-bridge-and-retirement-matrix.md); `check-packaging` asserts the absence),
 `feature/plugin-api` (contract docs, sample plugin, trust), `feature/plugin-quickstart` (the skeleton plugin,
 its NBM build and a view + a command — [Appendix E.6.1](appendix/E-contracts.md)).
+
+**W12 — CI.** `feature/ci`: one workflow running, in order, `ant -f check-purity.xml check-purity`,
+`check-figures`, the cluster build and the W0 smoke test, and publishing the freeze baseline. Acceptance: red on
+a planted violation, green on the current tree — without it "green trunk" is an assertion (§9).
 
 **W10 — Packaging and distribution.** `feature/packaging`: the app image built from `nbbuild/netbeans` (M0),
 then OS bundles/installers (M4) carrying the `libs.*` natives and the licences
@@ -678,6 +694,9 @@ Order and the per-proposal credibility test are in [H.8](appendix/H-upstream-pro
     resolves to **plain text** ([Appendix I](appendix/I-language-soundness.md)). The core must not branch on a
     language (`check-languages`). `api.language` ships `arch.xml category="devel"` and is **not frozen** until
     the conformance fixture and one real second language (Groovy) pass.
+21. **Tier discipline**: an `api.*` module with a planned consumer is `M`/T2-FX from the start and published
+    `devel` when its first consumer lands; no "proposed" tier, no `libs.*` before its step, no capability
+    before a spike decides it (§17).
 
 ## 14. Open questions
 
@@ -726,3 +745,16 @@ Every entry has a **trigger**, so it is a decision rule, not a worry. Owners are
 | **R12** JPDA/debugger integration (attach, sources, hot swap) underestimated | medium | medium | `java.debug` typed session services; M2 gate | debugger step slips |
 | **R13** scope creep from the module catalogue | high | medium | Rule of Creation (§6.1), cut list (§10.2), owners before M0 | a new `api.*` module without a consumer #2 |
 | **R14** a11y postponed and unfixable later | medium | medium | a11y is an M1 contract of `api.views` (E.3), checked in the shell | M1 exit |
+
+## 17. Plan budget and freeze
+
+The plan is a means, not a deliverable. Measured: ~1,950 lines across `PLAN.md` and its appendices, grown by
+34 commits in two days with **no implementation commit** — the risk is now the plan itself.
+
+- **Budget ~1,200 lines.** A review round **deletes at least as much as it adds**.
+- **No new appendix without merging or removing one.**
+- **No further review round** until a milestone artifact exists: W0 runs, `feature/ci` is green, or the language
+  conformance fixture passes.
+- **Delete speculation on sight**: a tier marked "proposed", a `libs.*` row for a library that is not bundled,
+  an `api.*` module without a consumer #2, a capability (`servers`) before a spike decides it.
+- The plan's purpose is to make the next step obvious; when it stops doing that, it is a cost.

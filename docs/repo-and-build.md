@@ -2,7 +2,7 @@
 
 How the nbfx clusters are hosted and built: **apache/netbeans as a git submodule**, a small patch
 set applied to it, an **own cluster configuration** generated from the submodule, and an **Ant**
-harness for a cross-platform build. Companion to [`MVP.md`](MVP.md) (the canonical product plan).
+harness for a cross-platform build. Companion to [`plan/PLAN.md`](plan/PLAN.md) (the canonical plan).
 
 ## 1. Layout
 
@@ -22,7 +22,7 @@ nbfx/
 ├── check-purity.xml              # guardrails (source/deps/bundled classes/packaging)
 ├── README.md
 └── docs/
-    ├── MVP.md                    # canonical product plan
+    ├── plan/PLAN.md              # the canonical plan (docs/plan/)
     └── repo-and-build.md         # this document
 ```
 

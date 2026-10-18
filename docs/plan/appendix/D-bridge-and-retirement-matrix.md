@@ -174,4 +174,6 @@ once its UI is split, making `groovy.editor` a further upstream split candidate 
 Swing-in-the-API defect recurs**: `php/php.api.phpmodule` is **9/20 Swing (45 %)** — a
 Swing-typed API module — `php/php.project` 116/268, `php/php.refactoring` 18/28. So
 [Appendix H](H-upstream-proposals.md)'s splits apply to *any* language API module, not just `java.source`. The
-architecture is proven or broken by the spikes of [Appendix I](I-language-soundness.md).
+architecture is proven or broken by the spikes of [Appendix I](I-language-soundness.md). The measured
+**offender list** (API/SPI modules that import Swing, 13 of them) is generated in
+[`../figures.md`](../figures.md) and analysed in [Appendix H](H-upstream-proposals.md).

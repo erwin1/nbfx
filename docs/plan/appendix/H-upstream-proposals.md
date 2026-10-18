@@ -91,11 +91,27 @@ on it and keeps the widgets; re-export for compatibility; spec version bump.
 into `api.actions.core` (T1) that is a *class-for-class mirror* of the upstream neutral classes; the FX menu
 layer depends on it. The donation is then literally the file set. Step `spike/actions-neutral-core` (M0).
 
-**Same defect class — language API modules.** The Swing-typing of `java.source` is not unique: upstream
-`php/php.api.phpmodule` is **9/20 Swing-touching (45 %)** — a Swing-typed *API* module — `php/php.project`
-116/268, `php/php.refactoring` 18/28, and `groovy/groovy.editor` mixes a Swing-free compiler/AST/completion half
-with a Swing UI ([Appendix D.7](D-bridge-and-retirement-matrix.md)). The rule generalizes: **any language API
-module with Swing types is a split candidate**, and the same additive recipe applies.
+**Same defect class — language API modules.** The Swing-typing of `java.source` is not unique; it is a
+platform-wide pattern. **13** upstream modules whose *name says API/SPI* import Swing (generated —
+[`../figures.md`](../figures.md)):
+
+| Module | Swing / files |
+|---|---|
+| `webcommon/web.clientproject.api` | **28 / 64** |
+| `php/php.api.phpmodule` | 9 / 20 |
+| `php/php.api.framework` | 8 / 16 |
+| `php/php.apigen` | 7 / 47 |
+| `php/php.api.documentation` | 4 / 7 |
+| `enterprise/j2ee.api.ejbmodule` | 3 / 36 |
+| `enterprise/api.web.webmodule` | 2 / 17 |
+| `enterprise/websvc.clientapi`, `enterprise/websvc.restapi` | 2 each |
+| `php/php.api.executable`, `php/php.api.testing`, `enterprise/web.jsfapi`, `enterprise/websvc.websvcapi` | 1 each |
+
+Also `php/php.project` 116/268 and `php/php.refactoring` 18/28; `groovy/groovy.editor` mixes a Swing-free
+compiler/AST/completion half with a Swing UI ([Appendix D.7](D-bridge-and-retirement-matrix.md)). The rule:
+**any API/SPI module that imports Swing is a split candidate** — the same additive recipe (new module +
+compatibility wrapper + `ModuleAutoDeps` + `sigtest`) applies, and the offender list is generated, not
+hand-written.
 
 ## H.4 `openide.nodes`: headless core, Swing shell, neutral icon source
 
