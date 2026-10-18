@@ -1,8 +1,10 @@
-# 03 — Part 2: JavaFX project support
+# 03 — JavaFX usage layer (M3 topic detail)
 
-Goal: add first-class JavaFX support on top of the completed Part 1 infrastructure
-([`02-part1-infrastructure.md`](02-part1-infrastructure.md)). The Part 2 steps are in
-[`05-milestones-verification-risks.md`](05-milestones-verification-risks.md) and
+> Topic detail for milestone M3 (see [`26-roadmap.md`](26-roadmap.md)); JavaFX is a usage layer on top of
+> M0–M2, not the project's purpose. Naming: doc [`32`](32-api-tiers-and-plugin-contract.md).
+
+Goal: add first-class JavaFX support on top of the completed platform/IDE/Java layers
+([`02-part1-infrastructure.md`](02-part1-infrastructure.md)). The steps are in
 [`07-small-steps.md`](07-small-steps.md).
 
 ## New cluster `nbfx-javafx` (mirrors the original `javafx` cluster)

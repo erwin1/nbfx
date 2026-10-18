@@ -1,5 +1,7 @@
 # 15 — Output window & real terminal
 
+> **Naming (doc 32).** Target SPI/API names are **capability names**, never toolkit names: `OptionsPanelController`, `WizardIterator`, `ViewRegistration`, `PropertyEditor`, `ProjectModel`. `Fx*` names below refer to **current code** unless explicitly marked *target*; the rename (`refactor/api-naming`) happens **before** the annotation/API splits. Published-plugin tier and conventions: [`32-api-tiers-and-plugin-contract.md`](32-api-tiers-and-plugin-contract.md).
+
 Steps: **Output window** (`feature/output-window`), **Execution service** (`feature/execution-service`),
 **Terminal emulator model** (`feature/terminal-model`), **Terminal PTY backend** (`feature/terminal-pty`),
 **Terminal view** (`feature/terminal-view`), **Run/build output integration**

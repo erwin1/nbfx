@@ -52,6 +52,9 @@ the module allocation per step is in [`27-layer-module-map.md`](27-layer-module-
 | Services, not statics + typed contracts | `refactor/services-not-statics` |
 | Structural guardrails (module graph, jdeps, governance, naming) | `refactor/guardrail-structural-checks` |
 | Front-end component factory (spike + upstream proposal) | `spike/front-end-component-factory` |
+| Plugin API + trust (T2 contract) | `feature/plugin-api` |
+| Swing retirement guard | `refactor/swing-retirement` |
+| Upstream sync (cadence, patches, CI) | `chore/upstream-sync` |
 | Credentials / keyring (platform service) | `feature/credentials` |
 | Favorites (platform view) | `feature/favorites` |
 | Split the annotation modules (annotation+processor ownership by layer) | `refactor/annotations-split` |

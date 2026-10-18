@@ -24,11 +24,15 @@ implementation should differ from the Swing original is in
 | Layer | Milestone | Steps in this backlog |
 |---|---|---|
 | `nbfx-platform` | M0 | Progress UI parity, Progress launcher removal, Status elements, Wizard framework, FX dialogs & notifications, Theming & branding, Options (all `Options:` steps), Output window, Execution service, Terminal model/PTY/view/options, **Quick Search service**, **Credentials/keyring**, **Favorites**, Nodes & views API, Property sheet & editors |
-| `nbfx-ide` | M1 | Project modularity, New File templates (+ per-template panels), New Project templates, FxProject model, Project problems UI, Views on nodes (migration), Java navigation & search, Refactoring, Java hints, Codegen & editor actions, Javadoc, Testing & coverage, VCS/diff/local history, Debugger UI steps, Profiler UI steps, Libraries, Task list/bookmarks, Plugins UI, Project groups |
+| `nbfx-ide` | M1 | Project modularity, New File templates (+ per-template panels), New Project templates, Project model, Project problems UI, Views on nodes (migration), Java navigation & search, Refactoring, Java hints, Codegen & editor actions, Javadoc, Testing & coverage, VCS/diff/local history, Debugger UI steps, Profiler UI steps, Libraries, Task list/bookmarks, Plugins UI, Project groups |
 | `nbfx-java` | M2 | Java Platforms, (J2SE/Platform) customizers, Build actions, Run lifecycle, Run configurations, Ant runtime, Java editor semantics, Java debug backend, Java profiler backends, Java test integration + coverage, Module support, i18n, Beans, JShell |
 | `nbfx-javafx` | M3 | JavaFX cluster, JavaFX project, JavaFX customizers, FXML completion, SceneBuilder embedding/editor |
 | `libs.*` | M0–M2 | JLine (terminal PTY), async-profiler per OS/arch (profiler), jgit/JaCoCo (reuse) |
-| **cross-cutting** | M0/M1 | **Walking skeleton**, public-package inventory + `nbfx.api` split, capability naming, services-not-statics + typed contracts, structural guardrails, front-end component factory (spike + upstream) |
+| **cross-cutting** | M0/M1 | **Walking skeleton**, public-package inventory + `nbfx.api` split, capability naming, services-not-statics + typed contracts, structural guardrails, front-end component factory (spike + upstream), **plugin API + trust**, **Swing retirement guard**, **upstream sync** |
+
+**Execution board.** This backlog is the library of steps, not the schedule: the next ten steps, the
+dependency graph and the owners live in [`34-upstream-sync-and-budget.md`](34-upstream-sync-and-budget.md)
+§3, reviewed at every milestone (WIP limit: two verticals in flight).
 
 ---
 
@@ -99,8 +103,8 @@ implementation should differ from the Swing original is in
 
 ## Front-end component factory (spike + upstream proposal)
 → detail: [`31-front-end-apis.md`](31-front-end-apis.md) · branch: `spike/front-end-component-factory`
-- **Scope**: prototype the *one SPI, many toolkits* hook (`ComponentFactory` resolved from `Lookup`) on
-  **options** first: toolkit-free `OptionsPanelController` + `OptionsComponentFactory`, an FX factory in
+- **Scope**: prototype the *one SPI, many toolkits* hook (`OptionsPanelFactory<C>` (typed, generic) or a `PanelModel`, resolved from `Lookup`) on
+  **options** first: toolkit-free `OptionsPanelController` + `OptionsPanelFactory<Node>`, an FX factory in
   `nbfx.options.ui.fx`, and a Swing factory kept working in the upstream tree; then propose the hook to
   `apache/netbeans` (additive, no behaviour change). Establishes the pattern for wizard/dialogs/property
   sheet/views/progress/output (doc 31 §4).
@@ -108,6 +112,46 @@ implementation should differ from the Swing original is in
   tests); the upstream PR is opened with tests; the nbfx-side shim is deprecation-only.
 - **Depends**: capability naming.
 - **Ordering**: after `refactor/api-naming`, before the M1 API freeze.
+- **Landed**: n/a.
+
+## Plugin API + trust (T2 contract)
+→ detail: [`32-api-tiers-and-plugin-contract.md`](32-api-tiers-and-plugin-contract.md) · branch: `feature/plugin-api`
+- **Scope**: define the **published plugin API** (T2) from the tier model: the registration annotations
+  (`@ViewRegistration`/`@ActionRegistration`/`@MenuRegistration`/`@OptionsRegistration`/`@WizardRegistration`/
+  `@ProjectTypeRegistration`/`@PropertyEditorRegistration`/`@StatusRegistration`), the extension points a
+  plugin may implement (views, options, nodes/property, project types, build/run, debug/profile/test/VCS
+  backends), and the `Lookup` services; document what a plugin may **not** rely on. Add the plugin guide,
+  signature tests and version ranges, and the trust path (NBM signature verification, HTTPS-only update
+  centers, native-artifact checksums, install-time capability display) in `nbfx.plugins`.
+- **Acceptance**: a sample plugin (NBM) compiles against T2 only, installs with signature verification and
+  works; T0 modules export nothing; the compatibility/signature tests run for T2; the trust policy is
+  documented and enforced in the plugin manager.
+- **Depends**: capability naming (T2 names), public-package split (tiers), plugins UI step.
+- **Ordering**: after `refactor/api-split`/`api-naming`; before M1's API freeze.
+- **Landed**: n/a.
+
+## Swing retirement guard
+→ detail: [`33-swing-retirement.md`](33-swing-retirement.md) · branch: `refactor/swing-retirement`
+- **Scope**: put the retirement matrix into the build: the list of upstream modules to retire per
+  milestone, the **exemption register** (module, why, owner, removal milestone), the cluster pruning
+  (`-prune-excluded`) and the structural guard that fails when a current-milestone `retire` module is
+  still present or an exemption is expired. Also the Swing-surface audit (jdeps over the cluster).
+- **Acceptance**: the guard is green on the current state (exemptions for engine transitives); the
+  current milestone's `retire` modules are absent from the built distribution; the audit reports only
+  exempt modules; the matrix is updated per milestone.
+- **Depends**: the M0 UI replacements; the guardrail redesign.
+- **Ordering**: continuously from M0 onward; the guard gates each milestone exit.
+- **Landed**: n/a.
+
+## Upstream sync (cadence, patches, CI)
+→ detail: [`34-upstream-sync-and-budget.md`](34-upstream-sync-and-budget.md) · branch: `chore/upstream-sync`
+- **Scope**: establish the monthly submodule bump + patch rebase procedure, the **patch register**
+  (why/upstream PR/owner/retirement milestone), the patch budget, the `pinned` and weekly `next-upstream`
+  CI jobs, and the drift metric recorded in `11-project-state.md`; no new patch without a register row and
+  an upstream issue.
+- **Acceptance**: the procedure is documented and executed once; CI jobs exist; the patch register and
+  drift metric are recorded; the first upstream proposal (component factory) is linked.
+- **Depends**: none; run from M0 onward.
 - **Landed**: n/a.
 
 ## Progress UI parity
@@ -860,8 +904,8 @@ implementation should differ from the Swing original is in
   one model drives several views; guardrails green.
 - **Depends**: none.
 - **Ordering / parallel**: **can start in parallel** with the wizard/theming/dialogs/New File topics — it
-  only adds two new modules. It must land **before** the property-sheet step, the `FxProject` node
-  factories (`@FxProjectNodeFactory`) and the navigator/Structure/Properties parity work, so nodes are
+  only adds two new modules. It must land **before** the property-sheet step, the `ProjectModel` node
+  factories (`@ProjectNodeFactory`) and the navigator/Structure/Properties parity work, so nodes are
   written once.
 - **Landed**: n/a.
 
@@ -899,7 +943,7 @@ implementation should differ from the Swing original is in
   shows node property sets; context menus come from node actions; one model drives several views;
   navigator columns are editable and stay in sync with the sheet.
 - **Depends**: Nodes & views API, Property sheet & editors.
-- **Ordering**: before the `FxProject` node factories and the navigator/Structure/Properties parity work;
+- **Ordering**: before the `ProjectModel` node factories and the navigator/Structure/Properties parity work;
   migrate view by view (keep the old view until its replacement is proven).
 - **Landed**: n/a.
 
@@ -911,10 +955,10 @@ implementation should differ from the Swing original is in
   chooser `...project.ui.TemplateChooserPanel`); the generic template wizard is
   `platform/openide.loaders.TemplateWizard` and headless creation is
   `platform/api.templates.FileBuilder` (already reused by `nbfx.templates`). `nbfx.project` is
-  documented (MVP §6) as the **FxProject model** module, but today holds only that UI.
+  documented (MVP §6) as the **Project model** module, but today holds only that UI.
 - **Steps**: move `NewFileWizard`, `NewProjectWizard`, `NewGradleProjectWizard`, `Wizards` from
   `nbfx.project` to `nbfx.project.ui`; move `WizardCommand`, `ProjectCommandsProvider`,
-  `ProjectToolbarRegistrations` to `nbfx.project.actions`; leave `nbfx.project` for the FxProject model
+  `ProjectToolbarRegistrations` to `nbfx.project.actions`; leave `nbfx.project` for the Project model
   (§6); update the cluster fragment and the module dependencies; keep the wizard ids and layer
   registrations unchanged.
 - **Acceptance**: New File / New Project still open the same wizards; `nbfx.project` carries no UI;
@@ -925,7 +969,7 @@ implementation should differ from the Swing original is in
 - **Landed** (local branch `refactor/project-modularity`, stacked on `feature/wizard-framework`): the
   seven project-UI classes moved to `nbfx.project.ui` (package `...project.ui`), bundle keys and
   `nbfx.annotations`/`nbfx.wizard` deps moved with them; `nbfx.project` left empty (reserved for the
-  FxProject model, §6). Wizard ids/layer registrations unchanged; build + purity green.
+  Project model, §6). Wizard ids/layer registrations unchanged; build + purity green.
 
 ## New File templates
 → detail: [`02-part1-infrastructure.md`](02-part1-infrastructure.md) · branch: `feature/newfile-templates`
@@ -993,17 +1037,17 @@ implementation should differ from the Swing original is in
 - **Acceptance**: create each existing project type; it builds/runs.
 - **Depends**: Wizard framework (New File templates for reuse patterns).
 
-## FxProject model (headless project model)
+## Project model (headless `ProjectModel`)
 → detail: [`02-part1-infrastructure.md`](02-part1-infrastructure.md) · branch: `feature/fxproject-model`
-- **Scope**: an nbfx-native headless `FxProject` implementing the NetBeans contract
-  (`org.netbeans.api.project.Project` + `ProjectFactory`, registered via `@FxProjectTypeRegistration`)
+- **Scope**: an nbfx-native headless `ProjectModel` implementing the NetBeans contract
+  (`org.netbeans.api.project.Project` + `ProjectFactory`, registered via `@ProjectTypeRegistration`)
   with `Sources`/`ClassPathProvider`/`ActionProvider`/`ProjectOpenedHook`/`RecommendedTemplates` — and
   **no** UI SPIs. Replaces the stock `ProjectManager.findProject` + `OpenProjects.open` bridge, so the
   Swing project-type modules and the `projectuiapi.base` dependency can be dropped while
   indexing/classpath/completion keep working.
-- **Steps**: `FxProject` + factory + kind detection; `Sources`; `ClassPathProvider`; `ActionProvider`
+- **Steps**: `ProjectModel` + factory + kind detection; `Sources`; `ClassPathProvider`; `ActionProvider`
   delegating to the nbfx commands; `ProjectOpenedHook` (indexer roots); per-type providers
-  (Maven/Gradle/Ant-Java); `RecommendedTemplates`; wire `ProjectRegistry` to open/close `FxProject` and
+  (Maven/Gradle/Ant-Java); `RecommendedTemplates`; wire `ProjectRegistry` to open/close `ProjectModel` and
   remove `OpenProjects`.
 - **Acceptance**: opening each type indexes and completes with no `OpenProjects` call; `check-purity`
   passes with the `projectuiapi.base` exemption removed.
@@ -1012,7 +1056,7 @@ implementation should differ from the Swing original is in
 - **Ordering**: **later** — not a prerequisite for the New File/New Project wizard UI (which can start
   with generic filtering); do it before project-type-aware template filtering and before dropping the
   stock project-type modules. Full design + the NetBeans comparison is in
-  [`02-part1-infrastructure.md`](02-part1-infrastructure.md) (Project model — `FxProject`).
+  [`02-part1-infrastructure.md`](02-part1-infrastructure.md) (Project model — `ProjectModel`).
 
 ## Project problems UI (FX)
 → branch: `feature/project-problems-ui`
@@ -1032,10 +1076,10 @@ implementation should differ from the Swing original is in
   problems and runs the same resolvers; guardrails green.
 - **Depends**: **FX dialogs & notifications (UI)** — the alert, the problems list and the resolver
   notification line are built on it. The provider/resolver SPIs are headless; the stock
-  `BrokenReferencesImpl` must be removed (patch `projectui`, or drop it after the FxProject step).
+  `BrokenReferencesImpl` must be removed (patch `projectui`, or drop it after the ProjectModel step).
 - **Ordering**: before removing `projectui` from the clusters. Only one `ProjectProblemsImplementation`
   may be registered, so either patch `projectui` to drop `BrokenReferencesImpl` or drop `projectui` after
-  the FxProject step. Until then the stock Swing dialogs appear — suppress them with
+  the ProjectModel step. Until then the stock Swing dialogs appear — suppress them with
   `-J-DBrokenReferencesSupport.suppressBrokenRefAlert=true` (or the “show again” preference).
 - **Landed**: n/a.
 
@@ -1143,7 +1187,7 @@ steps; **FX dialogs & notifications (UI)**, **Theming & branding**, **Options sy
 example**, **Output window**, **Execution service**, **Terminal emulator model** and **Nodes & views API**
 can start in parallel with the wizard/New File topics (separate modules, no file overlap — the
 project-problems UI depends on the dialogs step, the options window and the two style foundations share
-the semantic colour token names and the dialogs chrome, and the node model must land before the FxProject
+the semantic colour token names and the dialogs chrome, and the node model must land before the ProjectModel
 node factories); the **Property sheet & editors** step follows `nodes-api` and must land before the views
 migration; the **Options** category/browser/export/Quick Search steps follow the options foundation; the
 **Terminal PTY backend** needs the execution service, the **Terminal view** needs the model + PTY, and the
@@ -1152,5 +1196,5 @@ start after the Output/Execution work (foundation → views/breakpoints/stepping
 build integration after Run configurations and the debug options panel after the options foundation); the
 **Profiler** steps start after the execution service too (foundation → recordings/streaming/async-profiler
 → CPU/memory/locks → attach/sampler → heap walker → options, with tracer/OQL/profiling points/compare
-later); the **FxProject model** is scheduled later, before project-type-aware template filtering. Then
+later); the **Project model** is scheduled later, before project-type-aware template filtering. Then
 Part 2. Each step is sized to be reviewable on its own.

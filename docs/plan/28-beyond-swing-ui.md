@@ -21,9 +21,9 @@ translating the Swing one, while keeping the **data** compatible.
    `ObservableList`/`ObservableValue` only at the UI edge (never FX types in models).
 3. **Async by default**: `CompletionStage`/`Task`, cancellation, debouncing and progress as first-class —
    no `Mutex.EVENT`, no blocking the FX thread, no `NbDocument`-style synchronous analysis.
-4. **Declarative registrations**: extend the layer-generating annotations (`@FxViewRegistration`,
-   `@FxActionRegistration`, `@FxOptionsRegistration`, `@FxWizardRegistration`, `@FxProjectTypeRegistration`,
-   `@FxPropertyEditorRegistration`) to *every* extension point, so a module declares capability once.
+4. **Declarative registrations**: extend the layer-generating annotations (`@ViewRegistration`,
+   `@ActionRegistration`, `@OptionsRegistration`, `@WizardRegistration`, `@ProjectTypeRegistration`,
+   `@PropertyEditorRegistration`) to *every* extension point, so a module declares capability once.
 5. **Services through `Lookup`** with narrow SPIs; feature-specific backends (build, debug, profile, VCS,
    test) are usage-layer services the IDE layer discovers.
 6. **Theme tokens + accessibility**: all colour/space/font through semantic tokens (doc 10); keyboard-first
@@ -37,7 +37,7 @@ translating the Swing one, while keeping the **data** compatible.
 |---|---|---|
 | **Nodes / views** | `org.openide.nodes.Node`/`Children`/`Sheet` + `openide.explorer` `BeanTreeView`/`OutlineView`/`TableView` and `spi.viewmodel` models rendered by Swing `OutlineTable` renderers | `NodeModel`/`ChildrenModel`/`ChildFactory` + `ExplorerContext` with **one model many views** (tree/tree-table/table/list), lazy/async children with cancellation, **columns as first-class `PropertyColumn`**, decoration/badge model, virtualized FX views, drag & drop and node operations (doc 12/13) |
 | **Property sheet** | `openide.explorer.propertysheet` `PropertyEnv`/`PropertyPanel`/`InplaceEditor`; `java.beans` `PropertyEditor` discovery; single-selection tree | FX editors with a **registry by value type/editor id**, `PropertyEnv` validity protocol, **multi-selection aggregation** (`"<mixed>"`), async `LOADING`/`ERROR` values, `format`/`parse`/sort keys, the same editors in sheet *and* outline cells (doc 13) |
-| **Options** | `OptionsPanelController#getComponent` returns `JComponent`; category/tab model in `CategoryModel`; per-panel `JComponent` customizers | `FxOptionsPanel#getComponent` returns `Node`; declarative `@FxOptionsRegistration`/container/sub; **keyword search across categories and keys**, deep links, validity/error markers, **settings browser** as a debug aid (doc 14) |
+| **Options** | `OptionsPanelController#getComponent` returns `JComponent`; category/tab model in `CategoryModel`; per-panel `JComponent` customizers | `OptionsPanelController#getComponent` returns `Node`; declarative `@OptionsRegistration`/container/sub; **keyword search across categories and keys**, deep links, validity/error markers, **settings browser** as a debug aid (doc 14) |
 | **Wizards** | `WizardDescriptor.Panel.getComponent` returns `java.awt.Component`; fixed `Iterator`; synchronous `instantiate` | FX panels, **dynamic page sets**, live Next/Finish validation, async `instantiate` with progress, themed shell, reusable category/chooser components (doc 07) |
 | **Dialogs / notifications** | `NotifyDescriptor`/`DialogDisplayer` + `openide.dialogs` thread model; `notifications`/`uihandler` modules | `Dialogs` service with **roles, severity, notification line, toasts, "show again" keys**, FX exception reporting, ownership/async; no legacy `Mutex.EVENT` (doc 09) |
 | **Progress** | `api.progress` + Swing `progress.ui`; `StatusDisplayer` status strings | progress **model** (tasks, structured subtasks, system tasks) + FX status line, all-tasks popup, cancel/retry, coalescing (doc 06) |

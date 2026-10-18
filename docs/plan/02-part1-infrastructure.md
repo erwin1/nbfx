@@ -1,8 +1,13 @@
-# 02 — Part 1: complete the existing project infrastructure (no JavaFX)
+# 02 — Project infrastructure (M1/M2 topic detail)
 
-Goal: bring the **existing** project types and their customizers/actions/templates to full parity with
-the original before any JavaFX work. Order: project types → Java Platforms → wizard framework +
-templates → customizers → actions → activation → run/debug configs → Ant runtime.
+> Topic detail for the project-model/UI and Java-tooling milestones (see
+> [`26-roadmap.md`](26-roadmap.md) and [`27-layer-module-map.md`](27-layer-module-map.md)). Target API
+> names are capability names; `Fx*` names in the code inventory are current classes (naming: doc
+> [`32`](32-api-tiers-and-plugin-contract.md), mapping: doc [`31`](31-front-end-apis.md)).
+
+Goal: bring the **existing** project types and their customizers/actions/templates to full parity.
+Order: project types → Java Platforms → wizard framework + templates → customizers → actions →
+activation → run/debug configs → Ant runtime.
 
 Supported types: **J2SE Ant** (`org.netbeans.modules.java.j2seproject`), **apisupport module**,
 **apisupport suite**, **Maven**, **Gradle**.
@@ -66,7 +71,7 @@ delegates to the existing nbfx commands, so one implementation serves both front
 - Reuse **headless** `java.platform` (`JavaPlatformManager`) + `java.j2seplatform` (platform storage in
   `config/Services/Platforms/…`, `platform.ant.name`, sources/javadoc) — parallel to `java.platform` in
   the `java` cluster; the module is `c.gluonhq.netbeans.nbfx.java.platform` (nbfx-java).
-- **FX "Java Platforms" options panel** (`FxOptionsPanel`): add (JDK home picker)/remove/rename,
+- **"Java Platforms" options panel** (`OptionsPanelController`): add (JDK home picker)/remove/rename,
   sources/javadoc, and a **JavaFX-capable** marker + JavaFX home (JDK-provided / separate OpenJFX SDK).
 - **JavaFX runtime resolution** per platform (replaces `jfxrt.jar`): JDK8 `jfxrt.jar`, JDK-with-JavaFX
   modules, or OpenJFX SDK → build the JavaFX **module path** (`--module-path … --add-modules
@@ -77,19 +82,21 @@ delegates to the existing nbfx commands, so one implementation serves both front
 
 ### Wizard framework (mirror `org.openide.WizardDescriptor`)
 
-nbfx's framework is minimal (`FxWizard.getPages()`, `FxWizardPanel.getComponent/isValid`,
-`FxWizardDialog` with Back/Next/Finish). The New Project / New File wizards (and templates) need the
-original's features (see [`01-research.md`](01-research.md) §6). Build a shared FX framework first:
+nbfx's framework is minimal (`Wizard.getPages()`, `WizardPanel` with `getComponent`/`isValid`,
+`WizardDialog` with Back/Next/Finish; current classes carry the `Fx` prefix until `refactor/api-naming`).
+The New Project / New File wizards (and templates) need the original's features (see
+[`01-research.md`](01-research.md) §6). Build a shared wizard framework first:
 
-| Original (`WizardDescriptor`) | nbfx today | Target FX framework |
+| Original (`WizardDescriptor`) | nbfx today | Target framework |
 |---|---|---|
 | `Panel<Data>`: `getComponent`, `isValid`, `readSettings`, `storeSettings`, `getHelp` | `getComponent`, `isValid` (+ `getTitle`) | add `readSettings`/`storeSettings`, help |
-| `Iterator<Data>` (dynamic `current/hasNext/hasPrevious/next/previous`) + `ArrayIterator` | fixed `List<FxWizardPanel>` | `FxWizardIterator` + `ArrayFxWizardIterator` |
-| settings bag (`putProperty`/`getProperty`, `Lookup.Provider`); message/step/image/help props | none | `FxWizardDescriptor<Data>` with a properties bag + `Lookup`; messages + step list + help |
+| `Iterator<Data>` (dynamic `current/hasNext/hasPrevious/next/previous`) + `ArrayIterator` | fixed `List<WizardPanel>` | `WizardIterator` + `ArrayWizardIterator` |
+| settings bag (`putProperty`/`getProperty`, `Lookup.Provider`); message/step/image/help props | none | `WizardDescriptor<Data>` with a properties bag + `Lookup`; messages + step list + help |
 | `InstantiatingIterator.instantiate()` → `Set`; async/progress variants | `finish()` (void) | `instantiate()` returning created files/objects; async/progress |
-| `TemplateWizard` (template `FileObject` + target folder + iterator) | none | `FxTemplateWizard` on the framework |
+| `TemplateWizard` (template `FileObject` + target folder + iterator) | none | `TemplateWizard` on the framework |
 
-Registration stays `@FxWizardRegistration` / `WizardRegistry`; the customizer dialog is separate.
+Registration stays `@WizardRegistration` / `WizardRegistry` (current: `@FxWizardRegistration`); the
+customizer dialog is separate.
 
 ### Template infrastructure (reuse existing NetBeans templates)
 

@@ -18,7 +18,7 @@ Governance (versions, `apichanges`, registers, guardrails, budget) is [30-api-go
    *factory* service or returns an opaque handle the front end resolves.
 3. **The toolkit lives in the implementation module name** (`…options.ui.fx`) and in private classes.
 4. **One SPI, many implementations**: the front end registers its factories in `Lookup`
-   (`ComponentFactory`, `DialogFactory`, `MenuFactory`, `StatusFactory`, `ProgressFactory`, …); the SPI
+   (`OptionsPanelFactory<C>`, `WizardUi<C>`, `PropertyEditorFactory<C>`, `ViewFactory<C>`, `DialogFactory<C>`, `MenuFactory<C>`, …); the SPI
    code never references a toolkit.
 5. **Upstreamability is a design requirement**: the factory hook must be additive so the Swing
    implementation in `apache/netbeans` keeps working untouched.
@@ -26,42 +26,44 @@ Governance (versions, `apichanges`, registers, guardrails, budget) is [30-api-go
 ## 2. The pattern (three layers of API, per capability)
 
 ```
-SPI (toolkit-free)                     Front-end hook (toolkit-free)              Implementation
-──────────────────────────────────     ─────────────────────────────────────      ────────────────────
-OptionsPanelController                 ComponentFactory                            options.ui.fx
-  update()/applyChanges()/isValid()      Object create(Object componentKind,          (FX panels)
-  isChanged()/getLookup()/…                Object owner, Object model)
-WizardIterator / WizardPanel           ComponentFactory (kind = page)
-PropertyEditor                         ComponentFactory (kind = editor)
-ViewProvider                           ComponentFactory (kind = view)
-DialogDescriptor                       DialogFactory
-Command/action registration            MenuFactory/ToolbarFactory/StatusFactory
-ProgressHandle presenter               ProgressFactory
-NodeModel + views                      NodeViewFactory
+SPI (toolkit-free)                        Front-end factory (generic <C>)         Implementation
+──────────────────────────────────        ──────────────────────────────────      ────────────────────
+OptionsPanelController (model-first)      OptionsPanelFactory<C>                  options.ui.fx
+  update()/applyChanges()/isValid()         C create(OptionsPanelController)       (FX panels, C = Node)
+  isChanged()/getLookup()/…
+WizardIterator / WizardPanel              WizardUi<C> (pages + chrome)
+PropertyEditor                            PropertyEditorFactory<C>
+ViewProvider                              ViewFactory<C>
+DialogDescriptor                          DialogFactory<C>
+Command/action registration               MenuFactory<C>/ToolbarFactory<C>/StatusFactory<C>
+ProgressHandle presenter                  ProgressPresenter<C>
+NodeModel + views                         NodeViewFactory<C>
 ```
 
-- The SPI module depends only on the toolkit-free hook (a tiny `…spi` module or the capability's API
-  module); the front end depends on the SPI and the toolkit.
-- A console/headless test front end can implement the same factories (great for tests).
-- The hook is intentionally small: `Object create(kind, owner, model)` with typed `kind` constants and a
-  documented `Object` result contract (each front end knows it produces a component for the kind). Java's
-  lack of a common component supertype is the reason `Object` is used — document it, do not hide it, and
-  add per-kind typed sub-interfaces (`PanelFactory`, `EditorFactory`) where useful.
+- Factories are **generic over the toolkit's component type** (`C`): the SPI and the host are written
+  against `<C>`, and only the registration knows `C = javafx.scene.Node` (FX), `JComponent` (Swing) or a
+  test node. No `Object` and no `kind` strings; a wrong component type is a compile error at the factory
+  registration, not a `ClassCastException` at runtime.
+- **Model-first where possible**: an options page, property page or run-config form is a description of
+  fields/actions/validation (`PanelModel`), rendered by the front end's property sheet — *no component
+  factory at all*. Reserve the component factory for genuinely custom visualizations (the editor,
+  SceneBuilder, output/terminal, debugger/profiler views). Every model-first panel removed is one fewer
+  fork of the SPI.
 
 ## 3. Mapping: today's `Fx*` SPI → target
 
-| Today (public `Fx*`) | Target SPI (capability) | Front-end hook | FX impl module | Doc |
+| Today (public `Fx*`) | Target SPI (capability) | Front-end factory (generic `<C>`) | FX impl module | Doc |
 |---|---|---|---|---|
-| `FxOptionsPanel`, `FxOptionsRegistration`, `FxOptionsContainerRegistration`, `FxOptionsSubRegistration` | `OptionsPanelController`, `OptionsRegistration`, `OptionsContainerRegistration`, `OptionsSubRegistration` | `ComponentFactory` (kind `OPTIONS_PANEL`) | `nbfx.options.ui.fx` | 14 |
-| `FxWizardPanel`, `FxWizardIterator`, `FxWizardRegistration`, `FxWizardDialog` | `WizardPanel`, `WizardIterator`, `WizardRegistration` (+ `WizardUI`) | `ComponentFactory` (kind `WIZARD_PAGE`), `DialogFactory` | `nbfx.wizard.ui.fx` | 07 |
-| `FxPropertyEditor`, `FxPropertyEditorRegistration` | `PropertyEditor`, `PropertyEditorRegistration` | `ComponentFactory` (kind `PROPERTY_EDITOR`) | `nbfx.propertysheet.ui.fx` | 13 |
-| `FxViewRegistration`, `ViewProvider`, `FxViewLocation` | `ViewRegistration`, `ViewProvider`, `ViewLocation` | `ComponentFactory` (kind `VIEW`) | `nbfx.view.ui.fx` | 12 |
-| `FxDialogDescriptor`, `FxDialog*` | `DialogDescriptor`, `Dialog` | `DialogFactory` | `nbfx.dialogs.ui.fx` | 09 |
-| `FxActionRegistration`, `FxActionReferences`, `FxActionReference`, `FxActionContext` | `ActionRegistration`, `ActionReferences`, `ActionReference`, `ActionContext` | `MenuFactory`/`ToolbarFactory` | `nbfx.actions.ui.fx` | 00 |
-| `FxMenuRegistration(s)`, `FxToolbarRegistration(s)`, `FxStatusRegistration`, `FxStatusAlignment` | `MenuRegistration(s)`, `ToolbarRegistration(s)`, `StatusRegistration`, `StatusAlignment` | `MenuFactory`/`ToolbarFactory`/`StatusFactory` | `nbfx.menus.ui.fx`, `nbfx.statusbar.ui.fx` | 00 |
-| `FxProgress*` presenter | `ProgressPresenter`/`ProgressFactory` | `ProgressFactory` | `nbfx.progress.ui.fx` | 06 |
-| `FxOutput`, `FxConsole` | `InputOutputProvider` (`api.io`/`spi.io` are already the toolkit-free contract) + presenter hook | `IOFactory` | `nbfx.output.ui.fx` | 15 |
-| `NodeModel`/`ChildrenModel`/`PropertyModel`/`ExplorerContext` (already capability-named) | keep | `NodeViewFactory` | `nbfx.nodes.ui.fx` | 12/13 |
+| `FxOptionsPanel`, `FxOptionsRegistration`, `FxOptionsContainerRegistration`, `FxOptionsSubRegistration` | `OptionsPanelController`, `OptionsRegistration`, `OptionsContainerRegistration`, `OptionsSubRegistration` | `OptionsPanelFactory<C>` (or `PanelModel` — model-first) | `nbfx.options.ui.fx` | 14 |
+| `FxWizardPanel`, `FxWizardIterator`, `FxWizardRegistration`, `FxWizardDialog` | `WizardPanel`, `WizardIterator`, `WizardRegistration` (+ `WizardUi`) | `WizardUi<C>` + `DialogFactory<C>` | `nbfx.wizard.ui.fx` | 07 |
+| `FxPropertyEditor`, `FxPropertyEditorRegistration` | `PropertyEditor`, `PropertyEditorRegistration` | `PropertyEditorFactory<C>` | `nbfx.propertysheet.ui.fx` | 13 |
+| `FxViewRegistration`, `ViewProvider`, `FxViewLocation` | `ViewRegistration`, `ViewProvider`, `ViewLocation` | `ViewFactory<C>` | `nbfx.view.ui.fx` | 12 |
+| `FxDialogDescriptor`, `FxDialog*` | `DialogDescriptor`, `Dialog` | `DialogFactory<C>` | `nbfx.dialogs.ui.fx` | 09 |
+| `FxActionRegistration`, `FxActionReferences`, `FxActionReference`, `FxActionContext` | `ActionRegistration`, `ActionReferences`, `ActionReference`, `ActionContext` | `MenuFactory<C>`/`ToolbarFactory<C>` | `nbfx.actions.ui.fx` | 00 |
+| `FxMenuRegistration(s)`, `FxToolbarRegistration(s)`, `FxStatusRegistration`, `FxStatusAlignment` | `MenuRegistration(s)`, `ToolbarRegistration(s)`, `StatusRegistration`, `StatusAlignment` | `MenuFactory<C>`/`ToolbarFactory<C>`/`StatusFactory<C>` | `nbfx.menus.ui.fx`, `nbfx.statusbar.ui.fx` | 00 |
+| `FxProgress*` presenter | `ProgressPresenter`/`ProgressUi<C>` | `ProgressPresenter<C>` | `nbfx.progress.ui.fx` | 06 |
+| `FxOutput`, `FxConsole` | `InputOutputProvider` (`api.io`/`spi.io` are already the toolkit-free contract) + presenter hook | `OutputUi<C>` | `nbfx.output.ui.fx` | 15 |
+| `NodeModel`/`ChildrenModel`/`PropertyModel`/`ExplorerContext` (already capability-named) | keep | `NodeViewFactory<C>` | `nbfx.nodes.ui.fx` | 12/13 |
 | `FxLayer` public path constants | `private static final` per processor/reader | — | (each module) | 29 |
 | Debug/profiler/editor view models (nbfx-native) | keep, but name toolkit-neutrally (`DebugViewFactory`, `ProfilerViewFactory`, `EditorPresentation`) | own factories | `*.ui.fx` | 16/17 |
 
@@ -73,10 +75,10 @@ That is the whole point: declarative registration (platform idiom) + injected pr
 
 1. **One capability at a time**, in this order (risk-ordered, each with a shim so nothing breaks):
    options → wizard → dialogs → status/toolbar/menu → property editors → views → progress → output.
-2. In each slice: introduce the toolkit-free hook (`ComponentFactory` + typed kinds or a typed sub-interface),
+2. In each slice: introduce the toolkit-free hook (a generic, typed factory, or a `PanelModel` for model-first panels),
    rename the SPI types (doc 30 §3), move the FX classes to `…ui.fx`, register the FX factory via
    `@ServiceProvider`, keep the generated layer output **identical**, update `arch.xml`/`apichanges.xml`.
-3. **Upstream the hook** for the first slice (options): add `OptionsComponentFactory` to
+3. **Upstream the hook** for the first slice (options): add `OptionsPanelFactory<C>` to
    `platform/options.api` with a Swing implementation in `core.ui`/`options.ui` (no behaviour change), and
    a `default` fallback so existing controllers keep compiling. Then repeat the pattern for wizard,
    property sheet, dialogs, views, progress.
@@ -103,8 +105,8 @@ That is the whole point: declarative registration (platform idiom) + injected pr
 
 - **Upstream review latency** — keep the nbfx-side shim until accepted; the shim is private and removed
   when the upstream API lands.
-- **`Object create(...)` erodes type safety** — mitigate with typed sub-interfaces per kind and a single
-  resolution point in the front end.
+- **Toolkit `C` leaks into the SPI signatures** — keep `C` only in the factory interfaces, never in the
+  model/controller classes; the composition root binds `C` once.
 - **Rename churn** — that is why it is one step (`refactor/api-naming`) executed before M1, mechanical,
   with layer output invariance and the guardrail to stop regression.
 - **Two APIs during transition** — forbid adding features to the old `Fx*` shape; the shims are

@@ -155,6 +155,40 @@ capability rather than being a kitchen sink. See [`plan/30-api-governance.md`](p
 - **Measure before claiming.** Every milestone records startup, first-use latency, module count and
   memory; a regression beyond the documented budget blocks the milestone.
 
+## Tiered API and the plugin contract
+
+Not every module is an API. **T0**: implementation — exports nothing, no promise. **T1**: shared API
+between nbfx layers — `arch.xml`/`apichanges`/`@since`/signature test, additive changes preferred.
+**T2**: the **published plugin API** — everything a third-party NBM may compile against, with a
+compatibility promise, version ranges, documentation and trust (signing, HTTPS update centers, native
+artifact checksums). A module starts at T0; promotion is deliberate. See
+[`plan/32-api-tiers-and-plugin-contract.md`](plan/32-api-tiers-and-plugin-contract.md).
+
+Naming follows the tier: capability names in SPI/annotations/constants (`OptionsPanelController`,
+`@OptionsRegistration`, `ProjectModel`), the toolkit only in implementation modules (`…ui.fx`) and private
+classes; module code-names `…nbfx.<capability>` (T0) / `…nbfx.api.<capability>` (T1/T2).
+
+## Anti-corruption for reused internals; retirement; upstream
+
+- **Internals are not API.** Dependencies on `org.netbeans.modules.*`/`lib.profiler` internal classes are
+  isolated behind one adapter package per dependency, listed in the **reuse register** with a decision
+  (*upstream API* / *vendored fork with cadence* / *reimplement*) and an owner; a fork without a merge
+  cadence is not a plan. Friend patches require a **friend register** entry, an upstream issue and a
+  deadline; no new friend patch without them.
+- **A front end is done when the Swing modules leave the distribution.** The retirement matrix
+  ([`plan/33-swing-retirement.md`](plan/33-swing-retirement.md)) is a build artifact: current-milestone
+  `retire` modules must be absent from the built clusters; every `exempt` module has an owner and a
+  removal milestone; an expired exemption fails the build.
+- **Upstream is tracked.** Monthly submodule bump + patch rebase, patch register, patch budget, a weekly
+  `next-upstream` CI job and a drift metric; every milestone opens at least one upstream proposal. See
+  [`plan/34-upstream-sync-and-budget.md`](plan/34-upstream-sync-and-budget.md).
+- **No invented APIs in docs.** A plan may not specify an extension point that does not exist
+  (`@FxProjectNodeFactory` was one); it either designs a real SPI with its artefact set or marks it as a
+  proposal to be upstreamed.
+- **Data compatibility, not format ownership.** We may *read* upstream private formats (`.nps`, `.hprof`,
+  `.jfr`) but only *write* formats we own or that are public; writing someone else's private serialization
+  is a promise we cannot keep.
+
 ## Registration ownership (layer-generating annotations)
 
 A layer-generating annotation and its processor live **with the SPI they complement**, in the layer that

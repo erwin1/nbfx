@@ -33,7 +33,11 @@ The front-end SPI/naming architecture is [31-front-end-apis.md](31-front-end-api
 
 ## 2. Per-package governance artefacts
 
-For **every** public package and module:
+**Scope: only T1 (`shared API`) and T2 (`published plugin API`) packages** — see the tier model in
+[`32-api-tiers-and-plugin-contract.md`](32-api-tiers-and-plugin-contract.md) §2. T0 (implementation)
+modules export **nothing** and need none of this.
+
+For **every** T1/T2 public package and module:
 
 | Artefact | Rule |
 |---|---|
@@ -105,18 +109,22 @@ explorer/windows/dialogs, core.windows) on the **runtime dependency path** of th
 
 | Check | Mechanism | Replaces |
 |---|---|---|
-| Runtime dependency path | parse the built cluster `config/Modules/*.xml` and the module graph; assert forbidden modules are absent (or explicitly exempted with an owner + deadline) | `check-dependencies` strings |
+| Runtime dependency path | parse the built cluster `config/Modules/*.xml` and the module graph; assert forbidden modules are absent — or **exempt** with a live entry (module, why, owner, removal milestone; doc [`33`](33-swing-retirement.md) §3) | `check-dependencies` strings |
 | Bytecode purity | `jdeps` (or a constant-pool scan) over the built nbfx jars: no `javafx.*` in model jars, no `javax.swing`/`java.awt` in SPI/model jars, no `org.openide.nodes/explorer/windows/awt/dialogs` anywhere | `check-sources` greps |
 | Source style | an import scan (AST or well-formed import regex) as a *style* check only, clearly labelled secondary | `check-sources` as the primary gate |
-| API governance | every public package must have an `arch.xml` `<api>` entry and an `apichanges.xml` change when the signature test changes | none today |
-| Public-API naming | no public type/annotation in an SPI package matches `Fx*`/`Sw*` toolkit prefixes | none today |
+| API governance | every T1/T2 public package must have an `arch.xml` `<api>` entry and an `apichanges.xml` change when the signature test changes | none today |
+| Public-API naming | no public type/annotation/constant in an SPI package matches `Fx*`/`Sw*` toolkit prefixes | none today |
 
-These run in the build's verify phase (not only on demand) and fail with a report naming the module, class
-and owner.
+**Use the platform's tooling** where it exists (`sigtest` for signatures, `jdeps` integration,
+`verify-classpath`, the module-dependency checks in `nbbuild`) instead of writing new Ant tasks — and
+contribute fixes upstream if it falls short (doc 30 §10). The check must be **green on day one**: a
+day-one-red guardrail is a guardrail that gets disabled; start from the current exemptions and fail only
+on new violations or expired exemptions.
 
 ## 7. Startup and laziness budget
 
-Add a measured budget, checked every milestone:
+Add a measured budget **with numbers** (targets, measurement method, recording and regression policy are
+in [`34-upstream-sync-and-budget.md`](34-upstream-sync-and-budget.md) §2):
 
 - **startup** (cold start to the main window, and to "usable"),
 - **module count** in the nbfx clusters,
@@ -162,6 +170,10 @@ cadence)*, or *reimplement* must be recorded before the milestone closes. "Reuse
 
 ## 10. Upstream strategy
 
+**Cadence, patch budget and CI are defined in [`34-upstream-sync-and-budget.md`](34-upstream-sync-and-budget.md)
+§1** (monthly submodule bump, patch register with owners and upstream PR links, patch budget, a weekly
+`next-upstream` CI job). This section defines *what* to propose:
+
 1. **Prototype then propose.** Every SPI generalisation (component factory, doc 31; hint invoker; refactoring
    plugin entry; profiler heap API) is prototyped in nbfx and offered to `apache/netbeans` as a PR that
    keeps the Swing implementation working (add the factory + a Swing factory, no behaviour change).
@@ -169,8 +181,6 @@ cadence)*, or *reimplement* must be recorded before the milestone closes. "Reuse
    land; each fork patch references its upstream PR.
 3. **Hygiene.** Apache-2.0 headers, upstream-style `@since`/`apichanges` in the proposal, `nbbuild` checks
    green, no friend additions.
-4. **Communication.** The layers doc (26) and this register are the argument for the split: nbfx is a
-   *second front end* for the platform, not a fork — the deliverable is the SPI split, contributed back.
 
 ## 11. Walking skeleton and reversibility
 
@@ -189,16 +199,22 @@ README, this doc and doc 31 are the entry points; `11-project-state.md` records 
 | Step | Branch | Acceptance |
 |---|---|---|
 | Walking skeleton | `feature/walking-skeleton` | one project type end-to-end in a usable app; budget recorded |
-| Public-package inventory + `nbfx.api` split | `refactor/api-split` | every public package listed explicitly; `nbfx.*-api` modules per capability; governance guard green |
-| Capability naming (rename `Fx*` SPI) | `refactor/api-naming` | no toolbox name in SPI/annotation/constant; implementations in `*.ui.fx`; layer output unchanged |
+| Public-package inventory + `nbfx.api` split | `refactor/api-split` | every public package listed explicitly and tiered (T0/T1/T2); `nbfx.*-api` modules per capability; governance guard green |
+| Capability naming (rename `Fx*` SPI) | `refactor/api-naming` | no toolkit name in SPI/annotation/constant; implementations in `*.ui.fx`; layer output unchanged |
 | Services, not statics + typed contracts | `refactor/services-not-statics` | statics removed (services with lifecycles); JPDA/`PropertyEditorRef`/layer constants typed or private |
-| Structural guardrails | `refactor/guardrail-structural-checks` | `jdeps`/module-graph/governance checks replace the greps and run in verify |
-| Front-end component factory (spike + upstream) | `spike/front-end-component-factory` | options SPI served by a factory; Swing+Fx factories; upstream PR opened (doc 31) |
+| Structural guardrails | `refactor/guardrail-structural-checks` | `jdeps`/module-graph/governance/naming checks replace the greps, green on day one with exemptions, run in verify |
+| Front-end component factory (spike + upstream) | `spike/front-end-component-factory` | options SPI served by a generic factory (or model-first); FX+headless factories; upstream PR opened (doc 31) |
+| Plugin API + trust | `feature/plugin-api` | the T2 plugin contract is defined, documented and covered by signature tests; signing/HTTPS/native checksums in the plugin manager (doc 32) |
+| Swing retirement guard | `refactor/swing-retirement` | the retirement matrix + exemption register (doc 33) is in the build; current-milestone `retire` modules are absent, exemptions live |
+| Upstream sync | `chore/upstream-sync` | monthly sync procedure + patch register + CI jobs + patch budget established (doc 34) |
 
 ## 14. Definition of done for this doc
 
-- Every public package has the artefacts of §2, or is privatised.
-- The friend register and reuse register are current, with owners and deadlines.
-- The guardrails of §6 run in verify and fail on violations.
-- The budget of §7 is measured and recorded per milestone.
+- Every public package is **tiered** (doc 32): T0 exports nothing; T1/T2 have the artefacts of §2.
+- The **plugin contract** (T2) is defined, documented and signature-tested; trust/signing shipped (doc 32 §4).
+- The friend register and reuse register are current, with owners and deadlines; the upstream sync cadence
+  and patch budget run (doc 34).
+- The guardrails of §6 run in verify, are **green on day one** (with exemptions) and fail on violations.
+- The budget of §7 is measured with **numbers** and recorded per milestone (doc 34 §2).
+- The **Swing retirement** state matches the matrix (doc 33) at every milestone.
 - At least one upstream proposal is open per milestone.

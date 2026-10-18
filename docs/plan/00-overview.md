@@ -1,44 +1,48 @@
-# 00 — Overview
+# 00 — Overview (orientation)
 
-## Goal & scope
+nbfx is a **pure-JavaFX IDE** built on the NetBeans runtime — not a plug-in and not "JavaFX support on top
+of an IDE". The canonical, maintained plan is the layered roadmap; this page is only the orientation.
 
-Give nbfx the JavaFX application experience of the original NetBeans JavaFX cluster:
+**Read in this order**
 
-- **JavaFX Ant project** support (port of `javafx2.project`) — template/wizard, project behaviour,
-  run/build, packaging.
-- **Java Platforms** support (nbfx has none today) — required by the JavaFX project (platform/runtime).
-- **FXML editing with completion** (port of the useful core of `javafx2.editor`).
-- **Embedded SceneBuilder** using the modern `com.gluonhq.scenebuilder:kit` (26.0.0) as a
-  design/source editor.
-- **Customizer parity** — every option the original exposed is present and round-trips.
+1. [`26-roadmap.md`](26-roadmap.md) — the layer model (`nbfx-platform` → `nbfx-ide` → `nbfx-java` /
+   `nbfx-javafx`), the allocation principles and milestones **M0–M4**.
+2. [`27-layer-module-map.md`](27-layer-module-map.md) — which module owns which building block.
+3. [`30-api-governance.md`](30-api-governance.md) — API is a promise: packages, versions, signature tests,
+   guardrails, registers, budget.
+4. [`32-api-tiers-and-plugin-contract.md`](32-api-tiers-and-plugin-contract.md) — T0 internal / T1 shared /
+   T2 published plugin API, the plugin contract, trust/signing and **naming conventions**.
+5. [`33-swing-retirement.md`](33-swing-retirement.md) — the retirement matrix; a front end is done when
+   the Swing modules leave the distribution.
+6. [`34-upstream-sync-and-budget.md`](34-upstream-sync-and-budget.md) — upstream cadence, patch budget,
+   numeric budgets and the execution board.
+7. [`07-small-steps.md`](07-small-steps.md) + [`08-branching-and-workflow.md`](08-branching-and-workflow.md)
+   — the backlog and the branch flow.
 
-Out of scope *for execution now*: WebStart/JNLP/browser run, deployment, signing, native bundling
-(jpackage). The customizer UI still covers them.
+The topic docs [`01`](01-research.md)–[`29`](29-annotation-modules.md) are detail; they are slotted into
+the milestones by 26 §7.
 
-## Two parts
+## Scope
 
-- **Part 1 — complete the existing project infrastructure (no JavaFX)** → [`02-part1-infrastructure.md`](02-part1-infrastructure.md).
-- **Part 2 — JavaFX project support** → [`03-part2-javafx.md`](03-part2-javafx.md).
+A complete IDE: shell and platform services (M0), IDE building blocks (M1), Java/JVM tooling (M2), the
+JavaFX project/FXML/SceneBuilder usage layer (M3), breadth (M4). JavaFX is the **UI toolkit** and one
+**usage layer** — not the project's purpose.
 
-The original code findings that inform both are in [`01-research.md`](01-research.md); FXML completion
-and SceneBuilder are in [`04-fxml-and-scenebuilder.md`](04-fxml-and-scenebuilder.md); milestones, risks
-and decisions are consolidated in [`05-milestones-verification-risks.md`](05-milestones-verification-risks.md).
-
-## Locked decisions
+## Decisions that still hold
 
 | Area | Decision |
 |---|---|
-| First targets | **Ant + JavaFX** only. Maven/Gradle JavaFX later. |
-| Parts | **Part 1**: complete the existing infrastructure (project types, Java Platforms, wizard framework, New Project/New File templates, customizers, build actions/activation, run/debug configs). **Part 2**: JavaFX. |
-| Build tooling | Ship **both**: Maven (existing) **and** Ant (bundled Apache Ant + the J2SE harness). JavaFX Ant projects use the Ant path; Maven/Gradle JavaFX come later via the chooser. |
-| Project templates | Introduce a shared **New Project + New File template chooser and infrastructure** first; project types are chosen inline there. |
-| Project kind | **Mirror the original**: a JavaFX project *is* the J2SE Ant project (`org.netbeans.modules.java.j2seproject`) with `javafx.enabled=true`; no new project type. |
-| Customizer | **Full parity** with the original J2SE + JavaFX customizer — **all categories enabled** (no deferred/disabled panels). |
-| Customizer UI | Panels built with **FXML** (`FXMLLoader` + controllers), not hand-built nodes. |
-| Customizer order | **Complete the existing J2SE/Ant customizer panels first**, then add the JavaFX extensions. |
-| FXML | **FXML-aware completion** is in scope; kernel **reused where possible, otherwise ported**. |
-| SceneBuilder | **Embedded**, as a **design/source editor** for `.fxml` (to become a real multiview later). |
-| SceneBuilder kit | **Downloaded via the netbeans `external/` mechanism** (not committed); pin **`com.gluonhq.scenebuilder:kit:26.0.0`** (latest — no 27 exists). |
-| Cluster | A **separate `nbfx-javafx` cluster**, mirroring the original `javafx` cluster. |
-| Progress UI | **Full parity** ([`06-progress-ui.md`](06-progress-ui.md)): an FX `ProgressUIWorkerProvider` over the headless progress `Controller` (multi-task status line + **all-tasks popup** + per-task details/actions); exclude the Swing `progress.ui`. |
-| WebStart | Customizer options are **enabled and round-trip** (full parity); the legacy deployment *runtime* is not executed (its ant tooling no longer ships). |
+| JavaFX project kind | JavaFX project **is** the J2SE Ant project with `javafx.enabled=true`; no separate project type (doc 03) |
+| Customizers | **Full parity**, all categories enabled, FXML panels (docs 02/03) |
+| SceneBuilder | Embedded design/source editor, kit pinned `com.gluonhq.scenebuilder:kit:26.0.0` (doc 04) |
+| Build tooling | Ship Maven **and** Ant; JavaFX Ant now, Maven/Gradle JavaFX via the chooser later |
+| WebStart/JNLP | Options round-trip only; legacy deployment runtime not executed |
+| Clusters | `nbfx-platform`, `nbfx-ide`, `nbfx-java`, `nbfx-javafx` (+ `libs.*`), layers depend downward only |
+| API | Two-tier promise (T0/T1/T2), plugin contract for external consumers (doc 32) |
+
+## Retired framing
+
+The earlier **Part 1 / Part 2** framing (project infrastructure *then* JavaFX) is retired. The work is
+organized by **layer and milestone**; doc [`02`](02-part1-infrastructure.md) remains the project-infra
+topic detail (M1/M2) and [`03`](03-part2-javafx.md)/[`04`](04-fxml-and-scenebuilder.md) the JavaFX usage
+layer detail (M3). The historical MVP draft is [`docs/MVP.md`](../MVP.md) (kept for context only).

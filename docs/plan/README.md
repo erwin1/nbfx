@@ -22,9 +22,11 @@ for the module-by-module allocation, and [`28-beyond-swing-ui.md`](28-beyond-swi
 Swing design holds the UI back and how the JavaFX implementation advances beyond it.
 **API discipline is not optional**: [`30-api-governance.md`](30-api-governance.md) defines the promise
 (public packages, `arch/apichanges`, versioning, signature tests, registers, structural guardrails,
-budget) and [`31-front-end-apis.md`](31-front-end-apis.md) the "one SPI, many toolkits" design
-(capability names, component factories, upstream proposals). `docs/MVP.md` is historical; `docs/plan/` is
-canonical.
+budget), [`32-api-tiers-and-plugin-contract.md`](32-api-tiers-and-plugin-contract.md) the tiers and the
+**published plugin contract** (T0 internal / T1 shared / T2 plugin API, naming, trust),
+[`33-swing-retirement.md`](33-swing-retirement.md) the **retirement matrix** (the actual deliverable) and
+[`34-upstream-sync-and-budget.md`](34-upstream-sync-and-budget.md) the **upstream cadence, numeric
+budgets and execution board**. `docs/MVP.md` is historical; `docs/plan/` is canonical.
 
 ## Where to start
 
@@ -71,7 +73,10 @@ canonical.
 | [25-misc-java-features.md](25-misc-java-features.md) | **java + ide** | Libraries manager, module support/graph, task list & bookmarks, i18n, JavaBeans, project groups, plugins UI, JShell, out-of-scope list |
 | [29-annotation-modules.md](29-annotation-modules.md) | **platform/ide** | Splitting `nbfx.annotations`: annotation+processor ownership by layer/SPI, compile-only modules, layer-output-invariant migration |
 | [30-api-governance.md](30-api-governance.md) | **all** | API is a promise: public-package inventory + `nbfx.api` split, `arch/apichanges`/`@since`/signature tests, versioning, typed contracts, services-not-statics, structural guardrails, startup budget, friend/reuse registers, upstream strategy |
-| [31-front-end-apis.md](31-front-end-apis.md) | **all** | One SPI, many toolkits: capability naming (no `Fx*` in the SPI), front-end component factories, mapping table and migration, upstream proposal |
+| [31-front-end-apis.md](31-front-end-apis.md) | **all** | One SPI, many toolkits: capability naming (no `Fx*` in the SPI), generic typed factories / model-first panels, mapping table and migration, upstream proposal |
+| [32-api-tiers-and-plugin-contract.md](32-api-tiers-and-plugin-contract.md) | **all** | T0 internal / T1 shared / T2 published plugin API; the plugin contract + trust/signing; naming conventions (modules, types, annotations, constants); current→target rename table; rename→split→freeze order |
+| [33-swing-retirement.md](33-swing-retirement.md) | **all** | The retirement matrix (upstream module → replacement → blocking steps → milestone), exemption register, guards and per-milestone exit criteria |
+| [34-upstream-sync-and-budget.md](34-upstream-sync-and-budget.md) | **all** | Upstream sync cadence, patch register/budget, CI, numeric budgets, execution board/critical path and risk register |
 | [11-project-state.md](11-project-state.md) | all | Current branches/commits/PRs, verification, backups, clean-ups |
 
 Repo-wide docs: [`../architecture-rules.md`](../architecture-rules.md) (model/UI split + per-layer rules),
@@ -97,6 +102,9 @@ Repo-wide docs: [`../architecture-rules.md`](../architecture-rules.md) (model/UI
 | **cross-cutting** | Services, not statics + typed contracts | `refactor/services-not-statics` | planned |
 | **cross-cutting** | Structural guardrails (module graph, jdeps, governance, naming) | `refactor/guardrail-structural-checks` | planned |
 | **cross-cutting** | Front-end component factory (spike + upstream) | `spike/front-end-component-factory` | planned |
+| **cross-cutting** | Plugin API + trust (T2 contract) | `feature/plugin-api` | planned |
+| **cross-cutting** | Swing retirement guard | `refactor/swing-retirement` | planned |
+| **cross-cutting** | Upstream sync (cadence, patches, CI) | `chore/upstream-sync` | planned |
 | **platform** | Output window + execution service + terminal | `feature/output-window`, `feature/execution-service`, `feature/terminal-*` | planned |
 | **platform** | Quick search (command palette) | `feature/quicksearch` | planned |
 | **platform** | Credentials/keyring | `feature/credentials` | planned |

@@ -1,5 +1,7 @@
 # 14 — Options system (NetBeans Options port)
 
+> **Naming (doc 32).** Target SPI/API names are **capability names**, never toolkit names: `OptionsPanelController`, `WizardIterator`, `ViewRegistration`, `PropertyEditor`, `ProjectModel`. `Fx*` names below refer to **current code** unless explicitly marked *target*; the rename (`refactor/api-naming`) happens **before** the annotation/API splits. Published-plugin tier and conventions: [`32-api-tiers-and-plugin-contract.md`](32-api-tiers-and-plugin-contract.md).
+
 Step: **Options system: infrastructure + example** · branch: `feature/options-foundation` · status:
 planned. The parity work is sliced into per-category steps (below); the settings browser, export/import
 and Quick Search are separate steps.
@@ -75,11 +77,11 @@ and there is no Swing bridge.
    registry, settings module and the **Editor (container) + Keymap** panels as the working examples;
    each further category is its own step with its own branch and acceptance. The parity matrix (§7)
    marks every panel as *first pass*, *later* or *dropped*, so no panel ships dead.
-5. **Keep the name `FxOptionsPanel`**, but adopt the NetBeans method contract (`getComponent(Lookup)`,
+5. **Name it `OptionsPanelController`** (capability name; doc 32) and adopt the NetBeans method contract (`getComponent(Lookup)`,
    `update`, `applyChanges`, `isChanged`, `getLookup`, `getHelpCtx`, `handleSuccessfulSearch`,
    `PROP_CHANGED`/`PROP_VALID`).
-6. **Containers and sub-panels are first-class** (`@FxOptionsContainerRegistration` +
-   `@FxOptionsSubRegistration`), mirroring `TabbedController`.
+6. **Containers and sub-panels are first-class** (`@OptionsContainerRegistration` +
+   `@OptionsSubRegistration`), mirroring `TabbedController`.
 7. **Change/validity is event-driven** with a polling fallback before OK/Apply; OK is blocked while any
    panel is invalid and shows an error marker on its category/tab.
 8. **Apply runs off the FX thread** through the progress API when a panel reports slow work.
@@ -94,7 +96,7 @@ and there is no Swing bridge.
 ### SPI (`nbfx.options`)
 
 ```java
-public interface FxOptionsPanel {
+public interface OptionsPanelController {
     String getId();
     Node getComponent(Lookup masterLookup);
     void update();
@@ -124,10 +126,10 @@ public interface FxOptionsPanel {
   and the matched keywords.
 - `OptionsWindowModel` — current category/sub, master lookup, `isChanged()`/`isValid()` aggregation,
   `save()`/`cancel()`.
-- `FxOptionsDisplayer` (Lookup service + static facade) — `open()`, `open(String path)`,
+- `OptionsDisplayer` (Lookup service + static facade) — `open()`, `open(String path)`,
   `open(String path, boolean modal)`, `isOpen()`, remembers the last category.
 
-### Window (`FxOptionsDialog`)
+### Window (`OptionsWindow`)
 
 - Search field + category list (icons, separators, themed selection/hover) on the left; content
   (single panel, or `TabPane` for a container) on the right; bottom bar OK / Apply / Cancel + Help.
@@ -140,10 +142,10 @@ public interface FxOptionsPanel {
 
 ### Annotations / processor (fixes)
 
-- Keep `@FxOptionsRegistration` (top-level single panel), `@FxOptionsContainerRegistration` (package),
-  `@FxOptionsSubRegistration` (`location`).
+- Keep `@OptionsRegistration` (top-level single panel), `@OptionsContainerRegistration` (package),
+  `@OptionsSubRegistration` (`location`).
 - Processor: also write `keywords`/`keywordsCategory` for sub-panels; keep the container folder +
-  `container` attribute; add `@FxOptionsKeywords` (repeatable) for panel-level search keywords
+  `container` attribute; add `@OptionsKeywords` (repeatable) for panel-level search keywords
   (NetBeans `@Keywords`).
 
 ### `nbfx.settings` (model, core-only)
@@ -227,11 +229,11 @@ shipped yet; **dropped** = not applicable to nbfx.
 
 - `nbfx.settings` model module (`Settings`/`NbSettings`, `SettingsBindings` in `nbfx.options`), tests.
 - SPI on the NetBeans contract + `PROP_CHANGED`/`PROP_VALID`; annotations/processor fixes
-  (sub keywords, container attr, `@FxOptionsKeywords`).
+  (sub keywords, container attr, `@OptionsKeywords`).
 - Registry: single panels, containers and sub-panels; bundle names/icons; ordering.
 - Window: category list, tabs, keyword search + `handleSuccessfulSearch`, changed/valid aggregation +
   error markers, OK/Apply/Cancel (off-thread apply), deep links, last-category memory.
-- `FxOptionsDisplayer` + `FxOptions.open(path)` facade; Tools ▸ Options wiring unchanged.
+- `OptionsDisplayer` + `Options.open(path)` facade; Tools ▸ Options wiring unchanged.
 - **Examples**: `Editor` as a *container* with a `General` sub-panel (line numbers, breadcrumbs, caret,
   wrap — bound through `Settings`), and `Keymaps` as a top-level panel (migrated to the new contract).
 - `options.css` on `nbfx.theme`; dialog chrome on `nbfx.dialogs`.
@@ -296,7 +298,7 @@ modules. Debugger/JShell/Form Editor/Nashorn stay out (dropped/later).
 ### H. Global Quick Search provider (`feature/options-quicksearch`)
 
 - A `SearchProvider` (`nbfx.api.quicksearch` equivalent) that matches options keywords and opens
-  `FxOptionsDisplayer.open(path)` (NetBeans `o …`), plus `handleSuccessfulSearch` highlighting.
+  `OptionsDisplayer.open(path)` (NetBeans `o …`), plus `handleSuccessfulSearch` highlighting.
 
 ## Tests & acceptance (system-wide)
 

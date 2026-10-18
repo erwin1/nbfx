@@ -1,5 +1,7 @@
 # 13 — Property model, editors, property sheet and outline columns
 
+> **Naming (doc 32).** Target SPI/API names are **capability names**, never toolkit names: `OptionsPanelController`, `WizardIterator`, `ViewRegistration`, `PropertyEditor`, `ProjectModel`. `Fx*` names below refer to **current code** unless explicitly marked *target*; the rename (`refactor/api-naming`) happens **before** the annotation/API splits. Published-plugin tier and conventions: [`32-api-tiers-and-plugin-contract.md`](32-api-tiers-and-plugin-contract.md).
+
 Step: **Property sheet & editors** · branch: `feature/property-sheet-editors` · status: planned,
 depends on [`12-nodes-and-views.md`](12-nodes-and-views.md) (`feature/nodes-api`); feeds the
 `refactor/views-on-nodes` migration.

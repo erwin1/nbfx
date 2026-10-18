@@ -14,10 +14,10 @@ Legend — **status**: `landed` (in the repo), `in-flight` (branch/PR), `planned
 |---|---|---|---|---|---|
 | `nbfx.actions` | command/action registry, keymap, menus/toolbars wiring | `openide.actions`, `openide.awt` actions | landed | — | 00 |
 | `nbfx.annotations` | **core** layer-generating annotations + processors: actions, views, menus, toolbars, status (+ `FxLayer` for the shell folders) | `openide.filesystems` layer + `nbs.annotations` | landed (to split) | `refactor/annotations-split` | 29 |
-| `nbfx.options` annotations + processor | `@FxOptionsRegistration`/`Container`/`Sub` + `FxOptionsRegistrationProcessor`, `OPTIONS` layer path | `options.api` registration | planned | `refactor/annotations-split` (slice 1) | 29 |
-| `nbfx.wizard` annotation + processor | `@FxWizardRegistration` + processor, `WIZARDS` path | `openide.loaders` wizard registration | planned | `refactor/annotations-split` (slice 2) | 29 |
-| property-editor annotation + processor | `@FxPropertyEditorRegistration` + processor, `PROPERTY_EDITORS` path (module decided by doc 13: `nbfx.nodes.ui`/`nbfx.propertysheet`) | `openide.explorer` property editors | planned | `refactor/annotations-split` (slice 3) | 29 |
-| project API annotation + processor | `@FxProjectTypeRegistration` + processor, `PROJECTS` path (ide, project API module) | `projectuiapi` project-type registration | planned | `refactor/annotations-split` (slice 4) | 29 |
+| `nbfx.options` annotations + processor | `@OptionsRegistration`/`Container`/`Sub` + `FxOptionsRegistrationProcessor`, `OPTIONS` layer path | `options.api` registration | planned | `refactor/annotations-split` (slice 1) | 29 |
+| `nbfx.wizard` annotation + processor | `@WizardRegistration` + processor, `WIZARDS` path | `openide.loaders` wizard registration | planned | `refactor/annotations-split` (slice 2) | 29 |
+| property-editor annotation + processor | `@PropertyEditorRegistration` + processor, `PROPERTY_EDITORS` path (module decided by doc 13: `nbfx.nodes.ui`/`nbfx.propertysheet`) | `openide.explorer` property editors | planned | `refactor/annotations-split` (slice 3) | 29 |
+| project API annotation + processor | `@ProjectTypeRegistration` + processor, `PROJECTS` path (ide, project API module) | `projectuiapi` project-type registration | planned | `refactor/annotations-split` (slice 4) | 29 |
 | `nbfx.api` | view/action/status/editor/progress **APIs** + (misplaced) project API | `openide.util.lookup`, platform APIs | landed; **to split per capability** (`refactor/api-split`, doc 30 §1) | — | 00/30 |
 | `nbfx.context` | global selection/context (`FxActionContext`) | `openide.awt` `Actions`/global `Lookup` | landed | — | 00 |
 | `nbfx.docking` | docks/areas/tabs/layout model | `core.windows` (dropped from nbfx) | landed | — | 00 |

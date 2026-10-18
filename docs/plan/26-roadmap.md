@@ -28,7 +28,7 @@ Two consequences for planning:
                                       Java Platforms, build tools, Java debug backend, Java profiler
                                       backend, Java editor semantics
   ────────────────────────────────────────────────────────────────────────────────────────────────
-  IDE building        nbfx-ide        project API/UI (FxProject), nodes/views integration, editor
+  IDE building        nbfx-ide        project API/UI (ProjectModel), nodes/views integration, editor
   blocks                              framework + editor intelligence (navigation, refactoring, hints,
                                       codegen, Javadoc), structure/navigator, find usages / in projects,
                                       diff/patch, VCS core + Git, test runner/coverage, debugger UI,
@@ -147,22 +147,27 @@ theming/branding, node/view model, property sheet, output, execution, terminal, 
 **startup/“usable”/first-use numbers recorded** (doc 30 §7); **API discipline landed before the freeze**:
 public-package inventory + `nbfx.api` split, capability naming, services-not-statics/typed contracts,
 structural guardrails, and the front-end component factory prototype with its upstream proposal
-(docs 30/31).
+(docs 30/31); **the T0/T1/T2 tiers and the plugin contract are defined** (doc 32); **the M0 Swing
+modules are retired or exempted** (doc 33); **the budget baseline and the upstream sync are running**
+(doc 34).
 Existing landings: progress UI, status elements, wizard framework, docking/views, actions/menus,
 launcher. Remaining: options (14), theming (10), dialogs (09), nodes/views (12), property sheet (13),
 output/execution/terminal (15), quick search, credentials, favorites, templates.
 
-**M1 — IDE core.** Projects work end-to-end generically: `FxProject` model + project UI, customizers,
+**M1 — IDE core.** Projects work end-to-end generically: the project model (`ProjectModel`) + project UI, customizers,
 nodes/views, editor framework + actions, structure/navigator, find in projects, find usages, task
 list/bookmarks, plugins UI, libraries manager, diff/patch, local history, VCS core + Git, test runner +
 coverage, options categories.
-*Exit:* open a project, edit, search, find usages, diff, commit, run tests, manage libraries — all FX.
+*Exit:* open a project, edit, search, find usages, diff, commit, run tests, manage libraries — all FX;
+**the M1 Swing modules are retired/exempted** (doc 33); the plugin API (T2) is published with its
+signature tests and trust rules (doc 32); the budget is measured against the baseline (doc 34).
 
 **M2 — Java tooling.** The full Java development loop: J2SE Ant/Maven/Gradle/apisupport project types and
 customizers, Java Platforms + run configurations, Java editor intelligence (navigation, refactoring, hints,
 codegen, Javadoc), debugger (JPDA: launch/attach/breakpoints/stepping/variables/watches/evaluate), profiler
 (JFR + async-profiler + heap walker).
-*Exit:* a Java developer can do their daily work in nbfx.
+*Exit:* a Java developer can do their daily work in nbfx; **the M2 Swing modules are
+retired/exempted** (doc 33); the budget is re-measured (doc 34).
 
 **M3 — JavaFX usage.** The JavaFX project type and its tooling: JavaFX Ant project, JavaFX-enabled platform
 handling, FXML completion, embedded SceneBuilder design/source editor.

@@ -1,5 +1,7 @@
 # 12 — Nodes & views API (`NodeModel`/`ChildrenModel`/`PropertyModel` + FX views)
 
+> **Naming (doc 32).** Target SPI/API names are **capability names**, never toolkit names: `OptionsPanelController`, `WizardIterator`, `ViewRegistration`, `PropertyEditor`, `ProjectModel`. `Fx*` names below refer to **current code** unless explicitly marked *target*; the rename (`refactor/api-naming`) happens **before** the annotation/API splits. Published-plugin tier and conventions: [`32-api-tiers-and-plugin-contract.md`](32-api-tiers-and-plugin-contract.md).
+
 Steps: **Nodes & views API** · branch: `feature/nodes-api` · status: planned, additive (can start in
 parallel). Follow-ups: **Property sheet & editors** (`feature/property-sheet-editors`, detail in
 [`13-property-sheet-and-editors.md`](13-property-sheet-and-editors.md)) and the migration
@@ -53,7 +55,7 @@ model** plus **JavaFX views** on top. Here: `nbfx.nodes` (model) + `nbfx.nodes.u
 | Structure/Navigator | `StructureView`/`StructurePanel`/`FxStructurePanel` + per-language code (`nbfx.structure`, `nbfx.structure.java`) | own model again |
 | Properties | `FxPropertiesProvider` keyed on `Object context` (`Project`/`File`/`EditorDocument`) → `FxPropertySet`/`FxProperty` (+ editors) rendered by `FxPropertySheet` (`nbfx.propertysheet`) | a parallel model; not node properties (but the property/value/editor model is good and should be reused) |
 | Context / selection | `ViewProvider.getLookup()` published to the global `FxActionContext`; `FileContextMenuContributor` / `ElementContextMenuContributor` | no `ExplorerManager`-like root+selection; menus are type-specific |
-| Project-type nodes | `ProjectKindProvider` supplies project files/dirs; `@FxProjectNodeFactory` is mentioned in `MVP.md` but not implemented | node factories need a node model |
+| Project-type nodes | `ProjectKindProvider` supplies project files/dirs; `@ProjectNodeFactory` is mentioned in `MVP.md` but not implemented | node factories need a node model |
 | Cookies | n/a | implement Lookup only |
 
 ## Decisions
@@ -152,7 +154,7 @@ abstract class ChildFactory<T> implements ChildrenModel { // lazy/async
 | `ExplorerManager` + `ExplorerUtils` | `ExplorerContext` + `FxActionContext` bridge |
 | `BeanTreeView` / `OutlineView` / `TableView` / `ListView` | FX view components over `ExplorerContext` |
 | `OutlineView.setPropertyColumns(...)` / `TreeTable` columns | `PropertyColumn` + `OutlineView` cell stack (doc 13) |
-| `NodeFactory`/`NodeFactorySupport` + `Projects/<type>/Nodes` | `@FxProjectNodeFactory` + per-kind node contributors |
+| `NodeFactory`/`NodeFactorySupport` + `Projects/<type>/Nodes` | `@ProjectNodeFactory` + per-kind node contributors |
 | `NodeListener` / `NodeMemberEvent` | `NodeListener`/`ChildrenListener` (java.beans-style) |
 | `NodeOp` / `NodeTransfer` | node operations (follow-up) |
 | `Index`, `Handle`, `BeanNode` | dropped |
@@ -182,8 +184,8 @@ abstract class ChildFactory<T> implements ChildrenModel { // lazy/async
   [`13`](13-property-sheet-and-editors.md)); depends on `nodes-api`, additive, before the migration.
 - Follow-up **Views on nodes** → `refactor/views-on-nodes` (step 3–5 above) — a refactor of working
   views; keep the old view until its replacement is proven, migrate view by view.
-- **Ordering**: land `nodes-api` **before** `property-sheet-editors`, and both **before** the `FxProject`
-  node factories (`@FxProjectNodeFactory`) and the project navigator/Structure/Properties parity work, so
+- **Ordering**: land `nodes-api` **before** `property-sheet-editors`, and both **before** the `ProjectModel`
+  node factories (`@ProjectNodeFactory`) and the project navigator/Structure/Properties parity work, so
   nodes and properties are written once.
 
 ## Tests & acceptance

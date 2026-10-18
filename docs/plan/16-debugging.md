@@ -1,5 +1,7 @@
 # 16 — Debugging support (JPDA / JVM)
 
+> **Naming (doc 32).** Target SPI/API names are **capability names**, never toolkit names: `OptionsPanelController`, `WizardIterator`, `ViewRegistration`, `PropertyEditor`, `ProjectModel`. `Fx*` names below refer to **current code** unless explicitly marked *target*; the rename (`refactor/api-naming`) happens **before** the annotation/API splits. Published-plugin tier and conventions: [`32-api-tiers-and-plugin-contract.md`](32-api-tiers-and-plugin-contract.md).
+
 Steps: **Debug foundation** (`feature/debug-foundation`), **Debug views** (`feature/debug-views`),
 **Debug breakpoints** (`feature/debug-breakpoints`), **Debug stepping & editor**
 (`feature/debug-stepping-editor`), **Debug evaluate** (`feature/debug-evaluate`), **Debug attach &

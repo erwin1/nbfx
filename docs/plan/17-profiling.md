@@ -140,7 +140,7 @@ largely unnecessary: **JFR is built in**, version-matched, and agent-free.
 |---|---|
 | `lib.profiler.heap` (HPROF parser/analysis) | **reuse** (headless, zero module deps); consider extracting to `nbfx.profiler.heap` |
 | `lib.profiler` client/server/wireprotocol/instrumentation/classfile/jps | **not usable** on JDK 25 (cap 55, jvmstat/attach, natives) → optional legacy backend after patching |
-| `lib.profiler.results` (snapshots/CCT) | **partly reusable**: `.nps` reader/writer + separable CCT/flat/diff algorithms; the agent wire path is not |
+| `lib.profiler.results` (snapshots/CCT) | **partly reusable**: `.nps` **reader** (import) + separable CCT/flat/diff algorithms; the agent wire path is not. Writing `.nps` is **not** promised — it is a private format (doc 32) |
 | `lib.profiler.ui`, `lib.profiler.charts` | **replace** with FX views + a small FX chart/flame-graph toolkit |
 | `profiler`, `profiler.heapwalker`, `profiler.snaptracer`, `profiler.ppoints`, `profiler.oql*` | **port** the UI/feature set to FX (parity map below), features phased |
 | `profiler.options` | port into the Options system (doc 14), with JFR/backend settings instead of the agent's |
@@ -370,8 +370,8 @@ depended on just for the headless parts):
 - `heap/*` — **full reuse**: `HprofHeap`/`Heap`, `DominatorTree`/`DomMap`, `NearestGCRoot`,
   `ComputedSummary`/`HeapSummary`, lazy arrays, `GCRoot`s. This is the HPROF-format answer and the base of
   the heap walker.
-- `results/*` — **selective reuse**: `ResultsSnapshot.readFromStream/writeToStream` (the `.nps` format) to
-  **open (and optionally write) legacy NetBeans profiler snapshots**; `CPUResultsSnapshot`/`CCTNode`
+- `results/*` — **selective reuse**: `ResultsSnapshot.readFromStream` (the `.nps` format) to **open legacy NetBeans profiler snapshots**
+  (read-only: writing a private format is a promise we do not own); `CPUResultsSnapshot`/`CCTNode`
   traversal to map `.nps` into our model; `CCTFlattener`/`FlatProfileBuilder`/`CPUResultsDiff`/
   `AllocMemoryResultsDiff` where separable from the wire model; `ExportDataDumper` for HTML/CSV export;
   `ThreadDump`/`HeapHistogram`.

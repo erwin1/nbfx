@@ -1,8 +1,9 @@
-# 05 — Verification, risks, decisions
+# 05 — Verification, risks, decisions (topic detail; milestones in 26/34)
 
-The **step list and order** live in [`07-small-steps.md`](07-small-steps.md) (recommended first step:
-**Progress UI parity**); parts are described in [`02-part1-infrastructure.md`](02-part1-infrastructure.md),
-[`03-part2-javafx.md`](03-part2-javafx.md) and [`04-fxml-and-scenebuilder.md`](04-fxml-and-scenebuilder.md).
+> **Superseded for milestones and risks.** The milestone model is in [`26-roadmap.md`](26-roadmap.md);
+> the budget, execution board and risk register are in [`34-upstream-sync-and-budget.md`](34-upstream-sync-and-budget.md);
+> API governance is in [`30-api-governance.md`](30-api-governance.md). This doc keeps the
+> step-verification detail and the historical decision notes; do not use it as the schedule.
 
 ## Verification
 

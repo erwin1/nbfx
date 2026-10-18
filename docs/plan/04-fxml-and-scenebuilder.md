@@ -1,5 +1,7 @@
 # 04 — FXML editing & embedded SceneBuilder
 
+> Topic detail for milestone M3 (usage layer). Naming: doc [`32`](32-api-tiers-and-plugin-contract.md).
+
 ## `EditorDocumentProvider` (design/source editor prerequisite)
 
 Add a pluggable document factory so the FXML editor can present a design/source view:

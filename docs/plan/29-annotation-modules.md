@@ -1,5 +1,7 @@
 # 29 — Annotation & processor modules (splitting `nbfx.annotations`)
 
+> **Naming (doc 32).** Target SPI/API names are **capability names**, never toolkit names: `OptionsPanelController`, `WizardIterator`, `ViewRegistration`, `PropertyEditor`, `ProjectModel`. `Fx*` names below refer to **current code** unless explicitly marked *target*; the rename (`refactor/api-naming`) happens **before** the annotation/API splits. Published-plugin tier and conventions: [`32-api-tiers-and-plugin-contract.md`](32-api-tiers-and-plugin-contract.md).
+
 Steps: **Split the annotation module** (`refactor/annotations-split`, layer `nbfx-platform`, milestone
 M0/M1) with per-feature slices; follow-ups in `nbfx-ide`/`nbfx-java` as their SPIs are extracted.
 
