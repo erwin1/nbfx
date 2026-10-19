@@ -36,7 +36,7 @@ public final class FxProgressElement implements FxStatusElement {
         bar.setPrefWidth(120);
         bar.getStyleClass().add("status-bar-progress");
         taskCount.setOnAction(event -> worker.showPopup());
-        cancel.setText(NbBundle.getMessage(FxProgressElement.class, "Progress.cancel"));
+        taskCount.getStyleClass().add("status-bar-count");
         cancel.getStyleClass().add("status-bar-cancel");
         cancel.setOnAction(event -> {
             FxProgressWorker.Task active = worker.activeTaskProperty().get();
