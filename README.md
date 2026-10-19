@@ -25,8 +25,8 @@ layout differs. Dependency direction is `platform → ide → java`.
 | Cluster | Dir | Contents |
 |---|---|---|
 | `nb.cluster.nbfx-platform` | `nbfx-platform/` | FX replacements for platform-level modules: `annotations`, `lib.javafx`, `api`, `context`, `docking`, `windows`, `statusbar`, `menus`, `macos`, `output`, `options`, `wizard`, `actions`. |
-| `nb.cluster.nbfx-ide` | `nbfx-ide/` | FX replacements for ide-level modules + the app shell: `editor`, `editor.actions`, `file.actions`, `findinprojects`, `findusages`, `propertysheet`, `structure`, `project`, `project.ui`, `project.ui.api`, `project.actions`, `project.context`, `project.customizer`, `plugins`, `vcs`, `debug`, `run`, `ui`, `launcher`. |
-| `nb.cluster.nbfx-java` | `nbfx-java/` | FX replacements for java/extide-level modules: `project.ui.java`, `structure.java`, `project.ui.maven`, `project.ui.gradle`, `project.ui.ant`, `build.ant`. |
+| `nb.cluster.nbfx-ide` | `nbfx-ide/` | FX replacements for ide-level modules + the app shell: `editor`, `editor.actions`, `file.actions`, `findinprojects`, `findusages`, `propertysheet`, `structure`, `structure.xml`, `structure.css`, `project`, `project.ui`, `project.ui.api`, `project.actions`, `project.context`, `project.customizer`, `plugins`, `vcs`, `debug`, `run`, `ui`, `launcher`. |
+| `nb.cluster.nbfx-java` | `nbfx-java/` | FX replacements for java/extide-level modules: `project.ui.java`, `structure.java`, `structure.maven`, `structure.gradle`, `project.ui.maven`, `project.ui.gradle`, `project.ui.ant`, `build.ant`. |
 
 ## Build and test
 
@@ -65,7 +65,10 @@ ant -f netbeans/<cluster-dir>/<module-dir>/build.xml test-unit \
   selected tab; editors win over the follower-view fallback.
 - **Navigator is service-based.** Structure/Navigator panels implement `FxStructurePanel`
   (`contentTypes()`), registered with `@ServiceProvider` and resolved by the active file's MIME;
-  `nbfx.structure.java` ports the full Java Navigator (members, bean patterns, go-to).
+  `nbfx.structure.java` ports the full Java Navigator (members, bean patterns, go-to);
+  `nbfx.structure.xml`, `nbfx.structure.css`, `nbfx.structure.maven` and `nbfx.structure.gradle`
+  the XML View, the CSS navigator, the POM model / POM inheritance / Related goals panels and the
+  Gradle Related tasks panel.
 - **Views observe the open-project model.** Navigators are plain `ViewProvider`s (the
   `@FxViewRegistration(navigator = true)` flag is the marker) that observe `ProjectRegistry` and
   build/drop their trees; they publish their own selection through `ViewProvider.getLookup()`.

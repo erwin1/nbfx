@@ -1,12 +1,13 @@
 diff --git a/java/maven.embedder/nbproject/project.xml b/java/maven.embedder/nbproject/project.xml
-index c53f48f76c..f4c7adbf99 100644
+index c53f48f76c9..d0c7d9547bd 100644
 --- a/java/maven.embedder/nbproject/project.xml
 +++ b/java/maven.embedder/nbproject/project.xml
-@@ -308,6 +308,7 @@
+@@ -308,6 +308,8 @@
                  <package>org.sonatype.plexus.components.sec.dispatcher</package>
                  <package>org.apache.maven.wagon.shared.http</package>
                  <package>org.apache.maven.wagon.providers.http.wagon.shared</package>
 +                <friend>com.gluonhq.netbeans.nbfx.project.ui.maven</friend>
++                <friend>com.gluonhq.netbeans.nbfx.structure.maven</friend>
              </friend-packages>
              <!-- TODO: DROP THIS BEGIN-->
              <class-path-extension>

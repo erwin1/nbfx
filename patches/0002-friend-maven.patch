@@ -1,12 +1,13 @@
 diff --git a/java/maven/nbproject/project.xml b/java/maven/nbproject/project.xml
-index 94ff3287ed..8be3de68ea 100644
+index 94ff3287ed8..09fb2ab117c 100644
 --- a/java/maven/nbproject/project.xml
 +++ b/java/maven/nbproject/project.xml
-@@ -684,6 +684,7 @@
+@@ -684,6 +684,8 @@
                  <package>org.netbeans.modules.maven.spi.newproject</package>
                  <package>org.netbeans.modules.maven.spi.nodes</package>
                  <package>org.netbeans.modules.maven.spi.queries</package>
 +                <friend>com.gluonhq.netbeans.nbfx.project.ui.maven</friend>
++                <friend>com.gluonhq.netbeans.nbfx.structure.maven</friend>
              </friend-packages>
              <extra-compilation-unit>
                  <package-root>mavensrc</package-root>
