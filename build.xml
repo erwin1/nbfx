@@ -19,8 +19,9 @@
 -->
 <project name="nbfx" default="help" basedir=".">
 
-    <property file="nbfx.properties"/>
+    <!-- local overrides first: Ant keeps the first value a property gets -->
     <property file="nbfx-local.properties"/>
+    <property file="nbfx.properties"/>
 
     <!-- ==== derived properties ==== -->
     <property name="nbfx.sub.dir" location="${nbfx.submodule.dir}"/>
@@ -50,16 +51,12 @@
                 <!-- only exclude the per-module output dirs (<module>/build, <module>/dist);
                      a bare **/build/** would also drop source packages named ".../build/..." -->
                 <fileset dir="@{cluster}" excludes="*/build/**,*/dist/**"/>
+                <!-- keep the output of earlier per-module builds (`ant module`) so they stay incremental -->
+                <preserveintarget>
+                    <include name="*/build/**"/>
+                    <include name="*/dist/**"/>
+                </preserveintarget>
             </sync>
-        </sequential>
-    </macrodef>
-
-    <macrodef name="nbfx-overlay-symlink-one">
-        <attribute name="cluster"/>
-        <sequential>
-            <delete file="${nbfx.sub.dir}/@{cluster}" quiet="true"/>
-            <symlink link="${nbfx.sub.dir}/@{cluster}"
-                     resource="${basedir}/@{cluster}" overwrite="true"/>
         </sequential>
     </macrodef>
 
@@ -74,6 +71,18 @@
                 <arg value="--"/>
                 <arg value="@{cluster}"/>
             </exec>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="nbfx-overlay-symlink-one">
+        <attribute name="cluster"/>
+        <sequential>
+            <!-- a previous sync overlay is a directory: remove it (nbfx-unoverlay-one), then an
+                 old link if any; <delete file> alone cannot remove a directory -->
+            <nbfx-unoverlay-one cluster="@{cluster}"/>
+            <delete file="${nbfx.sub.dir}/@{cluster}" quiet="true"/>
+            <symlink link="${nbfx.sub.dir}/@{cluster}"
+                     resource="${basedir}/@{cluster}" overwrite="true"/>
         </sequential>
     </macrodef>
 
@@ -202,24 +211,30 @@
         <mkdir dir="${nbfx.sub.gitdir}/info"/>
         <touch file="${nbfx.sub.gitdir}/info/exclude"/>
         <loadfile property="nbfx.sub.exclude" srcFile="${nbfx.sub.gitdir}/info/exclude" failonerror="false"/>
+        <!-- the entries have no trailing slash: "nbfx-platform/" would match a directory only,
+             not the symlink overlay (it then showed as untracked and git clean -X kept it) -->
         <condition property="nbfx.exclude.need">
-            <not><contains string="${nbfx.sub.exclude}" substring="nbfx-platform/"/></not>
+            <not><matches string="${nbfx.sub.exclude}" pattern="(?m)^nbfx-platform$"/></not>
         </condition>
     </target>
 
     <target name="-overlay-exclude-append" if="nbfx.exclude.need">
-        <echo file="${nbfx.sub.gitdir}/info/exclude" append="true">nbfx-platform/
-nbfx-ide/
-nbfx-java/</echo>
+        <echo file="${nbfx.sub.gitdir}/info/exclude" append="true">
+nbfx-platform
+nbfx-ide
+nbfx-java
+</echo>
     </target>
 
     <target name="overlay" depends="submodule,-overlay-exclude,-overlay-sync,-overlay-symlink"
             description="Make the nbfx cluster dirs visible to the netbeans build (sync|symlink)"/>
 
     <target name="-overlay-sync" unless="nbfx.overlay.symlink">
-        <nbfx-unoverlay-one cluster="nbfx-platform"/>
-        <nbfx-unoverlay-one cluster="nbfx-ide"/>
-        <nbfx-unoverlay-one cluster="nbfx-java"/>
+        <!-- only a previous symlink overlay is removed first (sync cannot write through it);
+             a previous sync copy is updated in place, keeping the per-module build output -->
+        <symlink action="delete" link="${nbfx.sub.dir}/nbfx-platform" failonerror="false"/>
+        <symlink action="delete" link="${nbfx.sub.dir}/nbfx-ide" failonerror="false"/>
+        <symlink action="delete" link="${nbfx.sub.dir}/nbfx-java" failonerror="false"/>
         <nbfx-overlay-sync-one cluster="nbfx-platform"/>
         <nbfx-overlay-sync-one cluster="nbfx-ide"/>
         <nbfx-overlay-sync-one cluster="nbfx-java"/>
@@ -279,6 +294,46 @@ nbfx-java/</echo>
             <property name="cluster.config" value="${nbfx.cluster.config}"/>
             <property name="clusters.list.file" location="${nbfx.cluster.file}"/>
         </ant>
+    </target>
+
+    <!-- ======================================================================== -->
+    <!-- single module (fast dev loop)                                            -->
+    <!-- ======================================================================== -->
+
+    <target name="-module-check">
+        <fail unless="module">Set -Dmodule=&lt;cluster dir&gt;/&lt;module dir&gt;, e.g.
+  ant module -Dmodule=nbfx-platform/c.gluonhq.netbeans.nbfx.progress</fail>
+        <fail message="no module at ${basedir}/${module} (expected &lt;cluster dir&gt;/&lt;module dir&gt;, e.g. nbfx-platform/c.gluonhq.netbeans.nbfx.progress)">
+            <condition><not><available file="${basedir}/${module}/build.xml"/></not></condition>
+        </fail>
+        <fail message="${nbfx.sub.dir}/${module} is not overlaid; run `ant bootstrap` once">
+            <condition><not><available file="${nbfx.sub.dir}/${module}/build.xml"/></not></condition>
+        </fail>
+        <property name="module.target" value="netbeans"/>
+    </target>
+
+    <target name="-module-sync" unless="nbfx.overlay.symlink">
+        <!-- sync overlay: mirror just this module into the submodule (a symlink overlay is the
+             same files already) -->
+        <sync todir="${nbfx.sub.dir}/${module}" includeEmptyDirs="false">
+            <fileset dir="${module}" excludes="build/**,dist/**"/>
+            <preserveintarget>
+                <include name="build/**"/>
+                <include name="dist/**"/>
+            </preserveintarget>
+        </sync>
+    </target>
+
+    <target name="module" depends="-module-check,-module-sync"
+            description="Build one nbfx module into the dist (-Dmodule=&lt;cluster dir&gt;/&lt;module dir&gt;, -Dmodule.target=netbeans)">
+        <!-- Runs the module's own build.xml through its path under the submodule, so that its
+             ../../nbbuild import resolves there (Ant resolves that import lexically against
+             the build file's path, which is why the logical path through the symlink works;
+             a shell cd'ed into the symlink would hand Ant the physical path instead).
+             No bootstrap: the dist of the dependencies must exist (`ant build` once). -->
+        <ant antfile="${nbfx.sub.dir}/${module}/build.xml" dir="${nbfx.sub.dir}/${module}"
+             target="${module.target}" inheritall="false"/>
+        <echo message="[nbfx] built ${module} (${module.target}); `ant run` launches with it"/>
     </target>
 
     <target name="check-purity" description="Run the nbfx purity/guardrail checks">
@@ -347,6 +402,8 @@ nbfx build harness — targets:
   bootstrap        submodule + patches + cluster config + overlay
   build            build the '${nbfx.cluster.config}' cluster config
   run              launch the FX app (lean cluster set)
+  module           build one module only: -Dmodule=nbfx-platform/c.gluonhq.netbeans.nbfx.progress
+                   (-Dmodule.target=netbeans|clean|test ...); seconds instead of a full build
   check-purity     purity/guardrail checks
   submodule        init/update the netbeans submodule at the pinned revision
   patches          apply the upstream patch set (patches/*.patch)
@@ -360,6 +417,8 @@ nbfx build harness — targets:
 
 Override properties on the command line, e.g.
   ant build -Dnbfx.overlay=symlink -Dnbfx.submodule.commit=&lt;sha&gt;
+or persistently in nbfx-local.properties (git-ignored), e.g. nbfx.overlay=symlink
+so that netbeans/nbfx-* are the real cluster dirs (Unix): edit on either side, no sync.
 </echo>
     </target>
 

@@ -7,3 +7,7 @@
 /nbfx-local.properties
 # the netbeans submodule keeps its own ignore rules; the overlay entries are
 # written to the submodule's info/exclude by `ant overlay`
+#Other IDEs
+.idea
+# macOS Finder metadata
+.DS_Store

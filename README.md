@@ -38,6 +38,7 @@ cluster configuration and runs the build:
 ant bootstrap      # submodule + upstream patches + cluster config + overlay
 ant build          # build the 'nbfx' cluster config
 ant run            # launch the FX app on the lean cluster set
+ant module -Dmodule=<cluster>/<module>   # rebuild one module into the dist (seconds)
 ant check-purity   # forbidden Swing/AWT imports & deps, bundled classes, no core.windows jar
 ant update-upstream -Dnbfx.submodule.commit=<sha>
 ant clean
