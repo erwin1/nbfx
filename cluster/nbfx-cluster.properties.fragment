@@ -32,6 +32,7 @@ nb.cluster.nbfx-platform=\
         c.gluonhq.netbeans.nbfx.menus,\
         c.gluonhq.netbeans.nbfx.options,\
         c.gluonhq.netbeans.nbfx.output,\
+        c.gluonhq.netbeans.nbfx.progress,\
         c.gluonhq.netbeans.nbfx.statusbar,\
         c.gluonhq.netbeans.nbfx.windows,\
         c.gluonhq.netbeans.nbfx.wizard

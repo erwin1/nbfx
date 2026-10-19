@@ -176,6 +176,10 @@
              cluster, as in the nbfx source configuration (remove the module + its line ending so
              the backslash-continued property stays valid) -->
         <replace file="${nbfx.cluster.file}" token="core.windows,\&#10;" value=""/>
+        <!-- pure-JavaFX: the Swing progress UI (progress.ui) is replaced by the nbfx FX
+             progress worker (com.gluonhq.netbeans.nbfx.progress); drop it from the platform cluster
+             so only the FX environment/worker is registered. -->
+        <replace file="${nbfx.cluster.file}" token="progress.ui,\&#10;" value=""/>
         <concat destfile="${nbfx.cluster.file}" append="true" fixlastline="yes">
             <fileset file="${nbfx.fragment}"/>
         </concat>
@@ -240,7 +244,25 @@ nbfx-java/</echo>
     <!-- main targets                                                             -->
     <!-- ======================================================================== -->
 
-    <target name="bootstrap" depends="submodule,patches,cluster-config,overlay"
+    <target name="-prune-excluded" depends="submodule"
+            description="Remove previously built jars of modules excluded from the cluster config">
+        <!-- Removing a module from the cluster config does not delete its previously built jar, and
+             the launcher loads every module present in the cluster dir. Prune the excluded modules
+             (core.windows, the Swing progress UI) so only the nbfx implementations are loaded. -->
+        <delete quiet="true" failonerror="false">
+            <fileset dir="${nbfx.sub.dir}/nbbuild/netbeans" includes="
+                platform/modules/org-netbeans-core-windows*.jar,
+                platform/modules/locale/org-netbeans-core-windows*.jar,
+                platform/config/Modules/org-netbeans-core-windows.xml,
+                platform/update_tracking/org-netbeans-core-windows.xml,
+                platform/modules/org-netbeans-modules-progress-ui*.jar,
+                platform/modules/locale/org-netbeans-modules-progress-ui*.jar,
+                platform/config/Modules/org-netbeans-modules-progress-ui.xml,
+                platform/update_tracking/org-netbeans-modules-progress-ui.xml"/>
+        </delete>
+    </target>
+
+    <target name="bootstrap" depends="submodule,patches,cluster-config,-prune-excluded,overlay"
             description="Bring a clean checkout to a buildable state"/>
 
     <target name="build" depends="bootstrap" description="Build the nbfx cluster config">

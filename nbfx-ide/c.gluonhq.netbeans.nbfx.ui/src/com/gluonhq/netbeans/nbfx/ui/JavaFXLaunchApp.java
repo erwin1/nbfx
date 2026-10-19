@@ -21,7 +21,6 @@ import com.gluonhq.netbeans.nbfx.ui.shell.Docking;
 import com.gluonhq.netbeans.nbfx.ui.shell.LineSeparatorStatusElement;
 import com.gluonhq.netbeans.nbfx.ui.shell.NbfxTabPane;
 import com.gluonhq.netbeans.nbfx.ui.shell.SlidingArea;
-import com.gluonhq.netbeans.nbfx.ui.shell.ProgressStatusElement;
 import com.gluonhq.netbeans.nbfx.ui.shell.ProjectStatusElement;
 import com.gluonhq.netbeans.nbfx.ui.shell.ToolBarContainer;
 import com.gluonhq.netbeans.nbfx.ui.shell.ViewTabs;
@@ -92,9 +91,6 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
-import org.openide.util.RequestProcessor;
-import org.netbeans.modules.parsing.api.indexing.IndexingManager;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class JavaFXLaunchApp extends Application implements WindowSink {
 
@@ -121,7 +117,6 @@ public class JavaFXLaunchApp extends Application implements WindowSink {
     private ProjectStatusElement projectElement;
     private CaretStatusElement caretElement;
     private LineSeparatorStatusElement lineSeparatorElement;
-    private ProgressStatusElement progressElement;
     private final ProjectRegistry projectRegistry = projectRegistry();
     /** The running application, so services (e.g. the project opener) can reach it. */
     private static volatile JavaFXLaunchApp instance;
@@ -130,14 +125,8 @@ public class JavaFXLaunchApp extends Application implements WindowSink {
     private final BooleanBinding projectOpen = Bindings.isNotEmpty(projectRegistry.getOpenProjects());
     /** The projects whose trees are still loading; several can load at once. */
     private final ProjectLoads loads = new ProjectLoads();
-    /** Polls the java indexer state to mirror the background scan in the status bar. */
-    private static final RequestProcessor SCAN_WATCH_RP = new RequestProcessor("nbfx-scan-watch", 1);
-    /** Interval between checks of the java indexer scan state. */
-    private static final int SCAN_POLL_MS = 500;
-    /** How many polls to wait for a scan to start after the projects opened, before giving up. */
-    private static final int SCAN_START_GRACE_POLLS = 60;
-    /** Whether a scan watcher is already polling, so load-settled events don't stack watchers. */
-    private final AtomicBoolean scanWatchActive = new AtomicBoolean();
+    /** The task reported while projects load; separate from builds, which own their own task. */
+    private FxProgress.Handle loadProgress;
     /** Moves the selection between open projects, from the Window menu and its shortcuts. */
     private final ProjectSwitcher projectSwitcher = new ProjectSwitcher(projectRegistry, this::revealProject);
     /** Watches the open projects' root folders, so one that is gone from disk does not stay open. */
@@ -224,14 +213,8 @@ public class JavaFXLaunchApp extends Application implements WindowSink {
         projectElement = new ProjectStatusElement();
         caretElement = new CaretStatusElement();
         lineSeparatorElement = new LineSeparatorStatusElement();
-        progressElement = new ProgressStatusElement();
-        FxProgressImpl progress = fxProgress();
-        if (progress != null) {
-            progress.bind(progressElement);
-        }
         statusBar = new FxStatusBar(StatusElementRegistry.discover(List.of(
                 new StatusElement("project", FxStatusAlignment.LEFT, 0, projectElement),
-                new StatusElement("progress", FxStatusAlignment.CENTER, 0, progressElement),
                 new StatusElement("caret", FxStatusAlignment.RIGHT, 10, caretElement),
                 new StatusElement("line-separator", FxStatusAlignment.RIGHT, 20, lineSeparatorElement))));
         borderPane.setBottom(statusBar);
@@ -1118,9 +1101,8 @@ public class JavaFXLaunchApp extends Application implements WindowSink {
     }
 
     /** The status bar progress service, or {@code null} if not registered. */
-    private static FxProgressImpl fxProgress() {
-        FxProgress progress = Lookup.getDefault().lookup(FxProgress.class);
-        return progress instanceof FxProgressImpl impl ? impl : null;
+    private static FxProgress progress() {
+        return Lookup.getDefault().lookup(FxProgress.class);
     }
 
     /** Marks a navigator reveal as in progress (or finished), so panes do not steal focus back. */
@@ -1302,61 +1284,39 @@ public class JavaFXLaunchApp extends Application implements WindowSink {
      * Shows the status bar's progress for the projects being loaded, or hides it once none is
      * loading. Projects load in parallel, so a single one is reported by name and its cancel button
      * cancels that load; when several are loading at once, naming any one of them would be
-     * arbitrary, so they are reported together and cancelling cancels all of them.
+     * arbitrary, so they are reported together and cancelling cancels all of them. The background
+     * scan that follows is reported by the progress API itself, so it needs no watcher here.
      */
     private void updateLoadingProgress() {
+        FxProgress progress = progress();
+        if (progress == null) {
+            return;
+        }
         File current = loads.current();
         if (current == null) {
-            progressElement.hide();
-            watchScanProgress();
+            if (loadProgress != null) {
+                loadProgress.finish();
+                loadProgress = null;
+            }
             return;
         }
         int loading = loads.size();
-        if (loading > 1) {
-            progressElement.show(NbBundle.getMessage(JavaFXLaunchApp.class,
-                    "StatusBar.openingProjects", loading), this::cancelAllProjectLoading);
-            return;
-        }
-        String path = loads.currentPath();
-        progressElement.show(NbBundle.getMessage(JavaFXLaunchApp.class,
-                "StatusBar.openingProject", current.getName()), () -> cancelProjectLoading(path));
-    }
-
-    /**
-     * After all project loads have settled, mirrors the java indexer activity in the status bar:
-     * while the background scan runs, an uncancellable "Background scanning of projects..."
-     * progress is shown, hidden again once the indexer goes idle. The scan usually starts shortly
-     * <em>after</em> the projects finish opening, so the watcher waits up to
-     * {@link #SCAN_START_GRACE_POLLS} polls for it to begin before giving up.
-     */
-    private void watchScanProgress() {
-        if (!scanWatchActive.compareAndSet(false, true)) {
-            return;
-        }
-        pollScanProgress(0, false);
-    }
-
-    private void pollScanProgress(int polls, boolean scanSeen) {
-        SCAN_WATCH_RP.post(() -> {
-            if (loads.current() != null) {
-                // A new project started opening: its progress owns the status bar; the watcher is
-                // re-armed when that load settles.
-                scanWatchActive.set(false);
-                return;
-            }
-            if (IndexingManager.getDefault().isIndexing()) {
-                progressElement.show(NbBundle.getMessage(JavaFXLaunchApp.class,
-                        "StatusBar.scanningProjects"), null);
-                pollScanProgress(polls + 1, true);
-            } else if (scanSeen) {
-                progressElement.hide();
-                scanWatchActive.set(false);
-            } else if (polls < SCAN_START_GRACE_POLLS) {
-                pollScanProgress(polls + 1, false);
+        String message = loading > 1
+                ? NbBundle.getMessage(JavaFXLaunchApp.class, "StatusBar.openingProjects", loading)
+                : NbBundle.getMessage(JavaFXLaunchApp.class, "StatusBar.openingProject", current.getName());
+        // Stable callback: when the number of loading projects changes, cancel the right set.
+        Runnable cancel = () -> {
+            if (loads.size() > 1) {
+                cancelAllProjectLoading();
             } else {
-                scanWatchActive.set(false);
+                cancelProjectLoading(loads.currentPath());
             }
-        }, SCAN_POLL_MS);
+        };
+        if (loadProgress == null) {
+            loadProgress = progress.start(message, cancel);
+        } else {
+            loadProgress.setMessage(message);
+        }
     }
 
     /**

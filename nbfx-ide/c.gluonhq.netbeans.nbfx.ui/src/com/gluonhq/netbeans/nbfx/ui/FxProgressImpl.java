@@ -19,39 +19,54 @@
 package com.gluonhq.netbeans.nbfx.ui;
 
 import com.gluonhq.netbeans.nbfx.api.progress.FxProgress;
-import com.gluonhq.netbeans.nbfx.ui.shell.ProgressStatusElement;
+import java.util.concurrent.atomic.AtomicBoolean;
+import org.netbeans.api.progress.ProgressHandle;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
- * The launcher's {@link FxProgress}: forwards the progress slot to the main window's
- * {@link ProgressStatusElement}. The main window binds the element while starting up; before that,
- * progress requests are ignored.
+ * The launcher's {@link FxProgress}: a thin adapter over the standard progress API, so every
+ * nbfx-notified activity (a project load, a build) becomes an ordinary task shown by the FX
+ * progress UI in the status line and in the running-tasks popup. Each {@link #start} creates an
+ * independent task with its own cancel action; concurrent activities no longer share a slot.
  *
  * @since 1.0
  */
 @ServiceProvider(service = FxProgress.class)
 public final class FxProgressImpl implements FxProgress {
 
-    private volatile ProgressStatusElement element;
-
-    /** Binds the main window's progress element. Called once while the window is being built. */
-    void bind(ProgressStatusElement element) {
-        this.element = element;
+    @Override
+    public Handle start(String message, Runnable onCancel) {
+        ProgressHandle handle = ProgressHandle.createSystemHandle(message,
+                onCancel == null ? null : () -> {
+                    onCancel.run();
+                    return true;
+                });
+        handle.start();
+        return new HandleImpl(handle);
     }
 
-    @Override
-    public void start(String message, Runnable onCancel) {
-        ProgressStatusElement target = element;
-        if (target != null) {
-            target.show(message, onCancel);
+    /** One real progress handle; {@link #finish()} is idempotent. */
+    private static final class HandleImpl implements Handle {
+
+        private final ProgressHandle handle;
+        private final AtomicBoolean finished = new AtomicBoolean();
+
+        HandleImpl(ProgressHandle handle) {
+            this.handle = handle;
         }
-    }
 
-    @Override
-    public void finish() {
-        ProgressStatusElement target = element;
-        if (target != null) {
-            target.hide();
+        @Override
+        public void setMessage(String message) {
+            if (!finished.get()) {
+                handle.setDisplayName(message);
+            }
+        }
+
+        @Override
+        public void finish() {
+            if (finished.compareAndSet(false, true)) {
+                handle.finish();
+            }
         }
     }
 }

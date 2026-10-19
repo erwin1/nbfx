@@ -19,26 +19,36 @@
 package com.gluonhq.netbeans.nbfx.api.progress;
 
 /**
- * The status bar's single progress slot: a long-running activity shows its message and an optional
- * cancel action, the way NetBeans shows a running build or scan in the status line.
+ * Starts a long-running activity shown by the status bar's progress UI (the status line and the
+ * all-tasks popup), the way NetBeans shows a running build or scan.
  * <p>
  * The service is resolved from the global Lookup and driven from any thread; the implementation
- * marshals to the JavaFX Application Thread. Only one activity can use the slot at a time: a new
- * {@link #start} replaces whatever was showing, and {@link #finish} hides it.
+ * marshals to the JavaFX Application Thread. **Each {@link #start} is its own task**: concurrent
+ * activities (a project load and a build) get one task each, and each {@link Handle} finishes only
+ * its own task. This replaces the former single-slot API, which silently merged concurrent
+ * activities into one bar.
  *
  * @since 1.0
  */
 public interface FxProgress {
 
     /**
-     * Shows {@code message} in the status bar, running {@code onCancel} when the user presses the
-     * cancel button; when {@code onCancel} is {@code null} the cancel button is hidden.
+     * Starts a task and returns its handle. The task stays visible until
+     * {@link Handle#finish()} is called.
      *
      * @param message  the text shown next to the progress bar
-     * @param onCancel the action run when cancel is pressed, or {@code null}
+     * @param onCancel the action run when cancel is pressed, or {@code null} to hide cancel
+     * @return the handle that owns this task; never {@code null}
      */
-    void start(String message, Runnable onCancel);
+    Handle start(String message, Runnable onCancel);
 
-    /** Hides the progress slot. */
-    void finish();
+    /** One running task. All methods are safe to call from any thread; later calls are no-ops. */
+    interface Handle {
+
+        /** Changes the task's message (for example when a build moves to its next step). */
+        void setMessage(String message);
+
+        /** Finishes only this task. Idempotent. */
+        void finish();
+    }
 }

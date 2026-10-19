@@ -635,10 +635,6 @@
     -fx-font-weight: bold;
 }
 
-.status-bar .status-bar-legend {
-    -fx-text-fill: #444444;
-}
-
 .status-bar .status-bar-caret-group {
     -fx-spacing: 8;
     -fx-alignment: center-right;

@@ -95,18 +95,16 @@ public final class BuildRunner {
             return;
         }
         AtomicReference<Process> process = new AtomicReference<>();
-        if (progress != null) {
-            progress.start(consoleName, () -> {
-                Process running = process.get();
-                if (running != null) {
-                    running.destroy();
-                }
-            });
-        }
+        FxProgress.Handle handle = progress == null ? null : progress.start(consoleName, () -> {
+            Process running = process.get();
+            if (running != null) {
+                running.destroy();
+            }
+        });
         List<String> line = commandLine;
         ProcessRunner.run(line, dir, console, process::set, () -> {
-            if (progress != null) {
-                progress.finish();
+            if (handle != null) {
+                handle.finish();
             }
         });
     }
@@ -132,17 +130,25 @@ public final class BuildRunner {
 
     private static BuildProgress progress(FxProgress progress, String name) {
         return new BuildProgress() {
+            private FxProgress.Handle handle;
+
             @Override
             public void start(String displayName, Runnable cancel) {
-                if (progress != null) {
-                    progress.start(displayName, cancel);
+                if (progress == null) {
+                    return;
                 }
+                if (handle != null) {
+                    handle.setMessage(displayName);
+                    return;
+                }
+                handle = progress.start(displayName, cancel);
             }
 
             @Override
             public void finish() {
-                if (progress != null) {
-                    progress.finish();
+                if (handle != null) {
+                    handle.finish();
+                    handle = null;
                 }
             }
         };
