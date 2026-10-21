@@ -6,6 +6,22 @@
         <apidef name="netbeansfx_api">NetBeansFX API</apidef>
     </apidefs>
     <changes>
+        <change id="fxprogress.handle">
+            <api name="netbeansfx_api"/>
+            <summary>FxProgress.start returns a Handle; concurrent activities no longer share a slot.</summary>
+            <version major="1" minor="0"/>
+            <date day="19" month="10" year="2026"/>
+            <author login="sven"/>
+            <compatibility binary="incompatible" source="incompatible" semantic="incompatible" addition="no"/>
+            <description>
+                <code>FxProgress.start</code> now returns an <code>FxProgress.Handle</code> and
+                <code>FxProgress.finish()</code> is removed: each start is its own task, so a project
+                load and a build no longer merge into one status-line bar, and an activity finishes
+                only its own task. The API was under development (<code>@since 1.0</code>, no
+                released consumer) and is changed before the freeze.
+            </description>
+            <class package="com.gluonhq.netbeans.nbfx.api.progress" name="FxProgress"/>
+        </change>
         <change id="actionlayer.reader">
             <api name="netbeansfx_api"/>
             <summary>Layer-driven action references and JavaFX menu presentation.</summary>
@@ -160,6 +176,21 @@
             <class package="com.gluonhq.netbeans.nbfx.api.view" name="ActiveComponent"/>
             <class package="com.gluonhq.netbeans.nbfx.api.view" name="ActiveComponentContext"/>
             <class package="com.gluonhq.netbeans.nbfx.api.view" name="ViewSelectionContext"/>
+        </change>
+        <change id="css.tokens">
+            <api name="netbeansfx_api"/>
+            <summary>CssTokens: one tokenizer for the CSS text the modules analyse</summary>
+            <version major="1" minor="0"/>
+            <date day="15" month="10" year="2026"/>
+            <author login="jpereda"/>
+            <compatibility addition="yes"/>
+            <description>
+                Adds <code>CssTokens</code>, which reads a style sheet into tokens (words, class and
+                id selectors, at-keywords, strings, punctuation) with their bounds, skipping comments
+                and surviving unterminated text. Find Usages' CSS symbols and the Navigator's CSS
+                structure are both read from these tokens instead of each module lexing the text.
+            </description>
+            <class package="com.gluonhq.netbeans.nbfx.api.css" name="CssTokens"/>
         </change>
     </changes>
     <htmlcontents>

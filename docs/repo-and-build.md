@@ -44,12 +44,19 @@ directory under a NetBeans source root whose sibling is `nbbuild`.
 Therefore the harness makes the cluster dirs visible under `netbeans/` by an **overlay**:
 
 - `nbfx.overlay=sync` (default): `<sync>` mirrors `nbfx-platform/`, `nbfx-ide/`, `nbfx-java/` into
-  `netbeans/`, excluding `build/`. Cross-platform.
-- `nbfx.overlay=symlink`: `netbeans/nbfx-*` are symlinks to the real dirs. Unix-only, fastest dev loop.
+  `netbeans/`, excluding `build/` and `dist/` (and keeping those of earlier per-module builds, so they
+  stay incremental). Cross-platform.
+- `nbfx.overlay=symlink`: `netbeans/nbfx-*` are symlinks to the real dirs. Unix-only, fastest dev loop:
+  the inner and outer trees are the same files, so edits on either side (an IDE on the outer dirs,
+  ScenicView or a per-module build on the inner ones) need no sync and nothing can be lost by an
+  overlay. Set it persistently in `nbfx-local.properties` (git-ignored):
+
+      nbfx.overlay=symlink
 
 The overlay paths are written to the submodule's `info/exclude`, so `git status` in the submodule stays
 clean; `ant unoverlay` removes them (via `git clean`, which unlinks symlinks rather than following
-them).
+them). Switching the mode is just `ant overlay` with the other value: a symlink is replaced by a copy
+and vice versa.
 
 ## 3. Own cluster configuration
 
@@ -93,8 +100,8 @@ hooks.
 | Patch | File | Change |
 |---|---|---|
 | `0001-friend-core-startup` | `platform/core.startup/nbproject/project.xml` | `<friend>com.gluonhq.netbeans.nbfx.launcher</friend>` (RunLevel SPI) |
-| `0002-friend-maven` | `java/maven/nbproject/project.xml` | `<friend>com.gluonhq.netbeans.nbfx.project.ui.maven</friend>` |
-| `0003-friend-maven-embedder` | `java/maven.embedder/nbproject/project.xml` | `<friend>com.gluonhq.netbeans.nbfx.project.ui.maven</friend>` |
+| `0002-friend-maven` | `java/maven/nbproject/project.xml` | `<friend>` for `com.gluonhq.netbeans.nbfx.project.ui.maven` and `com.gluonhq.netbeans.nbfx.structure.maven` |
+| `0003-friend-maven-embedder` | `java/maven.embedder/nbproject/project.xml` | `<friend>` for `com.gluonhq.netbeans.nbfx.project.ui.maven` and `com.gluonhq.netbeans.nbfx.structure.maven` |
 | `0010-launcher-clusters` | `nb/ide.launcher/netbeans.clusters` | add `nbfx-platform`, `nbfx-ide`, `nbfx-java` |
 | `0011-tryme-clusters` | `nbbuild/build.xml` | `tryme` passes `--clusters` from `clusters.config.nbfx.list` + JMS flags |
 | `0012-ignored-binaries` | `nbbuild/antsrc/…/extlibs/ignored-binaries` | allow the bundled JavaFX jars **and native libs** |
@@ -128,7 +135,26 @@ be overridden with `-Dname=value` (e.g. `-Dnbfx.overlay=symlink`).
 
 `build` and `run` depend on `bootstrap`, so they re-run the overlay first: edits in the outer
 `nbfx-platform/`, `nbfx-ide/` and `nbfx-java/` directories are synced into `netbeans/` automatically on
-every build.
+every build. `run` does not depend on `build`: it launches whatever is in the dist.
+
+### Fast loop: one module
+
+`ant build` walks every module of the eight clusters and takes minutes even for a one-line change.
+After one full build, rebuild only the module you changed:
+
+```sh
+ant module -Dmodule=nbfx-platform/c.gluonhq.netbeans.nbfx.progress   # seconds; jar goes to the dist
+ant run
+```
+
+`-Dmodule.target=` picks another target of the module's own `build.xml` (`clean`, `test`, ...; default
+`netbeans`). In sync mode the target mirrors just that module first; in symlink mode nothing is copied.
+
+The target runs the module's `build.xml` through its path under `netbeans/` so that the
+`../../nbbuild` import resolves there. Invoking Ant by hand works the same way, but only with that
+logical path, e.g. `ant -f netbeans/nbfx-platform/<module>/build.xml netbeans` from the repository
+root. A shell `cd` into the symlinked module hands the JVM the physical path (the outer dir), where
+`../../nbbuild` does not exist.
 
 ## 6. Upstream changes
 

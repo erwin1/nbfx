@@ -1,0 +1,5 @@
+# Removes core.ui's Swing context-menu warm-up from the @OnShowing runnables (Modules/UIReady).
+# LauncherInstall.validate() additionally initializes Node before any parallel start-up task runs.
+# The two guards complement each other.
+
+#-org.netbeans.core.ui.warmup.ContextMenuWarmUpTask

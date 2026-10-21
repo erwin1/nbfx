@@ -48,6 +48,50 @@ public final class BuildRunner {
     private BuildRunner() {
     }
 
+    /**
+     * How an in-process build is started once its console and progress exist; see
+     * {@link #run(Path, String, Starter)}.
+     *
+     * @since 1.0
+     */
+    @FunctionalInterface
+    public interface Starter {
+
+        /** Starts the build, streaming to {@code output} and reporting to {@code progress}; {@code null} when it cannot. */
+        BuildExecution start(BuildOutput output, BuildProgress progress);
+    }
+
+    /**
+     * Runs an in-process build that is not one of the {@code BuildCommands} - a Maven goal picked
+     * in the Navigator - in the console {@code consoleName}, cleared and shown first, with
+     * cancellable progress: what {@link #run(Path, String, String)} does for a command, without the
+     * CLI fallback.
+     *
+     * @since 1.0
+     */
+    public static void run(Path dir, String consoleName, Starter starter) {
+        if (dir == null) {
+            return;
+        }
+        FxOutput output = Lookup.getDefault().lookup(FxOutput.class);
+        if (output == null) {
+            LOG.warning("No FxOutput service; build output cannot be shown");
+            return;
+        }
+        FxConsole console = output.console(consoleName);
+        console.clear();
+        console.show();
+        FxProgress progress = Lookup.getDefault().lookup(FxProgress.class);
+        try {
+            if (starter.start(output(console), progress(progress, consoleName)) == null) {
+                console.append(NbBundle.getMessage(BuildRunner.class, "BuildCommand.noTool") + "\n");
+            }
+        } catch (RuntimeException | LinkageError t) {
+            LOG.log(Level.WARNING, "In-process build failed", t);
+            console.append("\n[in-process build failed: " + t + "]\n");
+        }
+    }
+
     public static void run(Path dir, String command, String consoleName) {
         if (dir == null) {
             return;
@@ -95,18 +139,16 @@ public final class BuildRunner {
             return;
         }
         AtomicReference<Process> process = new AtomicReference<>();
-        if (progress != null) {
-            progress.start(consoleName, () -> {
-                Process running = process.get();
-                if (running != null) {
-                    running.destroy();
-                }
-            });
-        }
+        FxProgress.Handle handle = progress == null ? null : progress.start(consoleName, () -> {
+            Process running = process.get();
+            if (running != null) {
+                running.destroy();
+            }
+        });
         List<String> line = commandLine;
         ProcessRunner.run(line, dir, console, process::set, () -> {
-            if (progress != null) {
-                progress.finish();
+            if (handle != null) {
+                handle.finish();
             }
         });
     }
@@ -132,17 +174,25 @@ public final class BuildRunner {
 
     private static BuildProgress progress(FxProgress progress, String name) {
         return new BuildProgress() {
+            private FxProgress.Handle handle;
+
             @Override
             public void start(String displayName, Runnable cancel) {
-                if (progress != null) {
-                    progress.start(displayName, cancel);
+                if (progress == null) {
+                    return;
                 }
+                if (handle != null) {
+                    handle.setMessage(displayName);
+                    return;
+                }
+                handle = progress.start(displayName, cancel);
             }
 
             @Override
             public void finish() {
-                if (progress != null) {
-                    progress.finish();
+                if (handle != null) {
+                    handle.finish();
+                    handle = null;
                 }
             }
         };

@@ -162,6 +162,9 @@ public final class ActionIds {
     /** Shows the Navigator window (the Structure window, Window &gt; Navigator). */
     public static final String SELECT_NAVIGATOR = "selectNavigator";
 
+    /** View menu: shows the popup listing every running task. */
+    public static final String SHOW_PROGRESS = "showProgress";
+
     /** Debugs the active file. */
     public static final String DEBUG_FILE = "debugFile";
 

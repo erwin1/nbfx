@@ -164,21 +164,50 @@
 .tree-cell,
 .tree-cell:hover,
 .tree-cell:focused {
-    -fx-background: transparent;
-    -fx-background-color: transparent;
+    -fx-background: white;
+    -fx-background-color: -fx-background;
+    -fx-text-background-color: black;
+    -fx-text-fill: -fx-text-background-color;
+    -fx-selection-bar: #2775BF;
+    -fx-selection-bar-non-focused: #D3D3D3;
+}
+
+/* standard cell */
+.tree-cell {
+    -fx-background: -fx-control-inner-background;
+    -fx-background-color: -fx-background;
+    -fx-text-fill: -fx-text-background-color;
+}
+.tree-cell .label {
+    -fx-text-fill: -fx-text-background-color;
+}
+
+/* Selected rows */
+.tree-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-cell:filled:selected {
+    -fx-background: -fx-selection-bar;
+    -fx-table-cell-border-color: -fx-selection-bar;
+    -fx-text-fill: white;
+}
+.tree-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-cell:filled:selected .label {
+    -fx-text-fill: white;
+}
+/* Selected when control is not focused */
+.tree-cell:filled:selected {
+    -fx-background: -fx-selection-bar-non-focused;
+    -fx-table-cell-border-color: -fx-selection-bar-non-focused;
     -fx-text-fill: black;
 }
-/** tree-view non focused **/
-.tree-cell:filled:selected {
-    -fx-background: #D3D3D3;
-    -fx-background-color: #D3D3D3;
+.tree-cell:filled:selected .label {
     -fx-text-fill: black;
 }
 
-.tree-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-cell:selected:filled,
+/* focused cell (keyboard navigation) */
 .tree-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-cell:focused {
-    -fx-background: #2775BF;
-    -fx-background-color: #2775BF;
+    -fx-background-color: -fx-background;
+    -fx-background-insets: 0;
+    -fx-text-fill: white;
+}
+.tree-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-cell:focused .label {
     -fx-text-fill: white;
 }
 
@@ -315,6 +344,46 @@
     -fx-background-color: transparent, #9C9C9C;
 }
 
+/* ListView - ListCell */
+.list-cell {
+    -fx-padding: 4 8 4 8;
+    -fx-background: white;
+    -fx-background-color: -fx-background;
+    -fx-text-background-color: black;
+    -fx-text-fill: -fx-text-background-color;
+    -fx-selection-bar: #2775BF;
+    -fx-selection-bar-non-focused: #D3D3D3;
+}
+.list-cell .label {
+    -fx-text-fill: -fx-text-background-color;
+}
+
+/* Selected rows */
+.list-view:focused > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected {
+    -fx-background: -fx-selection-bar;
+    -fx-table-cell-border-color: -fx-selection-bar;
+    -fx-text-fill: white;
+}
+.list-view:focused > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected .label {
+    -fx-text-fill: white;
+}
+
+/* Selected when control is not focused */
+.list-cell:filled:selected {
+    -fx-background: -fx-selection-bar-non-focused;
+    -fx-table-cell-border-color: -fx-selection-bar-non-focused;
+    -fx-text-fill: black;
+}
+.list-cell:filled:selected .label {
+    -fx-text-fill: black;
+}
+
+/* focused cell (keyboard navigation) */
+.list-view:focused > .virtual-flow > .clipped-container > .sheet > .list-cell:focused {
+    -fx-background-color: -fx-background;
+    -fx-background-insets: 0;
+}
+
 /* ComboBox */
 .combo-box-base,
 .combo-box-base:focused,
@@ -377,7 +446,9 @@
     -fx-background-color: #AAAAAA;
 }
 
-.combo-box-popup > .list-view {
+/* ComboBox and popups */
+.popup .list-view,
+.combo-box-popup .list-view {
     -fx-background-color: white;
     -fx-background-insets: 0;
     -fx-min-width: 160;
@@ -387,43 +458,60 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 12, 0.10, 0, 8);
 }
 
-.combo-box-popup > .list-view > .placeholder > .label {
-    -fx-text-fill: black;
+.popup .list-view > .placeholder > .label,
+.combo-box-popup .list-view > .placeholder > .label {
+    -fx-text-fill: #D3D3D3;
 }
 
-/* Cells in ListView, ComboBox */
-.list-view > .virtual-flow > .clipped-container > .sheet > .list-cell,
-.list-view:hover > .virtual-flow > .clipped-container > .sheet > .list-cell:focused:filled,
-.list-view:hover > .virtual-flow > .clipped-container > .sheet > .list-cell:selected:filled {
-    -fx-padding: 4 8 4 8;
+.popup .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell,
+.combo-box-popup .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell {
+    -fx-padding: 4 0 4 5;
+    /* No alternate highlighting */
+    -fx-background: white;
+    -fx-background-color: -fx-background;
     -fx-text-fill: black;
-    -fx-background: transparent;
-    -fx-background-color: transparent;
 }
-.list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:hover,
-.list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:focused:filled,
-.list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:focused:filled:hover {
+.popup .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:hover,
+.combo-box-popup .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:hover {
+    -fx-background: -fx-selection-bar;
+    -fx-background-color: -fx-selection-bar;
     -fx-text-fill: white;
-    -fx-background: #2775BF;
-    -fx-background-color: #2775BF;
 }
-.list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected,
-.list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected:hover {
+.popup .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:hover .label,
+.combo-box-popup .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:hover .label {
     -fx-text-fill: white;
-    -fx-background: #2775BF;
-    -fx-background-color: #2775BF;
+}
+
+.popup .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected,
+.popup .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected:hover,
+.popup .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:focused:filled:selected:hover,
+.combo-box-popup .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected,
+.combo-box-popup .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected:hover,
+.combo-box-popup .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:focused:filled:selected:hover {
+    -fx-background: -fx-selection-bar;
+    -fx-background-color: -fx-background;
     -fx-background-insets: 0;
+    -fx-text-fill: white;
+}
+.popup .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected .label,
+.popup .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected:hover .label,
+.popup .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:focused:filled:selected:hover .label,
+.combo-box-popup .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected .label,
+.combo-box-popup .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected:hover .label,
+.combo-box-popup .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:focused:filled:selected:hover .label {
+    -fx-text-fill: white;
 }
 
-.combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell .label,
-.combo-box-popup > .list-view:hover > .virtual-flow > .clipped-container > .sheet > .list-cell:focused:filled .label,
-.combo-box-popup > .list-view:hover > .virtual-flow > .clipped-container > .sheet > .list-cell:selected:filled .label{
+.popup .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:focused:filled:selected,
+.combo-box-popup .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:focused:filled:selected {
+    -fx-background: white;
+    -fx-background-color: -fx-background;
+    -fx-background-insets: 0;
     -fx-text-fill: black;
 }
-.combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:hover .label,
-.combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected .label,
-.combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected:hover .label {
-    -fx-text-fill: white;
+.popup .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:focused:filled:selected .label,
+.combo-box-popup .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:focused:filled:selected .label {
+    -fx-text-fill: black;
 }
 
 /* TextField */
@@ -625,18 +713,14 @@
     -fx-font-size: 11px;
 }
 
-.status-bar .status-bar-progress-group {
+.status-bar .status-bar-project-group {
     -fx-spacing: 8;
-    -fx-alignment: center;
+    -fx-alignment: center-left;
 }
 
 .status-bar .status-bar-project {
     -fx-text-fill: #444444;
     -fx-font-weight: bold;
-}
-
-.status-bar .status-bar-legend {
-    -fx-text-fill: #444444;
 }
 
 .status-bar .status-bar-caret-group {
@@ -665,22 +749,55 @@
     -fx-border-width: 0 1 0 0;
 }
 
-.status-bar .status-bar-progress {
+.status-bar .status-bar-progress-group {
+    -fx-spacing: 8;
+    -fx-alignment: center;
+    -fx-padding: 0 0 0 8;
+}
+
+.status-bar .status-bar-progress-group > .status-bar-progress {
     -fx-pref-width: 180;
 }
 
-.status-bar .status-bar-cancel {
-    -fx-background-color: transparent;
+.status-bar .status-bar-progress-group > .status-bar-progress > .bar,
+.status-bar .status-bar-progress-group > .status-bar-progress:indeterminate > .bar {
+    -fx-background-color: #2285E1;
+    -fx-background-insets: 0;
+    -fx-background-radius: 4;
+}
+.status-bar .status-bar-progress-group > .status-bar-progress > .track {
+    -fx-background-color: #D1D1D1;
+    -fx-background-insets: 0;
+    -fx-background-radius: 4;
+}
+
+.status-bar .status-bar-progress-group > .status-bar-count {
+    -fx-background-color: #666666;
     -fx-background-radius: 3;
-    -fx-padding: 0 5 1 5;
-    -fx-text-fill: #666666;
+    -fx-padding: 2 4 2 4;
+    -fx-text-fill: white;
+    -fx-effect: null;
     -fx-cursor: hand;
 }
-.status-bar .status-bar-cancel:hover {
-    -fx-background-color: #E0A0A0;
-    -fx-text-fill: white;
+.status-bar .status-bar-progress-group > .status-bar-count:hover {
+    -fx-background-color: #2285E1;
 }
-.status-bar .status-bar-cancel:armed {
+.status-bar .status-bar-progress-group > .status-bar-count:armed {
+    -fx-background-color: #0376BB;
+}
+
+.status-bar .status-bar-progress-group > .status-bar-cancel {
+    -fx-background-color: #666666;
+    -fx-shape: "M 11.816 3.684 C 12.128 3.997 12.128 4.503 11.816 4.816 L 9.132 7.5 L 11.816 10.184 C 12.128 10.497 12.128 11.003 11.816 11.316 C 11.503 11.628 10.997 11.628 10.684 11.316 L 8 8.632 L 5.316 11.316 C 5.003 11.628 4.497 11.628 4.184 11.316 C 3.872 11.003 3.872 10.497 4.184 10.184 L 6.868 7.5 L 4.184 4.816 C 3.872 4.503 3.872 3.997 4.184 3.684 C 4.497 3.372 5.003 3.372 5.316 3.684 L 8 6.368 L 10.684 3.684 C 10.997 3.372 11.503 3.372 11.816 3.684 Z";
+    -fx-scale-shape: false;
+    -fx-effect: null;
+    -fx-cursor: hand;
+}
+.status-bar .status-bar-progress-group > .status-bar-cancel:hover {
+    -fx-background-color: #E0A0A0;
+    -fx-shape: "M 2 0 L 14 0 C 15.105 0 16 0.895 16 2 L 16 13 C 16 14.105 15.105 15 14 15 L 2 15 C 0.895 15 0 14.105 0 13 L 0 2 C 0 0.895 0.895 0 2 0 Z M 10.684 3.684 L 8 6.368 L 5.316 3.684 C 5.003 3.372 4.497 3.372 4.184 3.684 C 3.872 3.997 3.872 4.503 4.184 4.816 L 6.868 7.5 L 4.184 10.184 C 3.872 10.497 3.872 11.003 4.184 11.316 C 4.497 11.628 5.003 11.628 5.316 11.316 L 8 8.632 L 10.684 11.316 C 10.997 11.628 11.503 11.628 11.816 11.316 C 12.128 11.003 12.128 10.497 11.816 10.184 L 9.132 7.5 L 11.816 4.816 C 12.128 4.503 12.128 3.997 11.816 3.684 C 11.503 3.372 10.997 3.372 10.684 3.684 Z";
+}
+.status-bar .status-bar-progress-group > .status-bar-cancel:armed {
     -fx-background-color: #C88080;
 }
 

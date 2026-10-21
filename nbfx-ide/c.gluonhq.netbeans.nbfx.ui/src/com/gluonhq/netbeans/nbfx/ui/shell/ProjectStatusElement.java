@@ -19,8 +19,11 @@
 package com.gluonhq.netbeans.nbfx.ui.shell;
 
 import com.gluonhq.netbeans.nbfx.statusbar.FxStatusElement;
+import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.layout.HBox;
 
 /**
  * Names the selected project - the one the project-scoped actions apply to. Created and driven by
@@ -28,11 +31,16 @@ import javafx.scene.control.Label;
  */
 public final class ProjectStatusElement implements FxStatusElement {
 
+    private final HBox group;
     private final Label label = new Label();
 
     /** Creates the element. Must be called on the JavaFX Application Thread. */
     public ProjectStatusElement() {
         label.getStyleClass().add("status-bar-project");
+        Separator separator = new Separator(Orientation.VERTICAL);
+        separator.getStyleClass().add("status-bar-separator");
+        group = new HBox(label, separator);
+        group.getStyleClass().addAll("status-bar-project-group");
         setProject(null);
     }
 
@@ -43,7 +51,7 @@ public final class ProjectStatusElement implements FxStatusElement {
 
     @Override
     public Node getNode() {
-        return label;
+        return group;
     }
 
     /** Names the selected project, or clears the area when {@code name} is {@code null}. */
@@ -52,6 +60,8 @@ public final class ProjectStatusElement implements FxStatusElement {
             label.setText(name == null ? "" : name);
             label.setVisible(name != null);
             label.setManaged(name != null);
+            group.setVisible(name != null);
+            group.setManaged(name != null);
         });
     }
 }
