@@ -1,10 +1,15 @@
-# NetBeansFX MVP Plan
+# NetBeansFX MVP Plan — **historical, superseded**
+
+> **Historical document.** The canonical plan is [`plan/PLAN.md`](plan/PLAN.md); the durable rules are in
+> [`architecture-rules.md`](architecture-rules.md); the research behind the plan is in
+> [`plan/archive/`](plan/archive/README.md). Keep this file only for historical context; do not update it as
+> the plan.
 
 A plan to build a full Java IDE MVP on a **pure-JavaFX** frontend for NetBeans, reusing as much
 headless platform/IDE infrastructure as possible while replacing every Swing view/component and
 preserving NetBeans paradigms (central Lookup, Context, layer/annotation registration).
 
-Status: draft for execution. All architectural decisions below are locked unless noted.
+Status: **historical** (see the note above).
 
 ---
 

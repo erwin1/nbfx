@@ -156,4 +156,18 @@
         <echo message="[purity] OK (strict=${nbfx.purity.strict})"/>
     </target>
 
+    <!--
+        Documentation figures: every number the plan (docs/plan/PLAN.md + appendix/) states is
+        derived from the tree by docs/plan/tools/Counts.java into docs/plan/figures.md. This target
+        fails when the generated figures are stale, so the plan cannot state a hand-typed count.
+        Run: ant -f check-purity.xml check-figures
+    -->
+    <target name="check-figures">
+        <exec executable="${java.home}/bin/java" failonerror="true" dir="${basedir}">
+            <arg value="docs/plan/tools/Counts.java"/>
+            <arg value="--check"/>
+        </exec>
+        <echo message="[plan] figures up to date"/>
+    </target>
+
 </project>
