@@ -1,6 +1,6 @@
 # Appendix C — Naming and the rename table
 
-`PLAN.md` §3.2 forbids `Fx*`/`Sw*` names in public API. The tree has **57 public `Fx*` types**, 56 of
+`PLAN.md` §3.2 forbids `Fx*`/`Sw*` names in public API. The tree has **60 public `Fx*` types**, 56 of
 them in modules that export packages ([`../figures.md`](../figures.md)), so they are public API under today's `<subpackages>` exports. §7's
 migration map moves *modules*, not *names*, so every one survives the split. This appendix is the missing
 step: the rename, which is source-compatible and therefore belongs in W1 **before** the API split, so the
@@ -21,7 +21,7 @@ processors and internal helpers (`FxViewRegistrationProcessor`, `FxPropertyEdito
 public API by accident. Two thirds of the rename cost is really *moving impl classes out of exported
 packages*, and that is a consequence of the split, not a renaming whim.
 
-## C.2 The table (all 57 public `Fx*` types)
+## C.2 The table (all 60 public `Fx*` types)
 
 Legend: **API** = exported today; **→** target name; **module** = target module (§6/§7); **(impl)** =
 not API after the split, `Fx*` may be kept.
@@ -44,6 +44,10 @@ not API after the split, `Fx*` may be kept.
 | `FxWizardRegistration` | `WizardRegistration` | `api.wizard` |
 | `FxLayer` | `LayerPaths` | `api.layer` (T1, see C.3) |
 | `FxViewRegistrationProcessor`, `FxActionRegistrationProcessor`, `FxMenuRegistrationProcessor`, `FxToolbarRegistrationProcessor`, `FxStatusRegistrationProcessor`, `FxOptionsRegistrationProcessor`, `FxPropertyEditorRegistrationProcessor`, `FxProjectTypeRegistrationProcessor`, `FxWizardRegistrationProcessor` | **(impl)** — move to a non-exported package (e.g. `…api.views.processors`) and make package-private where the build allows | owning `api.*` |
+
+The remaining four are implementation in T0 modules (`nbfx.progress`: `FxProgressEnvironment`,
+`FxProgressWorker`, `FxProgressElement`; `nbfx.context`: `FxActionContextImpl`), where C.1 allows the prefix —
+they are counted in the 60 but not in the 56 exported.
 
 ### `nbfx.api` (5 types, exported)
 

@@ -1,7 +1,7 @@
 # Appendix F — Node and view migration
 
-`PLAN.md` §5.1 asserts "one model, many views". The tree has **25 files across ~17 modules that build a
-`TreeView`/`TreeTableView`/`TableView`/`ListView`**, and at least five independent item models. Without an
+`PLAN.md` §5.1 asserts "one model, many views". The tree has **32 files across 18 modules that mention a
+`TreeView`/`TreeTableView`/`TableView`/`ListView`, 24 of them constructing one** ([`../figures.md`](../figures.md)), and at least five independent item models. Without an
 inventory, M1 is unschedulable. This is the inventory and the migration order.
 
 ## F.1 The views today
@@ -11,6 +11,8 @@ inventory, M1 is unschedulable. This is the inventory and the migration order.
 | `structure.java/…/ui/ClassMemberPanelUI` | `TreeView` | `structure.java` `MemberNode` + `MembersScanner` | `api.nodes` `NodeModel` over a `java.structure` model |
 | `structure.java/…/ui/BeanPanelUI` | `TreeView` | `BeanPattern`/`BeanPatternAnalyser` | `api.nodes` `NodeModel` |
 | `structure.java/…/ui/ImplementationsPopup` | `ListView` | `InspectedType` | `api.nodes` children list |
+| `structure.css/…/CssStructureUI` | `TreeView` | CSS rule rows (`CssScanner`) | `api.nodes` `NodeModel` |
+| `structure.xml/…/XmlViewUI` | `TreeView` | XML nodes (`XmlNode`) | `api.nodes` `NodeModel` |
 | `findusages/…/ui/UsagesQueryPane` | `TreeView` | `findusages` `UsageNode`/`UsagesModel` | `api.nodes` `NodeModel` + `api.usages` results |
 | `findinprojects/…/ui/SearchResultsPane` | `TreeTableView` | search match rows | `api.nodes` `NodeModel` with column `PropertyModel`s |
 | `findinprojects/…/ui/IssuesDialog` | `TableView` | problem rows | `platform.nodes` table over `api.nodes` |
@@ -26,7 +28,10 @@ inventory, M1 is unschedulable. This is the inventory and the migration order.
 | `editor/…/completion/CompletionPopup` | `ListView` | `CompletionItem` | **not `api.nodes`** — a popup is not an explorer; keep its own list model |
 | `editor/…/breadcrumbs/BreadcrumbsPopup` | `ListView` | breadcrumb elements | keep its own model |
 | `findinprojects/…/ui/IgnoreListDialog` | `ListView` | ignore patterns | `platform.nodes` list (small) |
-| 7 helper/cell/tool files (`NavigatorTreeCell`, `TreeCellDnD`, `TreeScrolling`, `UsageTreeCell`, `SearchTextCombo`, `FxOptionsDialog` cell, `ProjectTreeItem`) | — | per-view cell/tool classes | collapse into `platform.nodes` cell factories + drag-and-drop |
+| helper/cell/tool files (`NavigatorTreeCell`, `TreeCellDnD`, `TreeScrolling`, `UsageTreeCell`, `SearchTextCombo`, `FxOptionsDialog` cell, `ProjectTreeItem`, and the CSS/XML structure cells) | — | per-view cell/tool classes | collapse into `platform.nodes` cell factories + drag-and-drop |
+
+The table lists the principal views; [`../figures.md`](../figures.md) is authoritative for the file/constructor
+counts (32 / 24 today).
 
 Rule that falls out: **panels that are a tree/table of model objects use `api.nodes`; popups (completion,
 breadcrumbs) keep their private list model** — they are not explorers and forcing them through the node model

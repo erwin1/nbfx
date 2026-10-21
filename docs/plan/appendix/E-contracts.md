@@ -1,7 +1,7 @@
 # Appendix E — Contracts
 
 `PLAN.md` promises a plugin API and "the FX thread never blocks", but no SPI has a thread rule, no view has
-an owner, and no leak test exists. The tree shows the cost: **126 `subscribe(` call sites, 22 files that
+an owner, and no leak test exists. The tree shows the cost: **134 `subscribe(` call sites, 22 files that
 mention `dispose()`** ([`../figures.md`](../figures.md)), 163 per-call `Lookup` uses, 4 registries on `Lookups.forPath`. This appendix is the
 part of the API surface a third-party author must be able to read before writing a plugin.
 
@@ -36,7 +36,7 @@ documented failure or a no-op) is feasible and required for the T2-FX/M modules.
 
 ## E.2 Disposal and ownership
 
-The current code leaks by construction: 126 `.subscribe(` sites, 22 files with `dispose()`.
+The current code leaks by construction: 134 `.subscribe(` sites, 22 files with `dispose()`.
 
 Rules:
 
@@ -51,7 +51,7 @@ Rules:
 5. **Registration is not disposal.** Layer-registered contributions (`@ViewRegistration`) are singletons; the
    *instance* the shell creates is disposable, the registered class is not.
 
-Deliverables: the `Subscription` type; retrofit the 126 sites; a **leak test** that opens/closes a view N
+Deliverables: the `Subscription` type; retrofit the 134 sites; a **leak test** that opens/closes a view N
 times and asserts (a) the registered-listener count returns to baseline and (b) the view is weakly reachable
 after GC; a **journal test** for editor open/close (the prototype's `ExternalChangeSupport`,
 `LineHighlightSupport`, `AnnotationSupport` all register listeners).

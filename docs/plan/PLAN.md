@@ -96,7 +96,8 @@ com.gluonhq.netbeans.nbfx.libs.<library>              bundled external library  
 
 **Forbidden in public API:** `Fx*`/`Sw*` names, `*Impl` names, `Object`-typed factories,
 `Map`-parameters with string keys. The only permitted shared constant class is `LayerPaths` (§3.3).
-The current tree has **57 public `Fx*` types** (56 in exported packages; [`figures.md`](figures.md)); the rename is
+The current tree has **60 public `Fx*` types** (56 in exported packages; the other 4 are implementation in
+`nbfx.progress`, where C.1 allows the prefix — [`figures.md`](figures.md)); the rename is
 [Appendix C](appendix/C-naming-and-rename-table.md) and the step is `refactor/api-naming` (W1).
 
 ### 3.3 Layer paths
@@ -243,7 +244,7 @@ consumer lands — the word *proposed* does not appear in a tier column (Decisio
 | `platform.menus` | menu/toolbar/context-menu assembly from the layer | replaces `nbfx.menus` |
 | `platform.status` | status bar + element rendering | replaces `nbfx.statusbar` |
 | `platform.dialogs` | dialog host, notification line, toasts, exception reporting | new (was planned) |
-| `platform.progress` | progress UI (status line, all-tasks popup, task details) | replaces `nbfx.progress` |
+| `platform.progress` | progress UI (status line, all-tasks popup, task details) | replaces `nbfx.progress` (landed, PR #2 — §18) |
 | `platform.theme` | theme manager, light/dark palettes, branding, editor syntax palettes | new |
 | `platform.settings` | settings storage UI (preferences browser, export/import) | new |
 | `platform.options` | options window (categories, tabs, search, validity) | replaces `nbfx.options` UI |
@@ -275,6 +276,7 @@ consumer lands — the word *proposed* does not appear in a tier column (Decisio
 | `ide.editor.intelligence` | UI for goto/search, usages, hierarchies, hints, refactoring preview, codegen, Javadoc | new; engines/SPIs are `api.editor.intelligence` (M) |
 | `ide.javadoc` | Javadoc viewing/index/completion | new |
 | `ide.structure` | structure/navigator view on `api.nodes` | replaces `nbfx.structure` |
+| `ide.structure.xml`, `ide.structure.css` | XML/CSS structure providers for the generic structure panel | from `nbfx.structure.xml`/`nbfx.structure.css` (landed, PR #5) |
 | `ide.search` | find in projects + results view | replaces `nbfx.findinprojects` |
 | `ide.usages` | generic usages engine + results tree/UI over `api.usages` | generic half of `nbfx.findusages` |
 | `ide.file` | file actions/desktop API | replaces `nbfx.file.actions` |
@@ -354,6 +356,8 @@ that needs it starts ([Appendix G](appendix/G-licences-and-notices.md) rule 6).
 | `nbfx.run` | `ide.build` (+ `api.build`, `api.execution`) |
 | `nbfx.editor`, `nbfx.editor.actions` (88 files, `figures.md`) | `platform.editor` (Java-free core, ~50 files) + `java.editor` (Java, ~36 files) + `ide.editor.{xml,css}` + `api.editor` (seam) |
 | `nbfx.structure` | `ide.structure` |
+| `nbfx.structure.css`, `nbfx.structure.xml` | `ide.structure.css`, `ide.structure.xml` |
+| `nbfx.progress` | `platform.progress` (+ `api.progress` seam) |
 | `nbfx.findinprojects` | `ide.search` |
 | `nbfx.findusages` (34 files) | `ide.usages` (generic engine + UI) + `java.usages` (Java search) + `api.usages` |
 | `nbfx.file.actions` | `ide.file` (+ `api.views` file context) |
@@ -368,8 +372,8 @@ that needs it starts ([Appendix G](appendix/G-licences-and-notices.md) rule 6).
 | `nbfx.structure.java` | `java.structure` (+ `java.model`) |
 
 The table is **total**: every current module and every root-package class has exactly one target. The tree
-has 38 modules / 546 source files (`nbfx.editor` 88, `nbfx.api` 62, `nbfx.ui` 41, `nbfx.findinprojects` 39,
-`nbfx.structure.java` 36, `nbfx.findusages` 34). A reverse index (target ← sources) is added when the split
+has 43 modules / 582 source files (`nbfx.editor` 88, `nbfx.api` 63, `nbfx.ui` 40, `nbfx.findinprojects` 39,
+`nbfx.structure.java` 32, `nbfx.findusages` 34). A reverse index (target ← sources) is added when the split
 starts; a target with neither a source nor a "new" note is a bug in the table.
 
 The rename is one step (`refactor/module-names`), mechanical in *code*, and it runs **before** the API split
@@ -495,8 +499,10 @@ Not cuttable: the walking skeleton, the guards, the API split, the editor core, 
   governed API modules.
 - **Required test types**: unit (model, `M` modules), contract (threading per SPI, layer writer/reader), leak
   (open/close, Appendix E.2), budget (startup/usable/first completion, `check-budget`), smoke
-  (walking skeleton, W0). Baseline to beat: **26 test classes, zero signature tests, zero FX tests** — state
+  (walking skeleton, W0). Baseline to beat: **32 test classes, zero signature tests, zero FX tests** — state
   the number in the W2 acceptance.
+- **Fast loop**: `nbfx.overlay=symlink` and `ant module -Dmodule=<cluster>/<module>` (PR #8) build one module in
+  seconds; CI and the W0 smoke test use the same targets, so the loop and the gate cannot diverge.
 
 ### 10.4 Owners and capacity
 
@@ -549,7 +555,7 @@ it green (§11.0.6).
 
 **W1 — Containment, naming and API split.** `refactor/guard-java-source` (denylist/allowlist guard over the
 current 4-module allowlist; [Appendix B.5](appendix/B-java-source-isolation.md)) → `refactor/api-naming`
-([Appendix C](appendix/C-naming-and-rename-table.md): drop `Fx*` from the 57 public types, move processors
+([Appendix C](appendix/C-naming-and-rename-table.md): drop `Fx*` from the 56 exported types, move processors
 out of exported packages, introduce `api.layer.LayerPaths`; no behaviour change) →
 `refactor/java-plumbing` (`java.model` bridge; dedupe the three in-memory-file helpers and the position
 conversions) → `refactor/editor-split` (`platform.editor` / `java.editor` / `ide.editor.{xml,css}`; delivers the
@@ -717,7 +723,7 @@ Order and the per-proposal credibility test are in [H.8](appendix/H-upstream-pro
 |---|---|
 | [A — Toolkit policy](appendix/A-toolkit-policy.md) | allowed/forbidden types per tier, the `java.awt`/`javax.swing` decision, the bridge-vs-replace table, the nb-javac rule, the exemption register, the guard mechanism |
 | [B — Java source isolation](appendix/B-java-source-isolation.md) | the `java.source` audit, the existing seams, the `java.model` bridge, the module split, the policy and the migration steps |
-| [C — Naming and rename table](appendix/C-naming-and-rename-table.md) | the rule per location, all 57 public `Fx*` types and their targets, `api.layer.LayerPaths`, the `refactor/api-naming` step |
+| [C — Naming and rename table](appendix/C-naming-and-rename-table.md) | the rule per location, all 60 public `Fx*` types and their targets, `api.layer.LayerPaths`, the `refactor/api-naming` step |
 | D — [Bridge and retirement matrix](appendix/D-bridge-and-retirement-matrix.md) | every upstream module (Swing API bridges, the 50 editor/Java modules (`figures.md`), the indexing dependency, the compiler choice) with mechanism, owner, milestone and exemptions, plus the retirement matrix per milestone |
 | E — [Contracts](appendix/E-contracts.md) | threading per SPI, disposal/ownership + the leak test, accessibility, error/logging, the precise `Lookup` rule, the plugin allowlist, and the removal of the generic-`C` factories |
 | F — [Node and view migration](appendix/F-node-and-view-migration.md) | the 25 tree/table/list view files, today's item models, the target `api.nodes` model, and the migration order |
@@ -758,3 +764,16 @@ The plan is a means, not a deliverable. Measured: ~1,950 lines across `PLAN.md` 
 - **Delete speculation on sight**: a tier marked "proposed", a `libs.*` row for a library that is not bundled,
   an `api.*` module without a consumer #2, a capability (`servers`) before a spike decides it.
 - The plan's purpose is to make the next step obvious; when it stops doing that, it is a cost.
+
+## 18. Landed on main
+
+The plan refers to `main`; this is what landed there after the plan was written. It is the only status list;
+add a row when a PR lands and update the affected chapter in the same change.
+
+| PR | What | Plan impact |
+|---|---|---|
+| #2 | FX progress UI: new `nbfx.progress`, `progress.ui` pruned; status element, all-tasks popup, View/Cancel | `platform.progress` replaces `nbfx.progress`; D.4 M0 row; progress is the first **landed** bridge |
+| #5 | navigator for XML/FXML/CSS/Ant/Gradle; new `nbfx.structure.css`, `nbfx.structure.xml`, `CssTokens` | new catalogue rows (§6.3) and migration rows (§7); Appendix F rows |
+| #8 | symlink overlay and single-module builds (`ant module -Dmodule=…`) | the fast loop for every step (§10.3, W12) |
+| #11 | progress-bar styling | theme only |
+| #12 | early `Node` initialization to avoid the startup deadlock | **debt**: the real fix is D.2.1 / H.4.1; keep until `openide.nodes` leaves the runtime |
