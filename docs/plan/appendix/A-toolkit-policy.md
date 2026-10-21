@@ -28,7 +28,7 @@ The tree refutes the blanket ban promised by earlier drafts:
 |---|---|---|
 | `CompilationInfo.getDocument()` | returns `javax.swing.text.Document` (`netbeans/java/java.source.base/.../CompilationInfo.java:46`) | nothing in nbfx calls it today |
 | `ChangeInfo` | uses `javax.swing.text.Position` (`netbeans/ide/spi.editor.hints/.../ChangeInfo.java:24`) | the hints SPI, if reused |
-| `Node.getIcon(int)` | returns `java.awt.Image` (`netbeans/platform/openide.nodes/.../Node.java:22,434`) | only if `openide.nodes` is reused; nbfx does not |
+| `Node.getIcon(int)` | returns `java.awt.Image` (`netbeans/platform/openide.nodes/.../Node.java:22,434`) | no nbfx source imports it, but the runtime enables it and `DataObject` initializes it — [D.2.1](D-bridge-and-retirement-matrix.md) |
 | `ProgressHandle` | imports `javax.swing.Action`, `java.awt.event.ActionListener` (`netbeans/platform/api.progress/.../ProgressHandle.java:22-27`) | `nbfx.plugins` already depends on it |
 | `ChangeListener` | accepted exemption for a headless query (`check-purity.xml:52-54`, `ProjectModuleInfoAccessibilityQuery.java:19`) | accepted today |
 

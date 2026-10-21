@@ -22,6 +22,7 @@ is how three documents start disagreeing.
 | Licences and notices | Appendix [G](plan/appendix/G-licences-and-notices.md) |
 | Process: one step = one branch; naming steps are source-compatible; upstream-first; retirement is the deliverable | [`plan/PLAN.md`](plan/PLAN.md) §11, §13 |
 | Upstream agenda: additive-only, new module + compat wrapper, `ModuleAutoDeps`, `sigtest`-frozen, prototyped in nbfx, fallback recorded, one accepted change per milestone | Appendix [H](plan/appendix/H-upstream-proposals.md) |
+| Runtime presence ≠ source usage: a module in a configured cluster is enabled even if no nbfx source imports it; retirement is asserted per module (D.2.1) | Appendix [D.4](plan/appendix/D-bridge-and-retirement-matrix.md) |
 | Language registry: `api.language` (M) is the one registry, providers scoped by `LanguageId`, decoration is a provider not a core branch, neutral `ElementRef` vs `java.elements`; core freeze | Appendix [I](plan/appendix/I-language-soundness.md) |
 
 If a rule here and the plan disagree, the plan wins; if the plan and an appendix disagree, the plan states the

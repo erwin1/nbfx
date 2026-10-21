@@ -203,6 +203,10 @@ public final class Counts {
             rows.add(new String[]{"upstream editor/Java modules (ide/editor*, java/java.source*, java.java.hints*)",
                     String.valueOf(upstream.size())});
             rows.add(new String[]{"of their source files, Swing/AWT-touching", swing + " of " + total});
+            rows.add(new String[]{"upstream modules depending on `org.openide.nodes`",
+                    String.valueOf(dependants(netbeans, "org.openide.nodes"))});
+            rows.add(new String[]{"upstream modules depending on `org.openide.explorer`",
+                    String.valueOf(dependants(netbeans, "org.openide.explorer"))});
 
             // Other language clusters: the second-implementation soundness test (Appendix I).
             for (String cluster : new String[]{"groovy", "php", "enterprise", "webcommon"}) {
@@ -323,6 +327,28 @@ public final class Counts {
         }
         files.sort(Path::compareTo);
         return files;
+    }
+
+    /** Files matching a glob of path segments below root, e.g. matching(root, "nbfx-*", "*", "test", "**&#47;*.java"). */
+    private static int dependants(Path netbeans, String codeName) throws IOException {
+        String marker = "<code-name-base>" + codeName + "</code-name-base>";
+        int count = 0;
+        try (DirectoryStream<Path> clusters = Files.newDirectoryStream(netbeans, "*")) {
+            for (Path cluster : clusters) {
+                if (!Files.isDirectory(cluster)) {
+                    continue;
+                }
+                try (DirectoryStream<Path> modules = Files.newDirectoryStream(cluster)) {
+                    for (Path module : modules) {
+                        Path project = module.resolve("nbproject/project.xml");
+                        if (Files.exists(project) && read(project).contains(marker)) {
+                            count++;
+                        }
+                    }
+                }
+            }
+        }
+        return count;
     }
 
     /** Files matching a glob of path segments below root, e.g. matching(root, "nbfx-*", "*", "test", "**&#47;*.java"). */

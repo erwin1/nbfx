@@ -23,7 +23,7 @@ column is what the bridge module must be allowed to carry permanently (Appendix 
 | `StatusLineElementProvider` | `platform/openide.awt` | yes | `getStatusLineElement()` returns `java.awt.Component` (`StatusLineElementProvider.java:35`) | **replace** (our `api.status.StatusElement`) | must stay unused |
 | `IOProvider` / `InputOutput` | `platform/openide.io` | yes (Lookup) | `InputOutput.select()` takes `javax.swing.Action`; `IOSelect` | **bridge**: register an FX `IOProvider` over `api.output` | `javax.swing.Action` (selection) |
 | `ProgressHandleFactory` | `platform/api.progress` | yes (`Lookup.getDefault().lookup(ProgressUIWorkerProvider.class)`, `ProgressHandleFactory.java:229`) | `ProgressHandle` imports `javax.swing.Action`, `java.awt.event.ActionListener` (`ProgressHandle.java:22-27`); the worker SPI is Swing-typed | **bridge**: register an FX `ProgressUIWorkerProvider`; everything else keeps calling `ProgressHandleFactory` | `javax.swing.Action`, `java.awt.event.ActionListener` |
-| `Node` / `ExplorerManager` | `platform/openide.nodes/explorer` | — | `getIcon()` returns `java.awt.Image` | **replace** with `api.nodes` (not used today — keep it that way) | must stay unused |
+| `Node` / `ExplorerManager` | `platform/openide.nodes/explorer` | — | `getIcon()` returns `java.awt.Image` | **replace** with `api.nodes`; no nbfx source uses it, but it is *enabled and initialized* via `core.ui` and `DataObject` until the retirement rows land (D.2.1) | unused in nbfx sources |
 | `TopComponent` / window system | `platform/core.windows` | — | whole API | **replace** with `platform.workspace` (already absent from the cluster) | must stay unused |
 | `EditorCookie` / `Document` | `ide/editor.*` | — | `javax.swing.text.Document` | **replace** with `platform.editor` + character offsets (Appendix B) | must stay unused |
 | `Keymap` | `platform/api.keymap` | partial | `KeyStroke`-based UI | **replace** with `api.actions.KeyMap` | must stay unused |
@@ -38,7 +38,7 @@ column is what the bridge module must be allowed to carry permanently (Appendix 
 | `org.netbeans.modules.java.source.base` (`org.netbeans.api.java.source`) | `editor`, `findusages`, `structure.java`, `project.ui.java` | **bridge** (`java.model`) | `java.model`, `java.editor` … | M1 |
 | `org.netbeans.libs.javacapi` / `nbjavacapi` | `editor`, `findusages`, `structure.java` | **reuse**, decision in §D.6 | `java.model` | M1 |
 | `org.netbeans.modules.java.project` | `findusages`, `project.ui.java` | **reuse** the headless model (`Sources`, `SourceGroup`, `ClassPathProvider`); **replace** `java.project.ui`/`LogicalViewProvider` (`Node`) | `java.projecttype.*`, `java.navigation` | M1/M2 |
-| `org.openide.loaders` | `project.ui.java` | **reuse** `DataObject`/`DataFolder` API; **replace** `DataNode` (Swing) — never import it | `ide.project.ui` | M1 |
+| `org.openide.loaders` | `project.ui.java` (declared; nothing imported yet), the platform itself (Services folder) | **reuse, bounded by D.2.1**: `DataObject`/`DataFolder` are Node-backed (`DataObject implements Node.Cookie`, `getLookup()` delegates to the node, `getCookie()` is typed on `Node.Cookie`), so using them initializes `openide.nodes`; never `DataNode` | `ide.project.ui` | M1 |
 | `org.netbeans.api.progress` | `plugins` | **bridge** (§D.1) | `platform.progress` | M0 |
 | `org.netbeans.api.debugger.jpda`, `org.netbeans.modules.debugger.jpda` | `debug` | **reuse** the engine (JPDA session/breakpoints); **replace** `debugger.jpda.ui` (Swing views/actions) | `java.debug` + `ide.debug` | M2 |
 | `org.netbeans.modules.maven`, `…maven.embedder` | `project.ui.maven` | **reuse** (embedder until builds move to a process); friend patch `0003` until then | `java.projecttype.maven` | M2 |
@@ -49,6 +49,38 @@ column is what the bridge module must be allowed to carry permanently (Appendix 
 | `org.netbeans.modules.queries`, `java.lexer`, `lexer`, `xml.lexer` | `editor`, `findusages`, `project.ui.java` | **reuse** (headless tokenizers/queries) | java/ide layers | M1 |
 | `org.netbeans.modules.projectapi` | 9 modules | **reuse** (headless `Project` model) | all layers | — |
 | `nbjunit`, `libs.junit4` | tests | **reuse** (test only) | — | — |
+
+### D.2.1 `DataObject` is Node-backed (why `openide.nodes` is still enabled)
+
+`openide.nodes` is not a nbfx dependency, but it is **enabled** (a regular, non-`AutoLoad` module in
+`nb.cluster.platform`, `nbbuild/cluster.properties:237`) and **initialized** at startup. The cause is
+`openide.loaders`: its public contract is Node-shaped, not just its static initializer.
+
+| Coupling | Evidence |
+|---|---|
+| declared compile+run dependency | `openide.loaders/nbproject/project.xml:144-151` |
+| `DataObject implements Node.Cookie` | `DataObject.java:58` |
+| node delegate in the API | `getNodeDelegate()` `:302`, `createNodeDelegate()` `:406`, `setNodeDelegate` `:384` |
+| cookies typed on `Node.Cookie` | `getCookie(Class<T extends Node.Cookie>)` `:1142`; `DataObject.Container` `:1285` |
+| **`getLookup()` returns the node's Lookup** | `:1174-1184`; the recommended override uses `CookieSet`, which lives in `openide.nodes` (`CookieSet.java:41`) |
+| static-init trigger | `BEING_CREATED = Node.EMPTY.cloneNode()` `:126` → `Node.<clinit>` `Node.java:91` → `AbstractNode` |
+| full Node implementation in the module | `DataNode extends AbstractNode` (`DataNode.java:44`, 1322 lines); `DataFolder`, `FolderChildren`, `InstanceNode`, `DataShadow`, … (35 files reference `org.openide.nodes`) |
+
+So “reuse `DataObject`, never `DataNode`” is not enough: `DataObject` itself is a cookie on a node, and its
+Lookup *is* the node's Lookup. Any `DataObject.getLookup()` creates the default `DataNode` and initializes
+`openide.nodes`. The upstream javadoc already calls the default `getLookup()` “significant potential to
+deadlocks” (`DataObject.java:1155`) — that is issue #10.
+
+**Consequences.** 388 upstream modules declare the dependency on `openide.nodes` (129 on `openide.explorer`,
+which itself depends on nodes/explorer/awt/dialogs/swing — [`../figures.md`](../figures.md)), so
+`openide.nodes` cannot be pruned while `openide.loaders` is used, and the platform uses `DataObject` for the
+Services folder at startup. **PR #12** (merged, `9ddc80285b`) initializes `Node` before the parallel `@OnStart`
+tasks: it is the **mitigation**, not the fix. The fix is upstream and additive — lazy `BEING_CREATED`, move the
+cookie/lookup storage out of `Node`, deprecate `getNodeDelegate()` (H.4.1).
+
+**nbfx code today** does not import `openide.loaders`; `nbfx.project.ui.java` declares the dependency but uses
+nothing from it — remove it in `refactor/java-plumbing` (necessary, not sufficient: the platform still uses
+`DataObject`).
 
 ## D.3 The editor and Java-tooling matrix (50 upstream modules in the measured set — [`../figures.md`](../figures.md))
 
@@ -127,11 +159,12 @@ on; not merely unused.
 
 | Milestone | Modules that must be gone (or replaced in place) |
 |---|---|
-| M0 | `core.windows` (already), `projectuiapi.base` bridge (our code no longer depends), the status/output/dialog/progress **providers** we replaced, `ide/editor*` from the runtime path (the app does not load them) |
+| M0 | `core.windows` (already), `progress.ui` (landed, PR #2), `projectuiapi.base` bridge (our code no longer depends), the status/output/dialog **providers** we replaced, `ide/editor*` from the runtime path (the app does not load them) |
 | M1 | `ide/editor.lib`, `ide/editor.lib2`, `ide/editor.document`, `ide/editor.completion`, `ide/editor.search`, `ide/editor.bracesmatching`, `ide/editor.codetemplates`, `ide/editor.fold*`, `ide/editor.guards`, `ide/editor.indent*`, `ide/editor.actions`, `ide/editor.structure`, `ide/editor.settings.lib`, `ide/editor.errorstripe`, `ide/editor.bookmarks` |
 | M2 | `java/java.editor`, `java/java.editor.base`, `java/java.editor.lib`, `java/java.sourceui`, `java/java.hints`' UI half, `java/java.project.ui` |
 | M3 | `java/java.j2seproject`'s Swing project UI, SceneBuilder's Swing shell (if any) |
 | Later | `java/java.source`'s `Document` half, `platform/api.keymap` UI |
+| **Later (blocked)** | `core.ui`, `openide.explorer`, `openide.nodes`, `openide.awt`, `openide.dialogs`, `openide.windows` — blocked until the 388 upstream modules that declare `openide.nodes` (129 on `openide.explorer`, `../figures.md`) are retired. `openide.nodes` is also `AutoUpdate-Essential-Module: true`; `core.ui`'s `ContextMenuWarmUpTask` and `DataObject`'s static `Node` initialize it today (D.2.1) |
 
 ## D.5 The indexing workstream (currently missing)
 

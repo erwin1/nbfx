@@ -20,7 +20,9 @@ A **pure-JavaFX IDE** built on the NetBeans runtime:
   build/execution primitives, debugger, profiler, VCS, templates, autoupdate) — "as-is" means **per the
   matrix in [Appendix D](appendix/D-bridge-and-retirement-matrix.md)**: reuse / bridge / replace / drop, one
   row per upstream module, with owners and milestones;
-- **no Swing renders**; Swing modules are retired from the distribution, not merely unused;
+- **the FX shell renders no Swing**; upstream Swing modules still load until the retirement-matrix rows land
+  ([Appendix D.4](appendix/D-bridge-and-retirement-matrix.md)) — `openide.nodes` is enabled and initialized via
+  `core.ui` and `DataObject` today ([D.2.1](appendix/D-bridge-and-retirement-matrix.md));
 - a **published plugin API** lets third parties build NBMs on nbfx.
 
 **Non-goals.** Web/JS/JavaEE/PHP/C++ languages, the Swing form editor, WebStart/JNLP execution, Java ME,
@@ -140,7 +142,8 @@ T0 modules carry no specification version.
 extension points it implements, the platform core (`org.openide.util`, `org.openide.filesystems`,
 `org.openide.util.lookup`), plus `org.openide.loaders` **API only** (`DataObject`/`DataFolder`, never
 `DataNode`) and `org.netbeans.api.project` up to `Project` — the full allowlist is
-[Appendix E.6](appendix/E-contracts.md). It may not use: T0 modules, layer paths (`LayerPaths`), `*Impl`
+[Appendix E.6](appendix/E-contracts.md); note that using `DataObject` also initializes `openide.nodes`
+([D.2.1](appendix/D-bridge-and-retirement-matrix.md)). It may not use: T0 modules, layer paths (`LayerPaths`), `*Impl`
 classes, view layouts, theme CSS classes. A `Node`-returning API documents ownership (new node per call; the
 shell owns what a view hands over) and the shell sets an `AccessibleRole` where the plugin does not. Menu
 contributions are FX `MenuItem`s.
@@ -634,6 +637,7 @@ feature growth — the cut list kills a spike that becomes a language IDE.
 issue, a prototype in nbfx and a recorded fallback: `chore/upstream-module-tools` (the portable `nbbuild`
 checks, H.6 — portable ant tasks under `nbfx-tools/`), `spike/progress-neutral-spi` (H.2),
 `spike/java-source-headless` (H.1), `spike/actions-neutral-core` (H.3), `spike/nodes-icon-source` (H.4),
+`spike/loaders-node-free` (H.4.1),
 `spike/runlevel-api` (H.7), `spike/maven-embedder-facade` (H.7), `spike/editor-model-spi` (H.5, last).
 Order and the per-proposal credibility test are in [H.8](appendix/H-upstream-proposals.md).
 

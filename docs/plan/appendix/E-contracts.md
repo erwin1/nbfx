@@ -113,7 +113,7 @@ The published API modules of the extension points the plugin implements; nothing
 | add a view | `@ViewRegistration` | layer, via `api.views` |
 | add an options panel | `@OptionsRegistration` | layer, via `api.options` |
 | provide a service | `@ServiceProvider(service = X.class)` | `META-INF/services` |
-| handle a file type | a `DataLoader`/`MultiFileLoader` + MIME type | `openide.loaders` (`DataObject`/`DataFolder`) — **never `DataNode`** |
+| handle a file type | a `DataLoader`/`MultiFileLoader` + MIME type | `openide.loaders` (`DataObject`/`DataFolder`) — **never `DataNode`**; using `DataObject` implies `openide.nodes` (D.2.1) |
 | add a project type | `@ProjectTypeRegistration` + `ProjectFactory`/`LookupProvider` | `api.project` + `org.netbeans.api.project` |
 | add a language (lexer, completion, structure, goto, usages) | `LanguageRegistration` + providers scoped by `LanguageId` | `api.language`; **never** a global `@ServiceProvider` (Appendix I.3) |
 | build the plugin | — | an **NBM** via the NetBeans `nbm` Ant harness (what the module system expects), JDK 25, compiled against the T2-FX/M modules it implements |
