@@ -206,6 +206,7 @@ imported by `build.xml`:
 
 ```sh
 ant rat                                              # licence headers (Apache Rat, pinned in nbfx.properties)
+ant headers                                          # add the header to new files that lack one (-Ddry.run=true lists them)
 ant release -Dnbfx.rc=rc1 -Dnbfx.gpg.key=<fpr>       # release-src + release-bin + release-sign + release-verify
 ```
 

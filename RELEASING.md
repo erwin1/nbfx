@@ -69,6 +69,7 @@ Open a **release checklist** issue (template: *Release checklist*) and tick the 
 
 - Pick the version and set `nbfx.version` in `nbfx.properties`.
 - Make sure `main` is green: `ant bootstrap build`, `ant check-purity`, `ant rat`.
+  A file that fails `ant rat` usually just lacks its licence header: `ant headers` adds it.
 - Write the release notes (template below).
 
 ### 2. Tag the release candidate

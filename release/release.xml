@@ -84,6 +84,15 @@
         <nbfx-rat dir="${basedir}" report="rat-report"/>
     </target>
 
+    <target name="headers" description="Add the Apache-2.0 licence header to files that lack one (-Ddry.run=true to list only)">
+        <condition property="nbfx.headers.args" value="--dry-run" else="">
+            <istrue value="${dry.run}"/>
+        </condition>
+        <java sourcefile="${basedir}/release/tools/Headers.java" fork="true" dir="${basedir}" failonerror="true">
+            <arg line="${nbfx.headers.args}"/>
+        </java>
+    </target>
+
     <!-- ======================================================================== -->
     <!-- release                                                                  -->
     <!-- ======================================================================== -->

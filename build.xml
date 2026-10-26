@@ -457,6 +457,7 @@ nbfx build harness — targets:
 
 release (RELEASING.md):
   rat              licence headers of the sources (Apache Rat)
+  headers          add the missing licence headers (-Ddry.run=true lists them only)
   release          release-src + release-bin + release-sign + release-verify
                    -Dnbfx.rc=rc1 -Dnbfx.gpg.key=&lt;fingerprint&gt; (-Dnbfx.release.dryrun=true)
   release-src      build/release/nbfx-${nbfx.version}-src.tar.gz (git archive of the tag)
