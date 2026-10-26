@@ -39,8 +39,7 @@ NetBeans revision (`nbfx.submodule.commit`): ...
 - [ ] Review window opened in this issue (at least 72 hours, until ...)
 
 ### Review
-- [ ] +1 from Gluon
-- [ ] +1 from the customer
+- [ ] +1 votes from different contributors
 - [ ] Result posted as a comment
 
 ### Release
