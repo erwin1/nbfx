@@ -31,7 +31,8 @@ on:
         required: true
 
 permissions:
-  contents: read
+  # write: GitHub only shows draft releases to tokens that can push; nothing is written
+  contents: write
   issues: write
 
 env:
@@ -56,8 +57,15 @@ jobs:
       - name: Download the release files
         run: |
           mkdir -p build/release
-          gh release download "$TAG" --pattern 'nbfx-*' --dir build/release
+          # the release list includes drafts, the by-tag lookup of gh release download does not
+          release=$(gh api --paginate "repos/$GH_REPO/releases" --jq ".[] | select(.tag_name == \"$TAG\") | .id" | head -1)
+          [ -n "$release" ] || { echo "::error::no release (or draft) for $TAG"; exit 1; }
+          gh api --paginate "repos/$GH_REPO/releases/$release/assets" --jq '.[] | select(.name | startswith("nbfx-")) | "\(.id) \(.name)"' \
+            | while read -r id name; do
+                gh api -H "Accept: application/octet-stream" "repos/$GH_REPO/releases/assets/$id" > "build/release/$name"
+              done
           ls -l build/release
+          [ -n "$(ls build/release)" ] || { echo "::error::the release $TAG has no nbfx-* files"; exit 1; }
 
       - uses: ./.github/actions/setup-build
 
