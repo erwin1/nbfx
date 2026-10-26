@@ -62,7 +62,8 @@ jobs:
           [ -n "$release" ] || { echo "::error::no release (or draft) for $TAG"; exit 1; }
           gh api --paginate "repos/$GH_REPO/releases/$release/assets" --jq '.[] | select(.name | startswith("nbfx-")) | "\(.id) \(.name)"' \
             | while read -r id name; do
-                gh api -H "Accept: application/octet-stream" "repos/$GH_REPO/releases/assets/$id" > "build/release/$name"
+                # < /dev/null: gh would otherwise read the rest of the asset list from stdin
+                gh api -H "Accept: application/octet-stream" "repos/$GH_REPO/releases/assets/$id" < /dev/null > "build/release/$name"
               done
           ls -l build/release
           [ -n "$(ls build/release)" ] || { echo "::error::the release $TAG has no nbfx-* files"; exit 1; }

@@ -208,6 +208,9 @@
     <target name="release-verify" depends="-rat-jar"
             description="Verify the release artefacts: signatures against KEYS, checksums, licence files, Rat">
         <property name="nbfx.verify.dir" location="${nbfx.build.dir}/release-verify"/>
+        <!-- all six files, or a missing .asc/.sha512 would simply not be checked -->
+        <nbfx-verify-files dir="${nbfx.release.dir}" count="6"
+            files="${nbfx.release.name}-src.tar.gz,${nbfx.release.name}-src.tar.gz.asc,${nbfx.release.name}-src.tar.gz.sha512,${nbfx.release.name}-bin.zip,${nbfx.release.name}-bin.zip.asc,${nbfx.release.name}-bin.zip.sha512"/>
         <delete dir="${nbfx.verify.dir}"/>
         <mkdir dir="${nbfx.verify.dir}/gnupg"/>
         <chmod dir="${nbfx.verify.dir}/gnupg" perm="700" type="dir"/>
