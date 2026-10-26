@@ -116,7 +116,7 @@ Create a GitHub release for `0.1.0-rc1` and mark it as a pre-release. Attach the
 
 > **Apache:** `[VOTE]` on `dev@`, open for at least 72 hours, at least three binding +1 votes from the PMC,
 > then `[RESULT][VOTE]` · **nbfx now:** a review of at least 72 hours on the release checklist issue; the
-> release needs a +1 from Gluon and from the customer.
+> release needs a +1 from different contributors.
 
 Reviewers verify the candidate (see *Verifying a release* below), try it, and comment `+1`, `0` or `-1`
 with their reasons. A `-1` that holds means: fix on `main`, then go back to step 2 with `rc2`. When the
@@ -137,8 +137,7 @@ not rebuild: the checksums must stay the same. Edit the RC pre-release to point 
 
 ### 7. Announce
 
-> **Apache:** mail to `announce@apache.org` and `dev@` · **nbfx now:** the channels agreed with the
-> customer, linking to the GitHub release.
+> **Apache:** mail to `announce@apache.org` and `dev@` · **nbfx now:** link to the GitHub release.
 
 ### 8. Afterwards
 
