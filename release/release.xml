@@ -222,7 +222,8 @@
             <arg value="--import"/>
             <arg file="${basedir}/KEYS"/>
         </exec>
-        <apply executable="gpg" dir="${nbfx.release.dir}" failonerror="true" parallel="false">
+        <!-- dest: the <targetfile/> (the signed artefact) resolves against it, not against basedir -->
+        <apply executable="gpg" dir="${nbfx.release.dir}" dest="${nbfx.release.dir}" failonerror="true" parallel="false">
             <arg value="--homedir"/>
             <arg file="${nbfx.verify.dir}/gnupg"/>
             <arg value="--batch"/>
