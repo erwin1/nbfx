@@ -210,6 +210,9 @@ ant headers                                          # add the header to new fil
 ant release -Dnbfx.rc=rc1 -Dnbfx.gpg.key=<fpr>       # release-src + release-bin + release-sign + release-verify
 ```
 
+Pushing a release tag runs the *Release draft* workflow (checks, draft GitHub release, checklist issue);
+*Release verify* checks the files the release manager uploads. Neither builds nor signs a release artefact.
+
 A source release has no `.git`, so `ant bootstrap` fetches the pinned `nbfx.submodule.commit` of
 apache/netbeans directly (shallow) instead of initialising the submodule.
 

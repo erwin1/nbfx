@@ -1,0 +1,115 @@
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Independently verifies the files the release manager uploaded to a release (RELEASING.md, step 4).
+#
+#   - every .asc against KEYS, every .sha512, the licence files and Rat (ant release-verify)
+#   - the source release is exactly `git archive` of the tag, rebuilt here on a clean runner
+#   - the unpacked source release builds (fetching the pinned NetBeans revision)
+#
+# Runs when a release is published, or by hand on a draft before it is published:
+#   gh workflow run release-verify.yml -f tag=0.1.0-rc1
+# The result is posted on the release checklist issue.
+name: Release verify
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to verify (the release may still be a draft)
+        required: true
+
+permissions:
+  contents: read
+  issues: write
+
+env:
+  TAG: ${{ inputs.tag || github.event.release.tag_name }}
+  GH_TOKEN: ${{ github.token }}
+  GH_REPO: ${{ github.repository }}
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Version
+        id: version
+        run: |
+          [[ "$TAG" =~ ^([0-9]+\.[0-9]+\.[0-9]+)(-rc[0-9]+)?$ ]] || { echo "::error::$TAG is not a release tag"; exit 1; }
+          echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ env.TAG }}
+
+      - name: Download the release files
+        run: |
+          mkdir -p build/release
+          gh release download "$TAG" --pattern 'nbfx-*' --dir build/release
+          ls -l build/release
+
+      - uses: ./.github/actions/setup-build
+
+      - name: Signatures, checksums, licence files, Rat
+        id: artefacts
+        run: ant release-verify
+
+      - name: The source release is git archive of the tag
+        id: reproducible
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # compare the tar, not the gzip: gzip output may differ between git versions, the tar does not
+          ours=$(git archive --format=tar --prefix="nbfx-$VERSION/" "refs/tags/$TAG" | sha512sum | cut -d' ' -f1)
+          theirs=$(gzip -dc "build/release/nbfx-$VERSION-src.tar.gz" | sha512sum | cut -d' ' -f1)
+          echo "git archive of $TAG: $ours"
+          echo "uploaded tarball:     $theirs"
+          [ "$ours" = "$theirs" ] || { echo "::error::the uploaded source release is not git archive of $TAG"; exit 1; }
+
+      - name: The source release builds
+        id: build
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          tar xzf "build/release/nbfx-$VERSION-src.tar.gz" -C "$RUNNER_TEMP"
+          cd "$RUNNER_TEMP/nbfx-$VERSION"
+          ant build
+
+      - name: Report on the release checklist issue
+        if: always()
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          ARTEFACTS: ${{ steps.artefacts.outcome }}
+          REPRODUCIBLE: ${{ steps.reproducible.outcome }}
+          BUILD: ${{ steps.build.outcome }}
+          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="Release nbfx $VERSION"
+          issue=$(gh issue list --state open --label release --search "\"$title\" in:title" \
+                    --json number,title --jq ".[] | select(.title == \"$title\") | .number" | head -1)
+          if [ -z "$issue" ]; then
+            echo "no open issue '$title'; not reporting"
+            exit 0
+          fi
+          mark() { case "$1" in success) echo ":white_check_mark:";; skipped|'') echo ":heavy_minus_sign: not run";; *) echo ":x: $1";; esac; }
+          gh issue comment "$issue" --body "$(cat <<EOF
+          **Release verify for $TAG** ([run]($RUN))
+
+          | Check | Result |
+          |---|---|
+          | signatures against \`KEYS\`, checksums, licence files, Rat (\`ant release-verify\`) | $(mark "$ARTEFACTS") |
+          | source release is \`git archive\` of the tag | $(mark "$REPRODUCIBLE") |
+          | source release builds (\`ant build\`) | $(mark "$BUILD") |
+          EOF
+          )"

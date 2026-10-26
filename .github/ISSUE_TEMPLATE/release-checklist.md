@@ -26,14 +26,16 @@ NetBeans revision (`nbfx.submodule.commit`): ...
 ### Prepare
 - [ ] `nbfx.version` set in `nbfx.properties`
 - [ ] `main` green: `ant bootstrap build`, `ant check-purity`, `ant rat`
-- [ ] Release notes drafted
+- [ ] `release/release-notes.md` up to date
 - [ ] Release manager's key is in `KEYS` and on the keyservers
 
 ### Release candidate (repeat per RC)
-- [ ] Signed tag `<version>-rcN` pushed
+- [ ] Signed tag `<version>-rcN` pushed; *Release draft* green
 - [ ] `ant release -Dnbfx.rc=rcN -Dnbfx.gpg.key=...` green
-- [ ] Source release builds and runs from the unpacked tarball (`ant build run`)
-- [ ] GitHub pre-release `<version>-rcN` with 6 files (src, bin, `.asc`, `.sha512`)
+- [ ] Binary starts (`bin/netbeans`)
+- [ ] 6 files uploaded to the draft (`gh release upload <version>-rcN build/release/*`)
+- [ ] *Release verify* green (`gh workflow run release-verify.yml -f tag=<version>-rcN`)
+- [ ] Highlights written, pre-release published
 - [ ] Review window opened in this issue (at least 72 hours, until ...)
 
 ### Review
@@ -42,8 +44,8 @@ NetBeans revision (`nbfx.submodule.commit`): ...
 - [ ] Result posted as a comment
 
 ### Release
-- [ ] Signed tag `<version>` on the RC commit, pushed
-- [ ] GitHub release `<version>` with the same 6 files (no rebuild)
+- [ ] Signed tag `<version>` on the RC commit, pushed; *Release draft* green (copies the RC files)
+- [ ] Draft release `<version>` checked and published
 - [ ] RC pre-release points to the final release
 - [ ] Announced
 

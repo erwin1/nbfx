@@ -76,7 +76,8 @@ public final class Headers {
             Map.entry("java", C), Map.entry("css", C), Map.entry("js", C),
             Map.entry("xml", XML), Map.entry("fxml", XML), Map.entry("xsl", XML),
             Map.entry("html", XML), Map.entry("md", XML),
-            Map.entry("properties", HASH), Map.entry("fragment", HASH), Map.entry("gitattributes", HASH));
+            Map.entry("properties", HASH), Map.entry("fragment", HASH), Map.entry("gitattributes", HASH),
+            Map.entry("yml", HASH), Map.entry("yaml", HASH));
 
     private static Path root;
 

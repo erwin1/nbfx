@@ -1,0 +1,53 @@
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# JDK 25 + a pinned Ant + the NetBeans external-binaries cache, for the nbfx Ant harness.
+name: Set up the nbfx build
+description: JDK 25, Ant (checksum-verified) and the NetBeans binaries cache
+
+inputs:
+  nbfx-properties:
+    description: Path of nbfx.properties (the cache key uses the pinned NetBeans revision)
+    default: nbfx.properties
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: '25'
+
+    - name: Install Ant
+      shell: bash
+      env:
+        ANT_VERSION: 1.10.17
+        ANT_SHA512: a96ca6455ec9af5e702df7d1ed5a2ec1cfb381eac3e9a767ecb6be1706e826941045e8fd7ca663ba101bc47bfa18351f540dd27e9e7af57908ac78e65268eee7
+      run: |
+        cd "$RUNNER_TEMP"
+        curl -sfLO "https://archive.apache.org/dist/ant/binaries/apache-ant-$ANT_VERSION-bin.tar.gz"
+        echo "$ANT_SHA512  apache-ant-$ANT_VERSION-bin.tar.gz" | sha512sum -c -
+        tar xzf "apache-ant-$ANT_VERSION-bin.tar.gz"
+        echo "$RUNNER_TEMP/apache-ant-$ANT_VERSION/bin" >> "$GITHUB_PATH"
+        echo "ANT_OPTS=-Xmx4g" >> "$GITHUB_ENV"
+
+    - name: Pinned NetBeans revision
+      id: nb
+      shell: bash
+      run: echo "commit=$(sed -n 's/^nbfx.submodule.commit=//p' '${{ inputs.nbfx-properties }}')" >> "$GITHUB_OUTPUT"
+
+    # third-party jars the NetBeans build downloads (nbbuild binaries-default-properties.xml)
+    - uses: actions/cache@v4
+      with:
+        path: ~/.hgexternalcache
+        key: netbeans-binaries-${{ steps.nb.outputs.commit }}
+        restore-keys: netbeans-binaries-

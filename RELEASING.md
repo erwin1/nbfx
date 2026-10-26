@@ -63,14 +63,25 @@ Extend an expiring key with `gpg --quick-set-expire <FINGERPRINT> 2y`, then re-p
 
 ## The procedure
 
-Open a **release checklist** issue (template: *Release checklist*) and tick the steps off there.
+The release manager builds and signs on their own machine, as at Apache. Two GitHub workflows do the
+bookkeeping around that; neither builds a release artefact nor holds a key:
+
+| Workflow | Runs on | Does |
+|---|---|---|
+| *Release draft* (`.github/workflows/release-draft.yml`) | push of a tag `<version>-rcN` or `<version>` | checks the tag (format, matches `nbfx.version`, annotated, signature verifies against `KEYS`; a final tag must be on an RC commit), runs `ant rat`, `ant build` and `ant check-purity` on the tagged commit, creates the **draft** release with the notes from `release/release-notes.md` plus the generated change list, and opens or updates the release checklist issue. For a final tag it copies the files of the RC into the draft. |
+| *Release verify* (`.github/workflows/release-verify.yml`) | publishing a release, or by hand (`gh workflow run release-verify.yml -f tag=<tag>`) | downloads the uploaded files, runs `ant release-verify` on them, checks that the source release is exactly `git archive` of the tag, builds the unpacked source release, and posts the result on the checklist issue. |
+
+The checklist issue (template: *Release checklist*) is opened by *Release draft* for the first RC; tick
+the steps off there.
 
 ### 1. Prepare
 
 - Pick the version and set `nbfx.version` in `nbfx.properties`.
 - Make sure `main` is green: `ant bootstrap build`, `ant check-purity`, `ant rat`.
   A file that fails `ant rat` usually just lacks its licence header: `ant headers` adds it.
-- Write the release notes (template below).
+- Release notes: *Release draft* fills `release/release-notes.md` into the draft and appends GitHub's
+  list of merged pull requests since the previous release. Adjust the template beforehand if needed; edit
+  the highlights in the draft afterwards.
 
 ### 2. Tag the release candidate
 
@@ -80,6 +91,10 @@ Open a **release checklist** issue (template: *Release checklist*) and tick the 
 git tag -s -a 0.1.0-rc1 -m "nbfx 0.1.0-rc1"
 git push origin 0.1.0-rc1
 ```
+
+Pushing the tag starts *Release draft* (about 10 minutes). When it is green there is a draft pre-release
+`0.1.0-rc1` and a checklist issue *Release nbfx 0.1.0*. A red run usually means the tag is wrong: delete it
+(`git push --delete origin 0.1.0-rc1 && git tag -d 0.1.0-rc1`), fix, and tag again.
 
 ### 3. Build, sign and verify
 
@@ -98,19 +113,24 @@ This runs, in order:
 
 `-Dnbfx.release.dryrun=true` skips the tag and clean-tree checks, for a rehearsal.
 
-Then check by hand that the source release builds and runs:
-
-```sh
-tar xzf build/release/nbfx-0.1.0-src.tar.gz -C /tmp && cd /tmp/nbfx-0.1.0 && ant build run
-```
+Then start the binary once (`unzip build/release/nbfx-0.1.0-bin.zip`, `bin/netbeans`): whether the
+application comes up is the one thing no workflow checks.
 
 ### 4. Publish the candidate
 
 > **Apache:** upload to `https://dist.apache.org/repos/dist/dev/<project>/` (svn) ·
 > **nbfx now:** a GitHub **pre-release** on the RC tag.
 
-Create a GitHub release for `0.1.0-rc1` and mark it as a pre-release. Attach the six files from
-`build/release/` (two artefacts, each with `.asc` and `.sha512`) and paste the release notes.
+Upload the six files from `build/release/` (two artefacts, each with `.asc` and `.sha512`) to the draft
+and let *Release verify* check them before anyone else sees them:
+
+```sh
+gh release upload 0.1.0-rc1 build/release/*
+gh workflow run release-verify.yml -f tag=0.1.0-rc1
+```
+
+When it reports green on the checklist issue, write the highlights in the draft and **publish** it (it
+stays a pre-release). Publishing runs *Release verify* once more, on the public files.
 
 ### 5. Review
 
@@ -132,8 +152,9 @@ git tag -s -a 0.1.0 -m "nbfx 0.1.0" 0.1.0-rc1^{}
 git push origin 0.1.0
 ```
 
-Create the GitHub release `0.1.0` (not a pre-release) and upload the **same six files** from the RC. Do
-not rebuild: the checksums must stay the same. Edit the RC pre-release to point to the final release.
+*Release draft* checks the tag, creates the draft release `0.1.0` (not a pre-release) and copies the six
+files of `0.1.0-rc1` into it: the same bytes, no rebuild. Check the draft, copy the highlights over from the
+RC and publish it. Then edit the RC pre-release to point to the final release.
 
 ### 7. Announce
 
@@ -157,25 +178,7 @@ A good signature from a key in `KEYS` and `OK` for every checksum mean that the 
 release manager built. Then unpack the source release and check that it has `LICENSE`, `NOTICE` and
 `THIRDPARTY`, that `ant rat` passes, and that `ant build run` works.
 
-## Release notes template
+## Release notes
 
-```markdown
-nbfx <version> — a pure-JavaFX IDE frontend on the Apache NetBeans runtime.
-
-**This is not a release of the Apache Software Foundation.** nbfx is built on Apache NetBeans
-(revision <nbfx.submodule.commit>), which is.
-
-Requirements: JDK 25. Bundles OpenJFX 27 (GPLv2 with the Classpath Exception; see THIRDPARTY).
-Native JavaFX libraries: macOS aarch64, Windows x64, Linux x64.
-
-## Changes
-- ...
-
-## Known limitations
-- No installers; the binary is a platform-independent zip.
-- ...
-
-## Verify
-gpg --import KEYS && gpg --verify nbfx-<version>-src.tar.gz.asc nbfx-<version>-src.tar.gz
-sha512sum -c nbfx-<version>-src.tar.gz.sha512
-```
+The template is [`release/release-notes.md`](release/release-notes.md); *Release draft* replaces its
+`@VERSION@`, `@TAG@`, `@NB_COMMIT@` and `@REPOSITORY@` tokens.

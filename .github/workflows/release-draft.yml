@@ -1,0 +1,173 @@
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Prepares a draft GitHub release when a release tag is pushed (RELEASING.md, steps 2-6).
+#
+#   <version>-rcN  checks the tag and the tagged commit, creates a draft pre-release with the notes
+#                  template and opens (or updates) the release checklist issue
+#   <version>      the same checks, creates the draft release and copies the files of the RC on
+#                  the same commit into it (the same bytes, no rebuild)
+#
+# Nothing is built for release here and nothing is signed: the release manager builds and signs
+# locally (ant release) and uploads the files to the draft.
+name: Release draft
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+-rc[0-9]+'
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: release-${{ github.ref_name }}
+
+env:
+  TAG: ${{ github.ref_name }}
+  GH_TOKEN: ${{ github.token }}
+  GH_REPO: ${{ github.repository }}
+
+jobs:
+  check:
+    name: Check the tag and the tagged commit
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.tag.outputs.version }}
+      rc: ${{ steps.tag.outputs.rc }}
+      rc-tag: ${{ steps.final.outputs.rc-tag }}
+      previous: ${{ steps.tag.outputs.previous }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # checkout may store the tag as a lightweight ref; fetch the annotated tag object itself
+      - name: Fetch the tag object
+        run: git fetch --force origin "+refs/tags/$TAG:refs/tags/$TAG"
+
+      - name: Parse the tag
+        id: tag
+        run: |
+          [[ "$TAG" =~ ^([0-9]+\.[0-9]+\.[0-9]+)(-(rc[0-9]+))?$ ]] || { echo "::error::$TAG is not <version> or <version>-rcN"; exit 1; }
+          version="${BASH_REMATCH[1]}"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "rc=${BASH_REMATCH[3]}" >> "$GITHUB_OUTPUT"
+          # the final release before this version: the start of the generated change list
+          previous=$(git tag --list '[0-9]*.[0-9]*.[0-9]*' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
+                     | { cat; echo "$version"; } | sort -uV | grep -B1 -x "$version" | grep -vx "$version" || true)
+          echo "previous=$previous" >> "$GITHUB_OUTPUT"
+
+      - name: nbfx.version matches the tag
+        run: |
+          declared=$(sed -n 's/^nbfx.version=//p' nbfx.properties)
+          [ "$declared" = "${{ steps.tag.outputs.version }}" ] \
+            || { echo "::error::nbfx.properties says nbfx.version=$declared, the tag is $TAG"; exit 1; }
+
+      - name: The tag is annotated and signed by a key in KEYS
+        run: |
+          [ "$(git cat-file -t "$TAG")" = tag ] || { echo "::error::$TAG is not an annotated tag (git tag -s -a)"; exit 1; }
+          export GNUPGHOME="$RUNNER_TEMP/gnupg"
+          mkdir -m 700 "$GNUPGHOME"
+          gpg --batch --import KEYS
+          git verify-tag "$TAG" || { echo "::error::the signature of $TAG does not verify against KEYS"; exit 1; }
+
+      - name: The final tag is on a release candidate
+        id: final
+        if: steps.tag.outputs.rc == ''
+        run: |
+          rc_tag=$(git tag --points-at "$TAG^{commit}" | grep -E "^${{ steps.tag.outputs.version }}-rc[0-9]+$" | sort -V | tail -1 || true)
+          [ -n "$rc_tag" ] || { echo "::error::$TAG must be on the commit of a release candidate (${{ steps.tag.outputs.version }}-rcN)"; exit 1; }
+          echo "rc-tag=$rc_tag" >> "$GITHUB_OUTPUT"
+          echo "promoting $rc_tag"
+
+      - uses: ./.github/actions/setup-build
+
+      - name: Check out the pinned NetBeans revision (shallow)
+        run: git submodule update --init --depth 1 netbeans
+
+      - name: ant rat
+        run: ant rat
+
+      - name: ant build
+        run: ant build
+
+      - name: ant check-purity
+        run: ant check-purity
+
+  draft:
+    name: Create the draft release
+    needs: check
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.check.outputs.version }}
+      RC: ${{ needs.check.outputs.rc }}
+      RC_TAG: ${{ needs.check.outputs.rc-tag }}
+      PREVIOUS: ${{ needs.check.outputs.previous }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Release notes from release/release-notes.md
+        run: |
+          nb_commit=$(sed -n 's/^nbfx.submodule.commit=//p' nbfx.properties)
+          sed '1,/^-->$/d' release/release-notes.md \
+            | sed -e "s|@VERSION@|$VERSION|g" -e "s|@TAG@|$TAG|g" \
+                  -e "s|@NB_COMMIT@|$nb_commit|g" -e "s|@REPOSITORY@|$GH_REPO|g" > "$RUNNER_TEMP/notes.md"
+
+      - name: Create the draft
+        run: |
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            echo "a release for $TAG exists already; leaving it as it is"
+            exit 0
+          fi
+          args=(--draft --verify-tag --title "nbfx $TAG" --notes-file "$RUNNER_TEMP/notes.md" --generate-notes)
+          [ -n "$RC" ] && args+=(--prerelease)
+          [ -n "$PREVIOUS" ] && args+=(--notes-start-tag "$PREVIOUS")
+          gh release create "$TAG" "${args[@]}"
+
+      - name: Copy the files of ${{ env.RC_TAG }}
+        if: env.RC == ''
+        run: |
+          mkdir "$RUNNER_TEMP/assets"
+          gh release download "$RC_TAG" --pattern 'nbfx-*' --dir "$RUNNER_TEMP/assets" \
+            || { echo "::error::$RC_TAG has no nbfx-* files to promote"; exit 1; }
+          ls -l "$RUNNER_TEMP/assets"
+          gh release upload "$TAG" --clobber "$RUNNER_TEMP"/assets/*
+
+      - name: Release checklist issue
+        run: |
+          url=$(gh release view "$TAG" --json url --jq .url)
+          title="Release nbfx $VERSION"
+          issue=$(gh issue list --state open --label release --search "\"$title\" in:title" \
+                    --json number,title --jq ".[] | select(.title == \"$title\") | .number" | head -1)
+          if [ -n "$issue" ]; then
+            if [ -n "$RC" ]; then
+              gh issue comment "$issue" --body "Draft pre-release for **$TAG**: $url. Upload the signed files (\`gh release upload $TAG build/release/*\`), run *Release verify*, then publish the pre-release and start the 72-hour review."
+            else
+              gh issue comment "$issue" --body "Draft release for **$TAG**, with the files of $RC_TAG: $url. Check it and publish it, then announce."
+            fi
+          elif [ -n "$RC" ]; then
+            gh label create release --color 0E8A16 --description "Release tracking" --force
+            nb_commit=$(sed -n 's/^nbfx.submodule.commit=//p' nbfx.properties)
+            # the template without its front matter and licence comment, with the known fields filled in
+            awk 'NR == 1 && /^---$/ { fm = 1; next } fm { if (/^---$/) fm = 0; next }
+                 !done && /^<!--$/ { c = 1; next } c { if (/^-->$/) { c = 0; done = 1 } next } { print }' \
+                .github/ISSUE_TEMPLATE/release-checklist.md \
+              | sed -e "s|^Release manager: @\.\.\.|Release manager: @$GITHUB_ACTOR|" \
+                    -e "s|^Version: \.\.\.|Version: $VERSION|" \
+                    -e "s|^NetBeans revision (\`nbfx.submodule.commit\`): \.\.\.|NetBeans revision (\`nbfx.submodule.commit\`): $nb_commit|" \
+              > "$RUNNER_TEMP/issue.md"
+            printf '\nDraft pre-release for **%s**: %s\n' "$TAG" "$url" >> "$RUNNER_TEMP/issue.md"
+            gh issue create --title "$title" --label release --body-file "$RUNNER_TEMP/issue.md"
+          fi
