@@ -74,7 +74,7 @@ Open a **release checklist** issue (template: *Release checklist*) and tick the 
 
 ### 2. Tag the release candidate
 
-> **Apache:** RC tag + vote on the RC · **nbfx now:** the same.
+> **Apache:** signed RC tag `<version>-rcN` · **nbfx now:** the same.
 
 ```sh
 git tag -s -a 0.1.0-rc1 -m "nbfx 0.1.0-rc1"
