@@ -75,12 +75,13 @@ jobs:
           [ "$declared" = "${{ steps.tag.outputs.version }}" ] \
             || { echo "::error::nbfx.properties says nbfx.version=$declared, the tag is $TAG"; exit 1; }
 
+      # KEYS of the default branch, not of the tagged commit: a tag must not bring its own trusted key
       - name: The tag is annotated and signed by a key in KEYS
         run: |
           [ "$(git cat-file -t "$TAG")" = tag ] || { echo "::error::$TAG is not an annotated tag (git tag -s -a)"; exit 1; }
           export GNUPGHOME="$RUNNER_TEMP/gnupg"
           mkdir -m 700 "$GNUPGHOME"
-          gpg --batch --import KEYS
+          git show "origin/${{ github.event.repository.default_branch }}:KEYS" | gpg --batch --import
           git verify-tag "$TAG" || { echo "::error::the signature of $TAG does not verify against KEYS"; exit 1; }
 
       - name: The final tag is on a release candidate

@@ -131,16 +131,23 @@
 
     <target name="-submodule-fetch" if="nbfx.submodule.fetch">
         <echo message="[nbfx] no git checkout: fetching ${nbfx.submodule.url} @ ${nbfx.submodule.commit}"/>
-        <mkdir dir="${nbfx.sub.dir}"/>
-        <exec executable="git" dir="${nbfx.sub.dir}" failonerror="true">
+        <!-- fetched into a temporary dir that only replaces ${nbfx.sub.dir} when complete: a failed
+             fetch must not leave a .git behind, or later runs would take it for a checkout -->
+        <property name="nbfx.sub.fetch.dir" location="${nbfx.sub.dir}.fetch"/>
+        <delete dir="${nbfx.sub.fetch.dir}" quiet="true"/>
+        <mkdir dir="${nbfx.sub.fetch.dir}"/>
+        <exec executable="git" dir="${nbfx.sub.fetch.dir}" failonerror="true">
             <arg line="init --quiet"/>
         </exec>
-        <exec executable="git" dir="${nbfx.sub.dir}" failonerror="true">
+        <exec executable="git" dir="${nbfx.sub.fetch.dir}" failonerror="true">
             <arg line="fetch --quiet --depth 1 ${nbfx.submodule.url} ${nbfx.submodule.commit}"/>
         </exec>
-        <exec executable="git" dir="${nbfx.sub.dir}" failonerror="true">
+        <exec executable="git" dir="${nbfx.sub.fetch.dir}" failonerror="true">
             <arg line="checkout --quiet FETCH_HEAD"/>
         </exec>
+        <!-- the source release has an empty netbeans/ (the gitlink) -->
+        <delete dir="${nbfx.sub.dir}"/>
+        <move file="${nbfx.sub.fetch.dir}" tofile="${nbfx.sub.dir}"/>
         <property name="nbfx.submodule.present" value="true"/>
     </target>
 

@@ -56,7 +56,8 @@
         </fail>
     </target>
 
-    <!-- runs Rat over @{dir}; the netbeans submodule and git-ignored files are never scanned -->
+    <!-- runs Rat over @{dir} with @{dir}'s own exclusions; the netbeans submodule and git-ignored
+         files are never scanned -->
     <macrodef name="nbfx-rat">
         <attribute name="dir"/>
         <attribute name="report"/>
@@ -67,7 +68,7 @@
                 <arg line="--input-exclude-parsed-scm GIT"/>
                 <arg line="--input-exclude netbeans/** build/**"/>
                 <arg value="--input-exclude-file"/>
-                <arg file="${basedir}/release/rat-excludes.txt"/>
+                <arg file="@{dir}/release/rat-excludes.txt"/>
                 <arg value="--output-file"/>
                 <arg file="${nbfx.build.dir}/rat/@{report}.txt"/>
                 <arg value="--"/>
@@ -133,8 +134,11 @@
     <target name="release-src" depends="-release-check"
             description="Create the source release build/release/nbfx-VERSION-src.tar.gz (git archive of HEAD)">
         <mkdir dir="${nbfx.release.dir}"/>
-        <!-- git archive is reproducible: the same commit gives the same bytes -->
+        <!-- git archive is reproducible: the same commit gives the same bytes. The -c options pin the
+             settings that change its output, so the CI comparison (release-verify.yml) holds whatever
+             the release manager's git config says -->
         <exec executable="git" dir="${basedir}" failonerror="true">
+            <arg line="-c core.autocrlf=false -c tar.umask=0002"/>
             <arg value="archive"/>
             <arg value="--format=tar.gz"/>
             <arg value="--prefix=${nbfx.release.name}/"/>
@@ -222,8 +226,10 @@
             <arg value="--import"/>
             <arg file="${basedir}/KEYS"/>
         </exec>
-        <!-- dest: the <targetfile/> (the signed artefact) resolves against it, not against basedir -->
-        <apply executable="gpg" dir="${nbfx.release.dir}" dest="${nbfx.release.dir}" failonerror="true" parallel="false">
+        <!-- dest: the <targetfile/> (the signed artefact) resolves against it, not against basedir;
+             force: with dest, apply would skip an .asc that is not newer than its artefact -->
+        <apply executable="gpg" dir="${nbfx.release.dir}" dest="${nbfx.release.dir}" force="true"
+               failonerror="true" parallel="false">
             <arg value="--homedir"/>
             <arg file="${nbfx.verify.dir}/gnupg"/>
             <arg value="--batch"/>

@@ -63,7 +63,7 @@ jobs:
       - name: Download the release files
         run: |
           mkdir -p build/release
-          # the release list includes drafts, the by-tag lookup of gh release download does not
+          # gh api on the release list, filtered by tag, finds a draft as well as a published release
           release=$(gh api --paginate "repos/$GH_REPO/releases" --jq ".[] | select(.tag_name == \"$TAG\") | .id" | head -1)
           [ -n "$release" ] || { echo "::error::no release (or draft) for $TAG"; exit 1; }
           gh api --paginate "repos/$GH_REPO/releases/$release/assets" --jq '.[] | select(.name | startswith("nbfx-")) | "\(.id) \(.name)"' \
@@ -74,7 +74,13 @@ jobs:
           ls -l build/release
           [ -n "$(ls build/release)" ] || { echo "::error::the release $TAG has no nbfx-* files"; exit 1; }
 
+      # the cache key follows the NetBeans revision the tag builds, not the default branch's
+      - name: nbfx.properties of the tag
+        run: git show "refs/tags/$TAG:nbfx.properties" > "$RUNNER_TEMP/tag-nbfx.properties"
+
       - uses: ./.github/actions/setup-build
+        with:
+          nbfx-properties: ${{ runner.temp }}/tag-nbfx.properties
 
       - name: Signatures, checksums, licence files, Rat
         id: artefacts
@@ -87,7 +93,9 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           # compare the tar, not the gzip: gzip output may differ between git versions, the tar does not
-          ours=$(git archive --format=tar --prefix="nbfx-$VERSION/" "refs/tags/$TAG" | sha512sum | cut -d' ' -f1)
+          # the same -c options as release-src in release/release.xml
+          ours=$(git -c core.autocrlf=false -c tar.umask=0002 archive --format=tar --prefix="nbfx-$VERSION/" "refs/tags/$TAG" \
+                 | sha512sum | cut -d' ' -f1)
           theirs=$(gzip -dc "build/release/nbfx-$VERSION-src.tar.gz" | sha512sum | cut -d' ' -f1)
           echo "git archive of $TAG: $ours"
           echo "uploaded tarball:     $theirs"

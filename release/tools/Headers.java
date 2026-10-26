@@ -61,8 +61,9 @@ public final class Headers {
     /** Either the plain header (this tool) or the ASF header (files derived from Apache NetBeans). */
     private static final Pattern HAS_HEADER = Pattern.compile(
             "Licensed under the Apache License|Licensed to the Apache Software Foundation");
-    private static final Pattern XML_DECL = Pattern.compile("\\A<\\?xml[^>]*\\?>\\n");
-    private static final Pattern FRONT_MATTER = Pattern.compile("\\A---\\n.*?\\n---\\n", Pattern.DOTALL);
+    /** An XML declaration, optionally after a UTF-8 byte order mark (read as ISO-8859-1: \u00EF\u00BB\u00BF). */
+    private static final Pattern XML_DECL = Pattern.compile("\\A(?:\u00EF\u00BB\u00BF)?<\\?xml[^>]*\\?>\\r?\\n");
+    private static final Pattern FRONT_MATTER = Pattern.compile("\\A---\\r?\\n.*?\\r?\\n---\\r?\\n", Pattern.DOTALL);
 
     /** Files Rat's standard exclusions skip as well. */
     private static final Set<String> SKIPPED = Set.of(".gitignore", ".gitmodules", ".DS_Store");
@@ -108,16 +109,19 @@ public final class Headers {
             if (text.substring(0, Math.min(text.length(), 8192)).indexOf('\0') >= 0) {
                 continue;
             }
-            if (HAS_HEADER.matcher(text.substring(0, Math.min(text.length(), 2048))).find()) {
+            Function<List<String>, String> style = STYLES.get(extension(rel));
+            boolean markdown = "md".equals(extension(rel));
+            // a header sits at the top, after the XML declaration or front matter, however long that is
+            int start = style == null ? 0 : prolog(text, style, markdown).length();
+            if (HAS_HEADER.matcher(text.substring(start, Math.min(text.length(), start + 2048))).find()) {
                 continue;
             }
-            Function<List<String>, String> style = STYLES.get(extension(rel));
             if (style == null) {
                 unknown.add(rel);
                 continue;
             }
             if (!dryRun) {
-                Files.writeString(file, withHeader(text, style, "md".equals(extension(rel))), StandardCharsets.ISO_8859_1);
+                Files.writeString(file, withHeader(text, style, markdown), StandardCharsets.ISO_8859_1);
             }
             System.out.println((dryRun ? "would add header: " : "added header: ") + rel);
             added++;
@@ -130,13 +134,21 @@ public final class Headers {
 
     /** Puts the header first, after an XML declaration or Markdown front matter if there is one. */
     private static String withHeader(String text, Function<List<String>, String> style, boolean markdown) {
-        String prefix = "";
-        Matcher m = (markdown ? FRONT_MATTER : XML_DECL).matcher(text);
-        if (style == XML && m.find()) {
-            prefix = m.group();
-            text = text.substring(m.end());
+        String prolog = prolog(text, style, markdown);
+        String header = style.apply(LICENSE);
+        if (text.contains("\r\n")) {
+            header = header.replace("\n", "\r\n");
         }
-        return prefix + style.apply(LICENSE) + text.replaceFirst("\\A\\n+", "");
+        return prolog + header + text.substring(prolog.length()).replaceFirst("\\A(?:\\r?\\n)+", "");
+    }
+
+    /** The XML declaration or Markdown front matter that must stay before the header; empty if none. */
+    private static String prolog(String text, Function<List<String>, String> style, boolean markdown) {
+        if (style != XML) {
+            return "";
+        }
+        Matcher m = (markdown ? FRONT_MATTER : XML_DECL).matcher(text);
+        return m.find() ? m.group() : "";
     }
 
     private static String block(String open, String prefix, String close, List<String> lines) {
