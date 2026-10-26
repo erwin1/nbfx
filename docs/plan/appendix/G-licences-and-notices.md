@@ -15,8 +15,8 @@
 -->
 # Appendix G — Licences and notices
 
-The tree has **no `LICENSE`/`NOTICE` files for the nbfx distribution** and `lib.javafx` bundles **JavaFX 27**
-into an otherwise Apache-2.0 project. That is a release blocker, not a nicety. This appendix fixes the
+The tree has root `LICENSE`, `NOTICE`, `THIRDPARTY` and `KEYS` files (added for 0.1.0, [RELEASING.md](../../../RELEASING.md)); `lib.javafx` bundles **JavaFX 27**
+into an otherwise Apache-2.0 project, with its licence texts in `lib.javafx/release/legal/javafx/`. This appendix fixes the
 policy; the check is mechanical (`check-licences`).
 
 ## G.1 The components
@@ -30,7 +30,7 @@ policy; the check is mechanical (`check-licences`).
 | JLine | per decision | BSD-3-Clause | NOTICE | `libs.jline` | M0 |
 | jgit (Git) | reuse NetBeans' jgit modules | EPL-2.0 | prefer the upstream module over a new bundle | `ide.vcs.git` | M1 |
 | JaCoCo (`org.jacoco.core`) | reuse NetBeans' shipped module | EPL-2.0 | the open question in §14.3 remains: published nbfx feature vs reuse | `java.tests` | M2 |
-| nbfx source | — | Apache-2.0 | same header as upstream | all modules | — |
+| nbfx source | — | Apache-2.0 | plain Apache-2.0 header without a copyright line; files derived from Apache NetBeans keep the ASF header; checked by `ant rat` | all modules | — |
 
 ## G.2 Rules
 

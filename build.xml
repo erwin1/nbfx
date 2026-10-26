@@ -52,6 +52,9 @@
         <equals arg1="${nbfx.overlay}" arg2="symlink"/>
     </condition>
 
+    <!-- release targets: rat, release-src, release-bin, release-sign, release-verify, release -->
+    <import file="release/release.xml"/>
+
     <!-- list of the cluster dirs, also as ${nbfx.cluster.1}..${nbfx.cluster.N} is not
          available in plain Ant, so the macros below are invoked explicitly. -->
 
@@ -109,14 +112,36 @@
         <condition property="nbfx.submodule.present">
             <available file="${nbfx.sub.dir}/.git"/>
         </condition>
+        <!-- a source release (git archive) has no .git: the pinned revision is fetched instead -->
+        <condition property="nbfx.submodule.fetch">
+            <and>
+                <not><isset property="nbfx.submodule.present"/></not>
+                <not><available file="${basedir}/.git"/></not>
+            </and>
+        </condition>
     </target>
 
-    <target name="-submodule-init" depends="-submodule-present" unless="nbfx.submodule.present">
+    <target name="-submodule-init" depends="-submodule-present,-submodule-fetch" unless="nbfx.submodule.present">
         <exec executable="git" dir="${basedir}" failonerror="true">
             <arg value="submodule"/>
             <arg value="update"/>
             <arg value="--init"/>
         </exec>
+    </target>
+
+    <target name="-submodule-fetch" if="nbfx.submodule.fetch">
+        <echo message="[nbfx] no git checkout: fetching ${nbfx.submodule.url} @ ${nbfx.submodule.commit}"/>
+        <mkdir dir="${nbfx.sub.dir}"/>
+        <exec executable="git" dir="${nbfx.sub.dir}" failonerror="true">
+            <arg line="init --quiet"/>
+        </exec>
+        <exec executable="git" dir="${nbfx.sub.dir}" failonerror="true">
+            <arg line="fetch --quiet --depth 1 ${nbfx.submodule.url} ${nbfx.submodule.commit}"/>
+        </exec>
+        <exec executable="git" dir="${nbfx.sub.dir}" failonerror="true">
+            <arg line="checkout --quiet FETCH_HEAD"/>
+        </exec>
+        <property name="nbfx.submodule.present" value="true"/>
     </target>
 
     <target name="submodule" depends="-submodule-init"
@@ -429,6 +454,15 @@ nbfx build harness — targets:
   update-upstream  fetch a new submodule revision and re-apply patches
   clean            remove overlay + generated files + submodule build outputs
   print-config     print the effective configuration
+
+release (RELEASING.md):
+  rat              licence headers of the sources (Apache Rat)
+  release          release-src + release-bin + release-sign + release-verify
+                   -Dnbfx.rc=rc1 -Dnbfx.gpg.key=&lt;fingerprint&gt; (-Dnbfx.release.dryrun=true)
+  release-src      build/release/nbfx-${nbfx.version}-src.tar.gz (git archive of the tag)
+  release-bin      build/release/nbfx-${nbfx.version}-bin.zip (the nbfx cluster config)
+  release-sign     .asc + .sha512 for every artefact
+  release-verify   signatures against KEYS, checksums, licence files, Rat
 
 Override properties on the command line, e.g.
   ant build -Dnbfx.overlay=symlink -Dnbfx.submodule.commit=&lt;sha&gt;

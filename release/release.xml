@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!--
+  nbfx release targets, imported by ../build.xml. The procedure is in RELEASING.md.
+
+      ant rat                                       licence headers (Apache Rat)
+      ant release -Dnbfx.rc=rc1 -Dnbfx.gpg.key=<fingerprint>
+          = release-src release-bin release-sign release-verify
+
+  Artefacts land in ${nbfx.build.dir}/release:
+      nbfx-<version>-src.tar.gz   the source release (git archive of the tag)
+      nbfx-<version>-bin.zip      the convenience binary (the nbfx cluster config)
+  each with a detached armored signature (.asc) and a SHA-512 checksum (.sha512).
+  An RC is built under the final file names, so promoting it re-uploads the same bytes.
+-->
+<project name="nbfx-release">
+
+    <property name="nbfx.release.dir" location="${nbfx.build.dir}/release"/>
+    <property name="nbfx.release.name" value="nbfx-${nbfx.version}"/>
+    <property name="nbfx.release.src" location="${nbfx.release.dir}/${nbfx.release.name}-src.tar.gz"/>
+    <property name="nbfx.release.bin" location="${nbfx.release.dir}/${nbfx.release.name}-bin.zip"/>
+    <property name="nbfx.rat.jar" location="${nbfx.build.dir}/tools/apache-rat-${nbfx.rat.version}.jar"/>
+
+    <condition property="nbfx.release.tag" value="${nbfx.version}-${nbfx.rc}" else="${nbfx.version}">
+        <and>
+            <isset property="nbfx.rc"/>
+            <not><equals arg1="${nbfx.rc}" arg2=""/></not>
+        </and>
+    </condition>
+
+    <!-- ======================================================================== -->
+    <!-- rat                                                                      -->
+    <!-- ======================================================================== -->
+
+    <target name="-rat-jar">
+        <mkdir dir="${nbfx.build.dir}/tools"/>
+        <get src="https://repo1.maven.org/maven2/org/apache/rat/apache-rat/${nbfx.rat.version}/apache-rat-${nbfx.rat.version}.jar"
+             dest="${nbfx.rat.jar}" skipexisting="true"/>
+        <checksum file="${nbfx.rat.jar}" algorithm="SHA-256" property="${nbfx.rat.sha256}" verifyproperty="nbfx.rat.ok"/>
+        <fail message="${nbfx.rat.jar} does not match nbfx.rat.sha256; delete it and retry">
+            <condition><isfalse value="${nbfx.rat.ok}"/></condition>
+        </fail>
+    </target>
+
+    <!-- runs Rat over @{dir}; the netbeans submodule and git-ignored files are never scanned -->
+    <macrodef name="nbfx-rat">
+        <attribute name="dir"/>
+        <attribute name="report"/>
+        <sequential>
+            <mkdir dir="${nbfx.build.dir}/rat"/>
+            <java jar="${nbfx.rat.jar}" fork="true" resultproperty="nbfx.rat.result.@{report}">
+                <arg line="--input-exclude-std MISC GIT IDEA MAC"/>
+                <arg line="--input-exclude-parsed-scm GIT"/>
+                <arg line="--input-exclude netbeans/** build/**"/>
+                <arg value="--input-exclude-file"/>
+                <arg file="${basedir}/release/rat-excludes.txt"/>
+                <arg value="--output-file"/>
+                <arg file="${nbfx.build.dir}/rat/@{report}.txt"/>
+                <arg value="--"/>
+                <arg file="@{dir}"/>
+            </java>
+            <fail message="Rat found files without an approved licence header; see ${nbfx.build.dir}/rat/@{report}.txt (section 'Files with unapproved licenses')">
+                <condition><not><equals arg1="${nbfx.rat.result.@{report}}" arg2="0"/></not></condition>
+            </fail>
+            <echo message="[nbfx] rat: all files carry an approved licence (@{dir})"/>
+        </sequential>
+    </macrodef>
+
+    <target name="rat" depends="-rat-jar" description="Check the licence headers of the nbfx sources (Apache Rat)">
+        <nbfx-rat dir="${basedir}" report="rat-report"/>
+    </target>
+
+    <!-- ======================================================================== -->
+    <!-- release                                                                  -->
+    <!-- ======================================================================== -->
+
+    <target name="-release-check">
+        <fail message="Set nbfx.version in nbfx.properties">
+            <condition><not><isset property="nbfx.version"/></not></condition>
+        </fail>
+        <!-- the submodule is always modified (patches, overlay), so it is ignored here -->
+        <exec executable="git" dir="${basedir}" outputproperty="nbfx.release.dirty" failonerror="true">
+            <arg line="status --porcelain --ignore-submodules=all"/>
+        </exec>
+        <exec executable="git" dir="${basedir}" outputproperty="nbfx.release.head.tags" failonerror="true">
+            <arg line="tag --points-at HEAD"/>
+        </exec>
+        <condition property="nbfx.release.tagged">
+            <matches string="${nbfx.release.head.tags}" pattern="(?m)^\Q${nbfx.release.tag}\E$"/>
+        </condition>
+        <fail message="The working tree has uncommitted changes:${line.separator}${nbfx.release.dirty}">
+            <condition>
+                <and>
+                    <not><equals arg1="${nbfx.release.dirty}" arg2=""/></not>
+                    <not><istrue value="${nbfx.release.dryrun}"/></not>
+                </and>
+            </condition>
+        </fail>
+        <fail message="HEAD is not tagged ${nbfx.release.tag}; tag it (git tag -s -a ${nbfx.release.tag}) or pass -Dnbfx.release.dryrun=true">
+            <condition>
+                <and>
+                    <not><isset property="nbfx.release.tagged"/></not>
+                    <not><istrue value="${nbfx.release.dryrun}"/></not>
+                </and>
+            </condition>
+        </fail>
+        <echo message="[nbfx] releasing ${nbfx.release.name} (tag ${nbfx.release.tag})"/>
+    </target>
+
+    <target name="release-src" depends="-release-check"
+            description="Create the source release build/release/nbfx-VERSION-src.tar.gz (git archive of HEAD)">
+        <mkdir dir="${nbfx.release.dir}"/>
+        <!-- git archive is reproducible: the same commit gives the same bytes -->
+        <exec executable="git" dir="${basedir}" failonerror="true">
+            <arg value="archive"/>
+            <arg value="--format=tar.gz"/>
+            <arg value="--prefix=${nbfx.release.name}/"/>
+            <arg value="--output=${nbfx.release.src}"/>
+            <arg value="HEAD"/>
+        </exec>
+        <echo message="[nbfx] ${nbfx.release.src}"/>
+    </target>
+
+    <target name="release-bin" depends="-release-check,build"
+            description="Create the convenience binary build/release/nbfx-VERSION-bin.zip (the nbfx cluster config)">
+        <property name="nbfx.dist.dir" location="${nbfx.sub.dir}/nbbuild/netbeans"/>
+        <!-- upstream licence summary of the bundled NetBeans libraries (LICENSE, NOTICE, licenses/) -->
+        <ant antfile="${nbfx.sub.dir}/nbbuild/build.xml" dir="${nbfx.sub.dir}/nbbuild"
+             target="create-mandatory-files-for-binary" inheritall="false">
+            <property name="cluster.config" value="${nbfx.cluster.config}"/>
+            <property name="clusters.list.file" location="${nbfx.cluster.file}"/>
+        </ant>
+        <!-- add the nbfx parts: the JavaFX licence (its jars are not in the upstream summary) and the notice -->
+        <concat destfile="${nbfx.dist.dir}/LICENSE" append="true" fixlastline="yes">
+            <filelist dir="${basedir}/release" files="bin-LICENSE-nbfx.txt"/>
+        </concat>
+        <concat destfile="${nbfx.dist.dir}/NOTICE.nbfx" fixlastline="yes">
+            <filelist dir="${basedir}" files="NOTICE"/>
+            <string>${line.separator}</string>
+            <filelist dir="${nbfx.dist.dir}" files="NOTICE"/>
+        </concat>
+        <move file="${nbfx.dist.dir}/NOTICE.nbfx" tofile="${nbfx.dist.dir}/NOTICE" overwrite="true"/>
+        <copy file="${basedir}/THIRDPARTY" todir="${nbfx.dist.dir}" overwrite="true"/>
+        <copy file="${basedir}/KEYS" todir="${nbfx.dist.dir}" overwrite="true"/>
+        <delete file="${nbfx.release.bin}" quiet="true"/>
+        <mkdir dir="${nbfx.release.dir}"/>
+        <ant antfile="${nbfx.sub.dir}/nbbuild/build.xml" dir="${nbfx.sub.dir}/nbbuild"
+             target="zip-cluster-config" inheritall="false">
+            <property name="cluster.config" value="${nbfx.cluster.config}"/>
+            <property name="clusters.list.file" location="${nbfx.cluster.file}"/>
+            <property name="netbeans.dest" value="${nbfx.release.name}"/>
+            <property name="zip.name" location="${nbfx.release.bin}"/>
+        </ant>
+        <!-- zip-cluster-config only takes LICENSE, NOTICE, licenses/** and *.txt from the dist root -->
+        <zip destfile="${nbfx.release.bin}" update="true">
+            <zipfileset dir="${nbfx.dist.dir}" includes="THIRDPARTY,KEYS" prefix="${nbfx.release.name}"/>
+        </zip>
+        <echo message="[nbfx] ${nbfx.release.bin}"/>
+    </target>
+
+    <target name="release-sign" description="Sign (.asc) and checksum (.sha512) the release artefacts">
+        <fail unless="nbfx.gpg.key" message="Set -Dnbfx.gpg.key=&lt;fingerprint&gt; (a key that is in KEYS)"/>
+        <fileset id="nbfx.release.artefacts" dir="${nbfx.release.dir}" includes="*.tar.gz,*.zip"/>
+        <delete quiet="true">
+            <fileset dir="${nbfx.release.dir}" includes="*.asc,*.sha512"/>
+        </delete>
+        <apply executable="gpg" dir="${nbfx.release.dir}" failonerror="true" parallel="false" dest="${nbfx.release.dir}">
+            <arg value="--local-user"/>
+            <arg value="${nbfx.gpg.key}"/>
+            <arg value="--armor"/>
+            <arg value="--detach-sign"/>
+            <arg value="--output"/>
+            <targetfile/>
+            <srcfile/>
+            <fileset refid="nbfx.release.artefacts"/>
+            <globmapper from="*" to="*.asc"/>
+        </apply>
+        <!-- "<hash> *<file>": the format sha512sum -c and shasum -a 512 -c read -->
+        <checksum algorithm="SHA-512" fileext=".sha512" format="MD5SUM" forceoverwrite="true">
+            <fileset refid="nbfx.release.artefacts"/>
+        </checksum>
+        <echo message="[nbfx] signed with ${nbfx.gpg.key}"/>
+    </target>
+
+    <target name="release-verify" depends="-rat-jar"
+            description="Verify the release artefacts: signatures against KEYS, checksums, licence files, Rat">
+        <property name="nbfx.verify.dir" location="${nbfx.build.dir}/release-verify"/>
+        <delete dir="${nbfx.verify.dir}"/>
+        <mkdir dir="${nbfx.verify.dir}/gnupg"/>
+        <chmod dir="${nbfx.verify.dir}/gnupg" perm="700" type="dir"/>
+        <!-- a fresh keyring that only knows the keys in KEYS -->
+        <exec executable="gpg" failonerror="true">
+            <arg value="--homedir"/>
+            <arg file="${nbfx.verify.dir}/gnupg"/>
+            <arg value="--batch"/>
+            <arg value="--import"/>
+            <arg file="${basedir}/KEYS"/>
+        </exec>
+        <apply executable="gpg" dir="${nbfx.release.dir}" failonerror="true" parallel="false">
+            <arg value="--homedir"/>
+            <arg file="${nbfx.verify.dir}/gnupg"/>
+            <arg value="--batch"/>
+            <arg value="--verify"/>
+            <srcfile/>
+            <targetfile/>
+            <fileset dir="${nbfx.release.dir}" includes="*.asc"/>
+            <globmapper from="*.asc" to="*"/>
+        </apply>
+        <checksum algorithm="SHA-512" fileext=".sha512" format="MD5SUM" verifyproperty="nbfx.release.sums.ok">
+            <fileset dir="${nbfx.release.dir}" includes="*.tar.gz,*.zip"/>
+        </checksum>
+        <fail message="A .sha512 file does not match its artefact">
+            <condition><isfalse value="${nbfx.release.sums.ok}"/></condition>
+        </fail>
+        <!-- the source release: licence files present, Rat clean -->
+        <untar src="${nbfx.release.src}" dest="${nbfx.verify.dir}/src" compression="gzip"/>
+        <nbfx-verify-files dir="${nbfx.verify.dir}/src/${nbfx.release.name}" files="LICENSE,NOTICE,THIRDPARTY,KEYS" count="4"/>
+        <nbfx-rat dir="${nbfx.verify.dir}/src/${nbfx.release.name}" report="rat-release-src"/>
+        <!-- the binary: licence files present, including the JavaFX licence -->
+        <unzip src="${nbfx.release.bin}" dest="${nbfx.verify.dir}/bin"/>
+        <nbfx-verify-files dir="${nbfx.verify.dir}/bin/${nbfx.release.name}"
+                           files="LICENSE,NOTICE,THIRDPARTY,KEYS,nbfx-platform/legal/javafx/LICENSE" count="5"/>
+        <loadfile property="nbfx.verify.bin.license" srcFile="${nbfx.verify.dir}/bin/${nbfx.release.name}/LICENSE"/>
+        <fail message="The binary LICENSE does not mention OpenJFX">
+            <condition><not><contains string="${nbfx.verify.bin.license}" substring="OpenJFX"/></not></condition>
+        </fail>
+        <!-- no javafx.web / WebKit in the bundle (Appendix G) -->
+        <fail message="javafx.web must not be bundled">
+            <condition>
+                <resourcecount when="greater" count="0">
+                    <fileset dir="${nbfx.verify.dir}/bin" includes="**/javafx.web*.jar,**/*jfxwebkit*"/>
+                </resourcecount>
+            </condition>
+        </fail>
+        <echo message="[nbfx] release artefacts verified: signatures, checksums, licence files, Rat"/>
+    </target>
+
+    <!-- fails unless all @{count} comma-separated @{files} exist under @{dir} -->
+    <macrodef name="nbfx-verify-files">
+        <attribute name="dir"/>
+        <attribute name="files"/>
+        <attribute name="count"/>
+        <sequential>
+            <fail message="@{dir} must contain all of: @{files}">
+                <condition>
+                    <resourcecount when="ne" count="@{count}">
+                        <fileset dir="@{dir}" includes="@{files}"/>
+                    </resourcecount>
+                </condition>
+            </fail>
+        </sequential>
+    </macrodef>
+
+    <target name="release" depends="release-src,release-bin,release-sign,release-verify"
+            description="Build, sign and verify the release artefacts (-Dnbfx.rc=rc1 -Dnbfx.gpg.key=...)"/>
+
+</project>

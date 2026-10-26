@@ -1,0 +1,16 @@
+
+********************************************************************************
+nbfx
+
+nbfx itself is licensed under the Apache License, Version 2.0 (above).
+
+nbfx bundles the OpenJFX (JavaFX) 27 runtime, licensed under the GNU General
+Public License, version 2, with the Classpath Exception:
+
+  nbfx-platform/modules/ext/javafx.*.jar, nbfx-platform/modules/ext/jfx.*.jar
+  nbfx-platform/modules/lib/**   (native libraries)
+
+Licence texts:    nbfx-platform/legal/javafx/
+Component list:   THIRDPARTY
+Source code:      https://github.com/openjdk/jfx (branch jfx27)
+********************************************************************************

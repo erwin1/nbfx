@@ -198,11 +198,25 @@ sync from — only the `netbeans` submodule pin is updated over time.
 - `ant check-purity` reports `0/0/0/0` (sources, deps, bundled classes, packaging).
 - Session/Recent Projects survive (preferences paths are unaffected by the layout).
 
-## 8. Known constraints
+## 8. Releases
+
+Releases follow the Apache procedure as far as a non-ASF project can; the full procedure, and where it
+differs from Apache, is in [`RELEASING.md`](../RELEASING.md). The targets live in `release/release.xml`,
+imported by `build.xml`:
+
+```sh
+ant rat                                              # licence headers (Apache Rat, pinned in nbfx.properties)
+ant release -Dnbfx.rc=rc1 -Dnbfx.gpg.key=<fpr>       # release-src + release-bin + release-sign + release-verify
+```
+
+A source release has no `.git`, so `ant bootstrap` fetches the pinned `nbfx.submodule.commit` of
+apache/netbeans directly (shallow) instead of initialising the submodule.
+
+## 9. Known constraints
 
 - **Bundled JavaFX runtime.** `nbfx-platform/c.gluonhq.netbeans.nbfx.lib.javafx` commits the JavaFX 27
-  runtime (~16 MB): `release/modules/ext/*.jar` plus natives for macOS, Windows x64 (`amd64/`) and
-  Linux x64 (`amd64/linux/`). There is **no arm64** build yet. The `0012` patch keeps these out of the
+  runtime (~16 MB): `release/modules/ext/*.jar` plus natives for macOS aarch64, Windows x64 (`amd64/`) and
+  Linux x64 (`amd64/linux/`). There is **no macOS x64 and no Windows/Linux arm64** build yet. The `0012` patch keeps these out of the
   external-binaries licence check; migrating them to the `external/` download mechanism is a follow-up.
 - **`lib.javafx` cluster placement.** Several modules reference
   `../c.gluonhq.netbeans.nbfx.lib.javafx/release/modules/lib` via `test-unit-sys-prop.java.library.path`,
