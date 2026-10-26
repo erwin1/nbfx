@@ -1,0 +1,44 @@
+Third-party components bundled with nbfx
+========================================
+
+Every bundled third-party artefact is listed here with its version, licence
+and upstream location. The rules are in docs/plan/appendix/G-licences-and-notices.md.
+
+--------------------------------------------------------------------------------
+OpenJFX (JavaFX)
+--------------------------------------------------------------------------------
+Version:   27 (nbfx-platform/c.gluonhq.netbeans.nbfx.lib.javafx/javafx.version)
+Licence:   GNU General Public License, version 2, with the Classpath Exception
+Upstream:  https://openjfx.io/ - source: https://github.com/openjdk/jfx (branch jfx27)
+Module:    nbfx-platform/c.gluonhq.netbeans.nbfx.lib.javafx
+
+Bundled files (source tree: release/modules/..., binary: nbfx-platform/modules/...):
+  ext/javafx.base.jar, ext/javafx.graphics.jar, ext/javafx.controls.jar,
+  ext/javafx.fxml.jar, ext/jfx.incubator.richtext.jar, ext/jfx.incubator.input.jar
+  lib/*.dylib        native libraries, macOS aarch64
+  lib/amd64/*.dll    native libraries, Windows x64
+  lib/amd64/linux/*  native libraries, Linux x64
+
+javafx.web (WebKit) and javafx.media are NOT bundled.
+
+Licence texts (source tree: .../lib.javafx/release/legal/javafx/,
+binary: nbfx-platform/legal/javafx/):
+  LICENSE                  GPLv2 with the Classpath Exception
+  ADDITIONAL_LICENSE_INFO  how the Classpath Exception applies
+  ASSEMBLY_EXCEPTION       OpenJDK assembly exception
+  gcc.md                   GCC runtime library (Linux natives)
+  jpeg_fx.md               Independent JPEG Group (javafx.graphics)
+  mesa3d.md                Mesa 3-D (javafx.graphics, Linux)
+  pipewire.md              PipeWire (javafx.graphics, Linux)
+  unicode-fx.md            Unicode data (jfx.incubator.richtext)
+
+The corresponding source code of the OpenJFX modules is available from the
+upstream repository above, branch jfx27.
+
+--------------------------------------------------------------------------------
+Microsoft Visual C++ / Universal C runtime (Windows only)
+--------------------------------------------------------------------------------
+Files:     lib/amd64/api-ms-win-*.dll, ucrtbase.dll, vcruntime140*.dll,
+           msvcp140*.dll
+Licence:   Microsoft redistributable runtime, shipped as part of the
+           OpenJFX Windows SDK
