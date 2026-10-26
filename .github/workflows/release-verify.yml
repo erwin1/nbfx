@@ -16,6 +16,9 @@
 #   - the source release is exactly `git archive` of the tag, rebuilt here on a clean runner
 #   - the unpacked source release builds (fetching the pinned NetBeans revision)
 #
+# The checks run with the tooling (release/release.xml) and the KEYS of the default branch, so a fix
+# to the tooling does not need a new tag; the tag is only the source the tarball is compared with.
+#
 # Runs when a release is published, or by hand on a draft before it is published:
 #   gh workflow run release-verify.yml -f tag=0.1.0-rc1
 # The result is posted on the release checklist issue.
@@ -52,7 +55,10 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
-          ref: refs/tags/${{ env.TAG }}
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Fetch the tag
+        run: git fetch --depth 1 origin "+refs/tags/$TAG:refs/tags/$TAG"
 
       - name: Download the release files
         run: |
@@ -72,7 +78,8 @@ jobs:
 
       - name: Signatures, checksums, licence files, Rat
         id: artefacts
-        run: ant release-verify
+        # the version of the tag, not the default branch's (bumped after a release)
+        run: ant release-verify -Dnbfx.version=${{ steps.version.outputs.version }}
 
       - name: The source release is git archive of the tag
         id: reproducible
