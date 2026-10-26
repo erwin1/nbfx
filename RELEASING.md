@@ -57,6 +57,13 @@ same bytes again.
    (gpg --list-sigs <FINGERPRINT> && gpg --armor --export <FINGERPRINT>) >> KEYS
    ```
 4. Back up the secret key and the revocation certificate (`~/.gnupg/openpgp-revocs.d/`).
+5. On macOS, use a GUI passphrase prompt: `ant release` runs gpg without a terminal, where the default
+   curses prompt fails with *Inappropriate ioctl for device*:
+   ```sh
+   brew install pinentry-mac
+   echo "pinentry-program $(brew --prefix)/bin/pinentry-mac" >> ~/.gnupg/gpg-agent.conf
+   gpgconf --kill gpg-agent
+   ```
 
 Extend an expiring key with `gpg --quick-set-expire <FINGERPRINT> 2y`, then re-publish it and replace its
 `KEYS` entry.
