@@ -1,10 +1,10 @@
 package com.gluonhq.netbeans.nbfx.propertysheet;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxActionReference;
-import com.gluonhq.netbeans.nbfx.annotations.FxViewLocation;
-import com.gluonhq.netbeans.nbfx.annotations.FxViewRegistration;
+import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
+import com.gluonhq.netbeans.nbfx.annotations.ViewLocation;
+import com.gluonhq.netbeans.nbfx.annotations.ViewRegistration;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionIds;
-import com.gluonhq.netbeans.nbfx.api.actions.FxActionContext;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionContext;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
 import com.gluonhq.netbeans.nbfx.api.project.OpenProject;
 import com.gluonhq.netbeans.nbfx.api.view.DockLocation;
@@ -19,7 +19,7 @@ import org.openide.util.lookup.ServiceProvider;
 
 /**
  * The Properties window: a dockable tab on the right showing the {@link FxPropertySheet} for the
- * current global action context ({@link FxActionContext}) - the file selected in a navigator view,
+ * current global action context ({@link ActionContext}) - the file selected in a navigator view,
  * the active editor document, or the selected project.
  * <p>
  * This is the FX counterpart of the Swing {@code NbSheet}: it follows the global selection rather
@@ -27,9 +27,9 @@ import org.openide.util.lookup.ServiceProvider;
  * {@code Window &gt; IDE Tools &gt; Properties} action or a file's context menu.
  */
 @ServiceProvider(service = ViewProvider.class)
-@FxViewRegistration(id = PropertiesView.ID, displayName = "Properties",
-        location = FxViewLocation.RIGHT, position = 100)
-@FxActionReference(id = ActionIds.SELECT_PROPERTIES, path = "Menus/Window/IDE Tools", position = 10)
+@ViewRegistration(id = PropertiesView.ID, displayName = "Properties",
+        location = ViewLocation.RIGHT, position = 100)
+@ActionReference(id = ActionIds.SELECT_PROPERTIES, path = "Menus/Window/IDE Tools", position = 10)
 public final class PropertiesView implements ViewProvider {
 
     /** The stable id of the view. */
@@ -39,7 +39,7 @@ public final class PropertiesView implements ViewProvider {
 
     /** Creates the view. Must be called on the JavaFX Application Thread. */
     public PropertiesView() {
-        FxActionContext context = FxActionContext.getDefault();
+        ActionContext context = ActionContext.getDefault();
         if (context != null) {
             for (Class<?> type : List.of(FileObject.class, EditorDocument.class, OpenProject.class,
                     ViewProvider.class)) {
@@ -55,7 +55,7 @@ public final class PropertiesView implements ViewProvider {
      * follows the active component (§22), so no per-consumer precedence is needed: an editor
      * contributes its document, a navigator its selected file.
      */
-    private void updateContext(FxActionContext context) {
+    private void updateContext(ActionContext context) {
         Object selected = firstNonNull(context.lookup(EditorDocument.class), context.lookup(FileObject.class),
                 context.lookup(OpenProject.class));
         sheet.setContext(selected);

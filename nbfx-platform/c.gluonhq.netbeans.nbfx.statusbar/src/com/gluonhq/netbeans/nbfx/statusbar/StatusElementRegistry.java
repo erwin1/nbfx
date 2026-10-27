@@ -18,8 +18,8 @@
  */
 package com.gluonhq.netbeans.nbfx.statusbar;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxLayer;
-import com.gluonhq.netbeans.nbfx.annotations.FxStatusAlignment;
+import com.gluonhq.netbeans.nbfx.annotations.LayerPaths;
+import com.gluonhq.netbeans.nbfx.annotations.StatusAlignment;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -35,7 +35,7 @@ import org.openide.util.lookup.Lookups;
  * Instances are resolved through the folder's {@link Lookup}; the registered {@code alignment} and
  * {@code position} attributes, read straight from the configuration filesystem, take precedence
  * over the values reported by the element itself, so placement is declared with
- * {@code @FxStatusRegistration} rather than in code.
+ * {@code @StatusRegistration} rather than in code.
  *
  * @since 1.0
  */
@@ -64,12 +64,12 @@ public final class StatusElementRegistry {
      * @return all elements, ordered by slot, position and id
      */
     public static List<StatusElement> discover(List<StatusElement> additional) {
-        Lookup lookup = Lookups.forPath(FxLayer.STATUS);
-        FileObject folder = FileUtil.getConfigFile(FxLayer.STATUS);
+        Lookup lookup = Lookups.forPath(LayerPaths.STATUS);
+        FileObject folder = FileUtil.getConfigFile(LayerPaths.STATUS);
         List<StatusElement> elements = new ArrayList<>(additional);
         for (FxStatusElement element : lookup.lookupAll(FxStatusElement.class)) {
             FileObject file = folder == null ? null : folder.getFileObject(element.getId(), "instance");
-            FxStatusAlignment alignment = file == null
+            StatusAlignment alignment = file == null
                     ? element.alignment()
                     : parseAlignment(file.getAttribute("alignment"), element.alignment());
             int position = file == null
@@ -90,10 +90,10 @@ public final class StatusElementRegistry {
         return List.copyOf(sorted);
     }
 
-    private static FxStatusAlignment parseAlignment(Object value, FxStatusAlignment fallback) {
+    private static StatusAlignment parseAlignment(Object value, StatusAlignment fallback) {
         if (value instanceof String name) {
             try {
-                return FxStatusAlignment.valueOf(name);
+                return StatusAlignment.valueOf(name);
             } catch (IllegalArgumentException ex) {
                 LOG.warning("Unknown status alignment: " + name);
             }

@@ -18,8 +18,8 @@
  */
 package com.gluonhq.netbeans.nbfx.windows;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxViewRegistration.FxPersistenceType;
-import com.gluonhq.netbeans.nbfx.api.view.FxArea;
+import com.gluonhq.netbeans.nbfx.annotations.ViewRegistration.PersistenceType;
+import com.gluonhq.netbeans.nbfx.api.view.ViewArea;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -48,7 +48,7 @@ import org.openide.util.lookup.ServiceProvider;
  * local folders:
  * <ul>
  *   <li>the <b>layer defaults</b> derived from the view registrations ({@link ViewRegistry}): the
- *       {@linkplain FxArea#defaults() areas}, their default tab order and the start-up tabs
+ *       {@linkplain ViewArea#defaults() areas}, their default tab order and the start-up tabs
  *       ({@code openAtStartup} / {@code navigator}); and</li>
  *   <li>the <b>persisted state</b> ({@link ViewStateStore}): what the user moved, opened, closed,
  *       detached and resized last session. When present it overrides the layer defaults per area;
@@ -96,12 +96,12 @@ public final class FxWindowSystem {
         }
     };
 
-    private final Supplier<List<ViewRegistration>> registrations;
+    private final Supplier<List<ViewSpec>> registrations;
     private final ViewStateStore store;
     private final List<FxWindowSystemListener> listeners = new ArrayList<>();
     private volatile WindowSink sink;
 
-    private List<ViewRegistration> discovered;
+    private List<ViewSpec> discovered;
     private Phase phase = Phase.IDLE;
 
     /**
@@ -121,7 +121,7 @@ public final class FxWindowSystem {
      * @param store         the persisted-state store
      * @param sink          the JavaFX shell adapter, or {@code null} until {@link #setSink(WindowSink)}
      */
-    FxWindowSystem(Supplier<List<ViewRegistration>> registrations, ViewStateStore store, WindowSink sink) {
+    FxWindowSystem(Supplier<List<ViewSpec>> registrations, ViewStateStore store, WindowSink sink) {
         this.registrations = Objects.requireNonNull(registrations, "registrations");
         this.store = Objects.requireNonNull(store, "store");
         this.sink = sink;
@@ -238,21 +238,21 @@ public final class FxWindowSystem {
 
     /** The layer-derived defaults: the areas in default order with their start-up tabs. */
     private List<AreaState> defaultAreas() {
-        Map<String, List<ViewRegistration>> byArea = new LinkedHashMap<>();
-        for (FxArea area : FxArea.defaults()) {
+        Map<String, List<ViewSpec>> byArea = new LinkedHashMap<>();
+        for (ViewArea area : ViewArea.defaults()) {
             byArea.put(area.id(), new ArrayList<>());
         }
-        for (ViewRegistration registration : discovered) {
-            List<ViewRegistration> areaViews = byArea.computeIfAbsent(registration.area().id(), k -> new ArrayList<>());
+        for (ViewSpec registration : discovered) {
+            List<ViewSpec> areaViews = byArea.computeIfAbsent(registration.area().id(), k -> new ArrayList<>());
             areaViews.add(registration);
         }
         List<AreaState> areas = new ArrayList<>();
-        for (Map.Entry<String, List<ViewRegistration>> entry : byArea.entrySet()) {
-            List<ViewRegistration> areaViews = entry.getValue();
-            areaViews.sort(Comparator.comparingInt(ViewRegistration::position)
-                    .thenComparing(ViewRegistration::id));
+        for (Map.Entry<String, List<ViewSpec>> entry : byArea.entrySet()) {
+            List<ViewSpec> areaViews = entry.getValue();
+            areaViews.sort(Comparator.comparingInt(ViewSpec::position)
+                    .thenComparing(ViewSpec::id));
             List<String> attached = new ArrayList<>();
-            for (ViewRegistration registration : areaViews) {
+            for (ViewSpec registration : areaViews) {
                 if (isAttachableAtStartup(registration)) {
                     attached.add(registration.id());
                 }
@@ -262,16 +262,16 @@ public final class FxWindowSystem {
         return areas;
     }
 
-    private static boolean isAttachableAtStartup(ViewRegistration registration) {
+    private static boolean isAttachableAtStartup(ViewSpec registration) {
         return (registration.openAtStartup() || registration.navigator())
-                && registration.persistenceType() != FxPersistenceType.NEVER;
+                && registration.persistenceType() != PersistenceType.NEVER;
     }
 
     /** The layer-derived default per-view payloads: nothing for now, but a seam for layer defaults. */
     private Map<String, String> defaultViewPayloads() {
         Map<String, String> payloads = new HashMap<>();
-        for (ViewRegistration registration : discovered) {
-            if (registration.persistenceType() != FxPersistenceType.NEVER) {
+        for (ViewSpec registration : discovered) {
+            if (registration.persistenceType() != PersistenceType.NEVER) {
                 payloads.put(registration.id(), "");
             }
         }
@@ -335,7 +335,7 @@ public final class FxWindowSystem {
     }
 
     private boolean registered(String viewId) {
-        for (ViewRegistration registration : discovered) {
+        for (ViewSpec registration : discovered) {
             if (registration.id().equals(viewId)) {
                 return true;
             }
@@ -344,9 +344,9 @@ public final class FxWindowSystem {
     }
 
     private boolean isNever(String viewId) {
-        for (ViewRegistration registration : discovered) {
+        for (ViewSpec registration : discovered) {
             if (registration.id().equals(viewId)) {
-                return registration.persistenceType() == FxPersistenceType.NEVER;
+                return registration.persistenceType() == PersistenceType.NEVER;
             }
         }
         return false;

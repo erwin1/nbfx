@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.wizard;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxLayer;
+import com.gluonhq.netbeans.nbfx.annotations.LayerPaths;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -46,9 +46,9 @@ public final class WizardRegistry {
      *
      * @return the wizard registrations, ordered by category, position and id
      */
-    public static List<WizardRegistration> discover() {
-        Lookup lookup = Lookups.forPath(FxLayer.WIZARDS);
-        FileObject folder = FileUtil.getConfigFile(FxLayer.WIZARDS);
+    public static List<WizardEntry> discover() {
+        Lookup lookup = Lookups.forPath(LayerPaths.WIZARDS);
+        FileObject folder = FileUtil.getConfigFile(LayerPaths.WIZARDS);
         return read(folder, lookup.lookupAll(FxWizard.class));
     }
 
@@ -56,14 +56,14 @@ public final class WizardRegistry {
     public static FxWizard find(String id) {
         return discover().stream()
                 .filter(registration -> registration.id().equals(id))
-                .map(WizardRegistration::wizard)
+                .map(WizardEntry::wizard)
                 .findFirst()
                 .orElse(null);
     }
 
     /** Reads the registrations of {@code wizards}, taking metadata from {@code folder}'s attributes. */
-    static List<WizardRegistration> read(FileObject folder, Iterable<? extends FxWizard> wizards) {
-        List<WizardRegistration> registrations = new ArrayList<>();
+    static List<WizardEntry> read(FileObject folder, Iterable<? extends FxWizard> wizards) {
+        List<WizardEntry> registrations = new ArrayList<>();
         for (FxWizard wizard : wizards) {
             String id = wizard.getId();
             FileObject file = folder == null ? null : folder.getFileObject(id, "instance");
@@ -71,18 +71,18 @@ public final class WizardRegistry {
             String iconName = stringAttribute(file, "iconName", "");
             String category = stringAttribute(file, "category", "");
             int position = intAttribute(file, "position", Integer.MAX_VALUE);
-            registrations.add(new WizardRegistration(id, displayName, iconName, category, position, wizard));
+            registrations.add(new WizardEntry(id, displayName, iconName, category, position, wizard));
         }
         return sort(registrations);
     }
 
     /** Orders wizards by category, then position, then id. */
-    static List<WizardRegistration> sort(List<WizardRegistration> registrations) {
-        List<WizardRegistration> sorted = new ArrayList<>(registrations);
+    static List<WizardEntry> sort(List<WizardEntry> registrations) {
+        List<WizardEntry> sorted = new ArrayList<>(registrations);
         sorted.sort(Comparator
-                .comparing(WizardRegistration::category)
-                .thenComparingInt(WizardRegistration::position)
-                .thenComparing(WizardRegistration::id));
+                .comparing(WizardEntry::category)
+                .thenComparingInt(WizardEntry::position)
+                .thenComparing(WizardEntry::id));
         return List.copyOf(sorted);
     }
 

@@ -26,13 +26,13 @@ import javafx.scene.input.KeyCombination;
 
 /**
  * A {@link ContextSensitiveCommand} built from functions: enablement is a {@link Predicate} over the
- * global {@link FxActionContext} and behaviour is a {@link Consumer} of it. This covers the many
+ * global {@link ActionContext} and behaviour is a {@link Consumer} of it. This covers the many
  * commands that only need to read the current selection, so they do not each need a dedicated class.
  */
 public class ContextAction extends ContextSensitiveCommand {
 
-    private final Predicate<FxActionContext> enabled;
-    private final Consumer<FxActionContext> action;
+    private final Predicate<ActionContext> enabled;
+    private final Consumer<ActionContext> action;
 
     /**
      * Creates a context-sensitive command from functions.
@@ -46,7 +46,7 @@ public class ContextAction extends ContextSensitiveCommand {
      */
     @SuppressWarnings("this-escape")
     public ContextAction(String id, String text, KeyCombination accelerator,
-            Predicate<FxActionContext> enabled, Consumer<FxActionContext> action,
+            Predicate<ActionContext> enabled, Consumer<ActionContext> action,
             Class<?>... observedTypes) {
         super(id, text, accelerator, observedTypes);
         this.enabled = Objects.requireNonNull(enabled);
@@ -54,13 +54,13 @@ public class ContextAction extends ContextSensitiveCommand {
     }
 
     @Override
-    protected boolean isEnabled(FxActionContext context) {
+    protected boolean isEnabled(ActionContext context) {
         return enabled.test(context);
     }
 
     @Override
     public void run() {
-        FxActionContext context = context();
+        ActionContext context = context();
         if (context != null) {
             action.accept(context);
         }

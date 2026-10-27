@@ -20,14 +20,14 @@ package com.gluonhq.netbeans.nbfx.output;
 
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.SELECT_OUTPUT;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxActionReference;
+import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
 
 /**
  * Declares the Window ▸ Output entry in the layer, next to the other view-selection entries.
  * <p>
  * This class carries metadata only; it is never instantiated.
  */
-@FxActionReference(id = SELECT_OUTPUT, path = "Menus/Window", position = 55)
+@ActionReference(id = SELECT_OUTPUT, path = "Menus/Window", position = 55)
 final class OutputMenuRegistrations {
 
     private OutputMenuRegistrations() {

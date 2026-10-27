@@ -18,10 +18,10 @@
  */
 package com.gluonhq.netbeans.nbfx.project;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxWizardRegistration;
+import com.gluonhq.netbeans.nbfx.annotations.WizardRegistration;
 import com.gluonhq.netbeans.nbfx.api.ContentManager;
 import com.gluonhq.netbeans.nbfx.api.ErrorReporter;
-import com.gluonhq.netbeans.nbfx.api.actions.FxActionContext;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionContext;
 import com.gluonhq.netbeans.nbfx.api.project.OpenProject;
 import com.gluonhq.netbeans.nbfx.api.project.ProjectRegistry;
 import com.gluonhq.netbeans.nbfx.wizard.FxWizard;
@@ -51,7 +51,7 @@ import org.openide.util.NbBundle;
  *
  * @since 1.0
  */
-@FxWizardRegistration(id = NewFileWizard.ID, displayName = "Java Class",
+@WizardRegistration(id = NewFileWizard.ID, displayName = "Java Class",
         category = "File", position = 10)
 public final class NewFileWizard implements FxWizard {
 
@@ -180,7 +180,7 @@ public final class NewFileWizard implements FxWizard {
     }
 
     private static String defaultFolder() {
-        FxActionContext context = FxActionContext.getDefault();
+        ActionContext context = ActionContext.getDefault();
         if (context != null) {
             for (FileObject first : context.lookupAll(FileObject.class)) {
                 FileObject directory = first.isFolder() ? first : first.getParent();

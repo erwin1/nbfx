@@ -1,13 +1,13 @@
 package com.gluonhq.netbeans.nbfx.context;
 
-import com.gluonhq.netbeans.nbfx.api.actions.FxActionContext;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionContext;
 
 import org.openide.util.Lookup;
 import org.openide.util.Utilities;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
- * Default {@link FxActionContext}: a thin wrapper over the NetBeans global context
+ * Default {@link ActionContext}: a thin wrapper over the NetBeans global context
  * ({@link Utilities#actionsGlobalContext()}).
  * <p>
  * It carries no domain knowledge and no selection logic of its own: the nbfx
@@ -16,8 +16,8 @@ import org.openide.util.lookup.ServiceProvider;
  * TopComponent. Domain objects that are not carried directly are resolved on demand by per-domain
  * facades (for example {@code ProjectContext}).
  */
-@ServiceProvider(service = FxActionContext.class)
-public final class FxActionContextImpl extends FxActionContext {
+@ServiceProvider(service = ActionContext.class)
+public final class FxActionContextImpl extends ActionContext {
 
     private final Lookup delegate;
 

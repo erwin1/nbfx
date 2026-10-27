@@ -18,9 +18,9 @@
  */
 package com.gluonhq.netbeans.nbfx.windows;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxViewLocation;
-import com.gluonhq.netbeans.nbfx.annotations.FxViewRegistration;
-import com.gluonhq.netbeans.nbfx.api.view.FxArea;
+import com.gluonhq.netbeans.nbfx.annotations.ViewLocation;
+import com.gluonhq.netbeans.nbfx.annotations.ViewRegistration;
+import com.gluonhq.netbeans.nbfx.api.view.ViewArea;
 import com.gluonhq.netbeans.nbfx.api.view.ViewProvider;
 import java.io.IOException;
 import java.util.List;
@@ -54,17 +54,17 @@ public class ViewRegistryTest {
         alpha.setAttribute("position", 10);
         alpha.setAttribute("navigator", true);
 
-        List<ViewRegistration> registrations =
+        List<ViewSpec> registrations =
                 ViewRegistry.read(folder, List.of(view("zeta"), view("alpha")));
 
         assertEquals(List.of("alpha", "zeta"),
-                registrations.stream().map(ViewRegistration::id).toList());
-        assertEquals(FxViewLocation.LEFT, registrations.get(0).location());
+                registrations.stream().map(ViewSpec::id).toList());
+        assertEquals(ViewLocation.LEFT, registrations.get(0).location());
         assertTrue(registrations.get(0).navigator());
-        assertEquals(FxArea.EXPLORER, registrations.get(0).area());
+        assertEquals(ViewArea.EXPLORER, registrations.get(0).area());
         assertEquals("Zeta", registrations.get(1).displayName());
-        assertEquals(FxViewLocation.RIGHT, registrations.get(1).location());
-        assertEquals(FxArea.PROPERTIES, registrations.get(1).area());
+        assertEquals(ViewLocation.RIGHT, registrations.get(1).location());
+        assertEquals(ViewArea.PROPERTIES, registrations.get(1).area());
         assertFalse(registrations.get(1).navigator());
     }
 
@@ -76,25 +76,25 @@ public class ViewRegistryTest {
         view.setAttribute("openAtStartup", true);
         view.setAttribute("persistenceType", "ONLY_OPENED");
 
-        ViewRegistration registration = ViewRegistry.read(folder, List.of(view("v"))).get(0);
+        ViewSpec registration = ViewRegistry.read(folder, List.of(view("v"))).get(0);
 
-        assertEquals(FxArea.OUTPUT, registration.area());
+        assertEquals(ViewArea.OUTPUT, registration.area());
         assertTrue(registration.openAtStartup());
-        assertEquals(FxViewRegistration.FxPersistenceType.ONLY_OPENED, registration.persistenceType());
+        assertEquals(ViewRegistration.PersistenceType.ONLY_OPENED, registration.persistenceType());
     }
 
     @Test
     public void fallsBackToViewDefaults() throws IOException {
         FileObject folder = viewFolder();
 
-        List<ViewRegistration> registrations = ViewRegistry.read(folder, List.of(view("v")));
+        List<ViewSpec> registrations = ViewRegistry.read(folder, List.of(view("v")));
 
         assertEquals("v", registrations.get(0).id());
         assertEquals("v", registrations.get(0).displayName());
-        assertEquals(FxViewLocation.LEFT, registrations.get(0).location());
-        assertEquals(FxArea.EXPLORER, registrations.get(0).area());
+        assertEquals(ViewLocation.LEFT, registrations.get(0).location());
+        assertEquals(ViewArea.EXPLORER, registrations.get(0).area());
         assertFalse(registrations.get(0).openAtStartup());
-        assertEquals(FxViewRegistration.FxPersistenceType.ALWAYS, registrations.get(0).persistenceType());
+        assertEquals(ViewRegistration.PersistenceType.ALWAYS, registrations.get(0).persistenceType());
     }
 
     private static FileObject viewFolder() throws IOException {

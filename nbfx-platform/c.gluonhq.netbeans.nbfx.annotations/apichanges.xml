@@ -15,40 +15,40 @@
             <compatibility addition="yes" semantic="compatible"/>
             <description>
                 Introduces the SOURCE-retention annotations
-                <code>@FxActionRegistration</code>, <code>@FxActionReference</code>,
-                <code>@FxViewRegistration</code>, <code>@FxStatusRegistration</code>,
-                <code>@FxPropertyEditorRegistration</code>, <code>@FxOptionsRegistration</code>,
-                <code>@FxOptionsSubRegistration</code>, <code>@FxOptionsContainerRegistration</code>,
-                <code>@FxProjectTypeRegistration</code> and <code>@FxWizardRegistration</code>, the
-                <code>FxLayer</code> layer-path constants, the <code>FxViewLocation</code> and
-                <code>FxStatusAlignment</code> enums, and the corresponding layer-generating
+                <code>@ActionRegistration</code>, <code>@ActionReference</code>,
+                <code>@ViewRegistration</code>, <code>@StatusRegistration</code>,
+                <code>@PropertyEditorRegistration</code>, <code>@OptionsRegistration</code>,
+                <code>@OptionsSubRegistration</code>, <code>@OptionsContainerRegistration</code>,
+                <code>@ProjectTypeRegistration</code> and <code>@WizardRegistration</code>, the
+                <code>LayerPaths</code> layer-path constants, the <code>ViewLocation</code> and
+                <code>StatusAlignment</code> enums, and the corresponding layer-generating
                 processors that write under the <code>NbFx/</code> folder. The API is under
                 development until the MVP freeze.
             </description>
-            <class package="com.gluonhq.netbeans.nbfx.annotations" name="FxLayer"/>
-            <class package="com.gluonhq.netbeans.nbfx.annotations" name="FxActionRegistration"/>
-            <class package="com.gluonhq.netbeans.nbfx.annotations" name="FxActionReference"/>
-            <class package="com.gluonhq.netbeans.nbfx.annotations" name="FxActionReferences"/>
-            <class package="com.gluonhq.netbeans.nbfx.annotations" name="FxViewRegistration"/>
-            <class package="com.gluonhq.netbeans.nbfx.annotations" name="FxViewLocation"/>
-            <class package="com.gluonhq.netbeans.nbfx.annotations" name="FxStatusRegistration"/>
-            <class package="com.gluonhq.netbeans.nbfx.annotations" name="FxStatusAlignment"/>
-            <class package="com.gluonhq.netbeans.nbfx.annotations" name="FxPropertyEditorRegistration"/>
-            <class package="com.gluonhq.netbeans.nbfx.annotations" name="FxOptionsRegistration"/>
-            <class package="com.gluonhq.netbeans.nbfx.annotations" name="FxOptionsSubRegistration"/>
-            <class package="com.gluonhq.netbeans.nbfx.annotations" name="FxOptionsContainerRegistration"/>
-            <class package="com.gluonhq.netbeans.nbfx.annotations" name="FxProjectTypeRegistration"/>
-            <class package="com.gluonhq.netbeans.nbfx.annotations" name="FxWizardRegistration"/>
+            <class package="com.gluonhq.netbeans.nbfx.annotations" name="LayerPaths"/>
+            <class package="com.gluonhq.netbeans.nbfx.annotations" name="ActionRegistration"/>
+            <class package="com.gluonhq.netbeans.nbfx.annotations" name="ActionReference"/>
+            <class package="com.gluonhq.netbeans.nbfx.annotations" name="ActionReferences"/>
+            <class package="com.gluonhq.netbeans.nbfx.annotations" name="ViewRegistration"/>
+            <class package="com.gluonhq.netbeans.nbfx.annotations" name="ViewLocation"/>
+            <class package="com.gluonhq.netbeans.nbfx.annotations" name="StatusRegistration"/>
+            <class package="com.gluonhq.netbeans.nbfx.annotations" name="StatusAlignment"/>
+            <class package="com.gluonhq.netbeans.nbfx.annotations" name="PropertyEditorRegistration"/>
+            <class package="com.gluonhq.netbeans.nbfx.annotations" name="OptionsRegistration"/>
+            <class package="com.gluonhq.netbeans.nbfx.annotations" name="OptionsSubRegistration"/>
+            <class package="com.gluonhq.netbeans.nbfx.annotations" name="OptionsContainerRegistration"/>
+            <class package="com.gluonhq.netbeans.nbfx.annotations" name="ProjectTypeRegistration"/>
+            <class package="com.gluonhq.netbeans.nbfx.annotations" name="WizardRegistration"/>
         </change>
         <change id="fxmenuregistration.path">
             <api name="netbeansfx_annotations"/>
-            <summary>Submenus of any surface with @FxMenuRegistration(path, separatorBefore).</summary>
+            <summary>Submenus of any surface with @MenuRegistration(path, separatorBefore).</summary>
             <version major="1" minor="0"/>
             <date day="14" month="10" year="2026"/>
             <author login="jpereda"/>
             <compatibility addition="yes" semantic="compatible"/>
             <description>
-                <code>@FxMenuRegistration</code> gains <code>path</code> (<code>Menus</code> by
+                <code>@MenuRegistration</code> gains <code>path</code> (<code>Menus</code> by
                 default; <code>Menus/&lt;menu&gt;</code> or <code>ContextMenus/&lt;context&gt;</code>
                 for a submenu) and <code>separatorBefore</code>, so a module can declare a submenu of
                 a context menu - the editor's Navigate submenu - the way it declares a submenu of a
@@ -56,8 +56,29 @@
                 value, so <code>#key</code> references resolve. Under development until the MVP
                 freeze.
             </description>
-            <class package="com.gluonhq.netbeans.nbfx.annotations" name="FxMenuRegistration"/>
-            <class package="com.gluonhq.netbeans.nbfx.annotations" name="FxViewRegistration"/>
+            <class package="com.gluonhq.netbeans.nbfx.annotations" name="MenuRegistration"/>
+            <class package="com.gluonhq.netbeans.nbfx.annotations" name="ViewRegistration"/>
+        </change>
+        <change id="annotations.naming">
+            <api name="netbeansfx_annotations"/>
+            <summary>Drop the Fx prefix from the annotations API.</summary>
+            <version major="1" minor="0"/>
+            <date day="21" month="10" year="2026"/>
+            <author login="sven"/>
+            <compatibility binary="incompatible" source="incompatible" semantic="compatible" addition="no"/>
+            <description>
+                The exported annotations and enums drop the Fx prefix:
+                FxActionRegistration to ActionRegistration, FxActionReference(s) to ActionReference(s),
+                FxMenuRegistration(s) to MenuRegistration(s), FxToolbarRegistration(s) to
+                ToolbarRegistration(s), FxViewRegistration to ViewRegistration, FxViewLocation to
+                ViewLocation, FxStatusRegistration to StatusRegistration, FxStatusAlignment to
+                StatusAlignment, FxOptionsRegistration/Sub/Container to the Options names,
+                FxPropertyEditorRegistration to PropertyEditorRegistration, FxProjectTypeRegistration
+                to ProjectTypeRegistration, FxWizardRegistration to WizardRegistration, FxLayer to
+                LayerPaths, and FxViewRegistration.FxPersistenceType to
+                ViewRegistration.PersistenceType. The processors are renamed accordingly
+                (implementation, not API). Source-incompatible; the API is pre-freeze.
+            </description>
         </change>
     </changes>
     <htmlcontents>

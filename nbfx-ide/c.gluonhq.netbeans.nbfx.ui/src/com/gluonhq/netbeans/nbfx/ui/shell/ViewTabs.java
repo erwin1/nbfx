@@ -1,7 +1,7 @@
 package com.gluonhq.netbeans.nbfx.ui.shell;
 
 import com.gluonhq.netbeans.nbfx.api.view.ViewProvider;
-import com.gluonhq.netbeans.nbfx.windows.ViewRegistration;
+import com.gluonhq.netbeans.nbfx.windows.ViewSpec;
 import com.gluonhq.netbeans.nbfx.windows.ViewRegistry;
 import java.net.URL;
 import java.util.HashMap;
@@ -50,11 +50,11 @@ public final class ViewTabs {
 
     /**
      * A new 16-pixel view of the icon declared for {@code view} with
-     * {@code @FxViewRegistration(iconName = ...)}, a resource path resolved through the system class
+     * {@code @ViewRegistration(iconName = ...)}, a resource path resolved through the system class
      * loader as NetBeans resolves an {@code iconBase}; {@code null} for a view without one.
      */
     private static Node icon(ViewProvider view) {
-        ViewRegistration registration = ViewRegistry.find(view.getId());
+        ViewSpec registration = ViewRegistry.find(view.getId());
         String iconName = registration == null ? "" : registration.iconName();
         if (iconName.isEmpty()) {
             return null;

@@ -18,9 +18,9 @@
  */
 package com.gluonhq.netbeans.nbfx.structure;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxActionReference;
-import com.gluonhq.netbeans.nbfx.annotations.FxViewLocation;
-import com.gluonhq.netbeans.nbfx.annotations.FxViewRegistration;
+import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
+import com.gluonhq.netbeans.nbfx.annotations.ViewLocation;
+import com.gluonhq.netbeans.nbfx.annotations.ViewRegistration;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionIds;
 import com.gluonhq.netbeans.nbfx.api.view.DockLocation;
 import com.gluonhq.netbeans.nbfx.api.view.ViewManager;
@@ -39,10 +39,10 @@ import org.openide.util.lookup.ServiceProvider;
  * NetBeans, is part of the default layout ({@code openAtStartup}).
  */
 @ServiceProvider(service = ViewProvider.class)
-@FxViewRegistration(id = StructureView.ID, displayName = "#StructureView.title",
+@ViewRegistration(id = StructureView.ID, displayName = "#StructureView.title",
         iconName = "com/gluonhq/netbeans/nbfx/structure/navigator.png",
-        location = FxViewLocation.LEFT_BOTTOM, position = 5, openAtStartup = true)
-@FxActionReference(id = ActionIds.SELECT_NAVIGATOR, path = "Menus/Window", position = 50)
+        location = ViewLocation.LEFT_BOTTOM, position = 5, openAtStartup = true)
+@ActionReference(id = ActionIds.SELECT_NAVIGATOR, path = "Menus/Window", position = 50)
 public final class StructureView implements ViewProvider {
 
     /** The stable id of the view. */

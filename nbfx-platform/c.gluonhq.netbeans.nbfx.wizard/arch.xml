@@ -21,7 +21,7 @@
 
   <answer id="arch-overall">
     <p>
-      Wizards are declared with <code>@FxWizardRegistration</code> and discovered from
+      Wizards are declared with <code>@WizardRegistration</code> and discovered from
       <code>NbFx/Wizards</code>. <code>FxWizardDialog</code> shows the pages with
       Back / Next / Finish / Cancel, gating Next and Finish on page validity.
     </p>

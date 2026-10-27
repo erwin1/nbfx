@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.options;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxLayer;
+import com.gluonhq.netbeans.nbfx.annotations.LayerPaths;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -43,31 +43,31 @@ public final class OptionsRegistry {
      *
      * @return the panel registrations, ordered by position then id
      */
-    public static List<OptionsRegistration> discover() {
-        Lookup lookup = Lookups.forPath(FxLayer.OPTIONS);
-        FileObject folder = FileUtil.getConfigFile(FxLayer.OPTIONS);
+    public static List<OptionsPanelEntry> discover() {
+        Lookup lookup = Lookups.forPath(LayerPaths.OPTIONS);
+        FileObject folder = FileUtil.getConfigFile(LayerPaths.OPTIONS);
         return read(folder, lookup.lookupAll(FxOptionsPanel.class));
     }
 
     /** Reads the registrations of {@code panels}, taking metadata from {@code folder}'s attributes. */
-    static List<OptionsRegistration> read(FileObject folder, Iterable<? extends FxOptionsPanel> panels) {
-        List<OptionsRegistration> registrations = new ArrayList<>();
+    static List<OptionsPanelEntry> read(FileObject folder, Iterable<? extends FxOptionsPanel> panels) {
+        List<OptionsPanelEntry> registrations = new ArrayList<>();
         for (FxOptionsPanel panel : panels) {
             String id = panel.getId();
             FileObject file = folder == null ? null : folder.getFileObject(id, "instance");
             String displayName = stringAttribute(file, "displayName", panel.getDisplayName());
             int position = intAttribute(file, "position", panel.getPosition());
-            registrations.add(new OptionsRegistration(id, displayName, panel.getCategory(), position, panel));
+            registrations.add(new OptionsPanelEntry(id, displayName, panel.getCategory(), position, panel));
         }
         return sort(registrations);
     }
 
     /** Orders panels by position, then id. */
-    static List<OptionsRegistration> sort(List<OptionsRegistration> registrations) {
-        List<OptionsRegistration> sorted = new ArrayList<>(registrations);
+    static List<OptionsPanelEntry> sort(List<OptionsPanelEntry> registrations) {
+        List<OptionsPanelEntry> sorted = new ArrayList<>(registrations);
         sorted.sort(Comparator
-                .comparingInt(OptionsRegistration::position)
-                .thenComparing(OptionsRegistration::id));
+                .comparingInt(OptionsPanelEntry::position)
+                .thenComparing(OptionsPanelEntry::id));
         return List.copyOf(sorted);
     }
 

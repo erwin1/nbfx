@@ -46,7 +46,7 @@ public final class FxOptionsDialog {
 
     /** Shows the Options dialog. Must run on the JavaFX Application Thread. */
     public static void show() {
-        List<OptionsRegistration> panels = OptionsRegistry.discover();
+        List<OptionsPanelEntry> panels = OptionsRegistry.discover();
         if (panels.isEmpty()) {
             return;
         }
@@ -59,10 +59,10 @@ public final class FxOptionsDialog {
         pane.getButtonTypes().addAll(ButtonType.OK, apply, ButtonType.CANCEL);
         pane.setPrefSize(780, 540);
 
-        ListView<OptionsRegistration> list = new ListView<>(FXCollections.observableArrayList(panels));
+        ListView<OptionsPanelEntry> list = new ListView<>(FXCollections.observableArrayList(panels));
         list.setCellFactory(view -> new ListCell<>() {
             @Override
-            protected void updateItem(OptionsRegistration item, boolean empty) {
+            protected void updateItem(OptionsPanelEntry item, boolean empty) {
                 super.updateItem(item, empty);
                 setText(empty || item == null ? null : item.displayName());
             }
@@ -88,7 +88,7 @@ public final class FxOptionsDialog {
 
         Optional<ButtonType> result = dialog.showAndWait();
         if (result.orElse(ButtonType.CANCEL) == ButtonType.CANCEL) {
-            for (OptionsRegistration registration : panels) {
+            for (OptionsPanelEntry registration : panels) {
                 registration.panel().cancel();
             }
         } else {
@@ -96,8 +96,8 @@ public final class FxOptionsDialog {
         }
     }
 
-    private static void applyAll(List<OptionsRegistration> panels) {
-        for (OptionsRegistration registration : panels) {
+    private static void applyAll(List<OptionsPanelEntry> panels) {
+        for (OptionsPanelEntry registration : panels) {
             if (registration.panel().isValid()) {
                 registration.panel().apply();
             }

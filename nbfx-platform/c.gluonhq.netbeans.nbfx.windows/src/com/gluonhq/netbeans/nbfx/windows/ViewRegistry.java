@@ -18,10 +18,10 @@
  */
 package com.gluonhq.netbeans.nbfx.windows;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxLayer;
-import com.gluonhq.netbeans.nbfx.annotations.FxViewLocation;
-import com.gluonhq.netbeans.nbfx.annotations.FxViewRegistration.FxPersistenceType;
-import com.gluonhq.netbeans.nbfx.api.view.FxArea;
+import com.gluonhq.netbeans.nbfx.annotations.LayerPaths;
+import com.gluonhq.netbeans.nbfx.annotations.ViewLocation;
+import com.gluonhq.netbeans.nbfx.annotations.ViewRegistration.PersistenceType;
+import com.gluonhq.netbeans.nbfx.api.view.ViewArea;
 import com.gluonhq.netbeans.nbfx.api.view.DockLocation;
 import com.gluonhq.netbeans.nbfx.api.view.ViewProvider;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ import org.openide.util.lookup.Lookups;
 /**
  * Discovers the {@link ViewProvider}s registered under {@code NbFx/Views} in the module layer.
  * <p>
- * Views are declared with {@code @FxViewRegistration}, which writes an
+ * Views are declared with {@code @ViewRegistration}, which writes an
  * {@code NbFx/Views/<id>.instance} entry carrying the display name, icon, default location,
  * position and navigator flag. The registered attributes take precedence over the values reported
  * by the view itself, so placement is declared rather than coded.
@@ -56,9 +56,9 @@ public final class ViewRegistry {
      *
      * @return the view registrations, ordered by location, position and id
      */
-    public static List<ViewRegistration> discover() {
-        Lookup lookup = Lookups.forPath(FxLayer.VIEWS);
-        FileObject folder = FileUtil.getConfigFile(FxLayer.VIEWS);
+    public static List<ViewSpec> discover() {
+        Lookup lookup = Lookups.forPath(LayerPaths.VIEWS);
+        FileObject folder = FileUtil.getConfigFile(LayerPaths.VIEWS);
         return read(folder, lookup.lookupAll(ViewProvider.class));
     }
 
@@ -69,8 +69,8 @@ public final class ViewRegistry {
      * @param id the view id
      * @return the registration, or {@code null}
      */
-    public static ViewRegistration find(String id) {
-        for (ViewRegistration registration : discover()) {
+    public static ViewSpec find(String id) {
+        for (ViewSpec registration : discover()) {
             if (registration.id().equals(id)) {
                 return registration;
             }
@@ -79,32 +79,32 @@ public final class ViewRegistry {
     }
 
     /** Reads the registrations of {@code views}, taking placement from {@code folder}'s attributes. */
-    static List<ViewRegistration> read(FileObject folder, Iterable<? extends ViewProvider> views) {
-        List<ViewRegistration> registrations = new ArrayList<>();
+    static List<ViewSpec> read(FileObject folder, Iterable<? extends ViewProvider> views) {
+        List<ViewSpec> registrations = new ArrayList<>();
         for (ViewProvider view : views) {
             String id = view.getId();
             FileObject file = folder == null ? null : folder.getFileObject(id, "instance");
             String displayName = stringAttribute(file, "displayName", view.getTitle());
             String iconName = stringAttribute(file, "iconName", "");
-            FxViewLocation location = locationAttribute(file, view.getDefaultLocation());
+            ViewLocation location = locationAttribute(file, view.getDefaultLocation());
             int position = intAttribute(file, "position", Integer.MAX_VALUE);
             boolean navigator = booleanAttribute(file, "navigator");
-            FxArea area = areaAttribute(file, location);
+            ViewArea area = areaAttribute(file, location);
             boolean openAtStartup = booleanAttribute(file, "openAtStartup");
-            FxPersistenceType persistenceType = persistenceAttribute(file);
-            registrations.add(new ViewRegistration(id, displayName, iconName, location, position,
+            PersistenceType persistenceType = persistenceAttribute(file);
+            registrations.add(new ViewSpec(id, displayName, iconName, location, position,
                     navigator, area, openAtStartup, persistenceType, view));
         }
         return sort(registrations);
     }
 
     /** Orders views by location, then position, then id, so the layout is stable. */
-    static List<ViewRegistration> sort(List<ViewRegistration> registrations) {
-        List<ViewRegistration> sorted = new ArrayList<>(registrations);
+    static List<ViewSpec> sort(List<ViewSpec> registrations) {
+        List<ViewSpec> sorted = new ArrayList<>(registrations);
         sorted.sort(Comparator
-                .comparingInt((ViewRegistration registration) -> registration.location().ordinal())
-                .thenComparingInt(ViewRegistration::position)
-                .thenComparing(ViewRegistration::id));
+                .comparingInt((ViewSpec registration) -> registration.location().ordinal())
+                .thenComparingInt(ViewSpec::position)
+                .thenComparing(ViewSpec::id));
         return List.copyOf(sorted);
     }
 
@@ -123,51 +123,51 @@ public final class ViewRegistry {
         return Boolean.TRUE.equals(value);
     }
 
-    private static FxViewLocation locationAttribute(FileObject file, DockLocation fallback) {
+    private static ViewLocation locationAttribute(FileObject file, DockLocation fallback) {
         Object value = file == null ? null : file.getAttribute("location");
         if (value instanceof String name) {
             try {
-                return FxViewLocation.valueOf(name);
+                return ViewLocation.valueOf(name);
             } catch (IllegalArgumentException ex) {
                 LOG.warning("Unknown view location: " + name);
             }
         }
-        return FxViewLocation.valueOf(fallback.name());
+        return ViewLocation.valueOf(fallback.name());
     }
 
     /**
      * The window area of the view: its declared {@code area} attribute resolved as an
-     * {@link FxArea}, or the area the {@code location} docks into by default. Empty areas (never
+     * {@link ViewArea}, or the area the {@code location} docks into by default. Empty areas (never
      * declared) and unknown area ids fall back to the location's default area.
      */
-    static FxArea areaAttribute(FileObject file, FxViewLocation location) {
+    static ViewArea areaAttribute(FileObject file, ViewLocation location) {
         Object value = file == null ? null : file.getAttribute("area");
         if (value instanceof String id && !id.isBlank()) {
-            return FxArea.lookUp(id).orElseGet(() -> defaultArea(location));
+            return ViewArea.lookUp(id).orElseGet(() -> defaultArea(location));
         }
         return defaultArea(location);
     }
 
-    private static FxPersistenceType persistenceAttribute(FileObject file) {
+    private static PersistenceType persistenceAttribute(FileObject file) {
         Object value = file == null ? null : file.getAttribute("persistenceType");
         if (value instanceof String name) {
             try {
-                return FxPersistenceType.valueOf(name);
+                return PersistenceType.valueOf(name);
             } catch (IllegalArgumentException ex) {
                 LOG.warning("Unknown persistence type: " + name);
             }
         }
-        return FxPersistenceType.ALWAYS;
+        return PersistenceType.ALWAYS;
     }
 
     /** The default window area a location is docked into, mirroring the Swing modes. */
-    static FxArea defaultArea(FxViewLocation location) {
+    static ViewArea defaultArea(ViewLocation location) {
         return switch (location) {
-            case LEFT -> FxArea.EXPLORER;
-            case LEFT_BOTTOM -> FxArea.NAVIGATOR;
-            case CENTER -> FxArea.EDITOR;
-            case CENTER_BOTTOM, BOTTOM -> FxArea.OUTPUT;
-            case RIGHT -> FxArea.PROPERTIES;
+            case LEFT -> ViewArea.EXPLORER;
+            case LEFT_BOTTOM -> ViewArea.NAVIGATOR;
+            case CENTER -> ViewArea.EDITOR;
+            case CENTER_BOTTOM, BOTTOM -> ViewArea.OUTPUT;
+            case RIGHT -> ViewArea.PROPERTIES;
             case DETACHED -> throw new IllegalArgumentException("No default area for " + location);
         };
     }

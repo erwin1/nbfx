@@ -1,6 +1,6 @@
 package com.gluonhq.netbeans.nbfx.project.context;
 
-import com.gluonhq.netbeans.nbfx.api.actions.FxActionContext;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionContext;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
 import com.gluonhq.netbeans.nbfx.api.project.OpenProject;
 import com.gluonhq.netbeans.nbfx.api.project.ProjectRegistry;
@@ -11,7 +11,7 @@ import org.openide.util.Lookup;
 /**
  * Resolves the project for the current global selection.
  * <p>
- * This is a per-domain <em>facade</em>: the global {@link FxActionContext} carries only the raw
+ * This is a per-domain <em>facade</em>: the global {@link ActionContext} carries only the raw
  * selection (the selected {@code FileObject}, the active {@code EditorDocument}), and this class
  * derives the {@link OpenProject} that owns it - "the project from the file from the view". Nothing is
  * pushed into the context; the resolution happens on demand, so it is always up to date.
@@ -28,7 +28,7 @@ public final class ProjectContext {
      * @return the selected project, or {@code null}
      */
     public static OpenProject selectedProject() {
-        FxActionContext context = FxActionContext.getDefault();
+        ActionContext context = ActionContext.getDefault();
         if (context == null) {
             return null;
         }

@@ -18,8 +18,8 @@
  */
 package com.gluonhq.netbeans.nbfx.debug;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxViewLocation;
-import com.gluonhq.netbeans.nbfx.annotations.FxViewRegistration;
+import com.gluonhq.netbeans.nbfx.annotations.ViewLocation;
+import com.gluonhq.netbeans.nbfx.annotations.ViewRegistration;
 import com.gluonhq.netbeans.nbfx.api.view.DockLocation;
 import com.gluonhq.netbeans.nbfx.api.view.ViewManager;
 import com.gluonhq.netbeans.nbfx.api.view.ViewProvider;
@@ -34,8 +34,8 @@ import org.openide.util.lookup.ServiceProvider;
  * @since 1.0
  */
 @ServiceProvider(service = ViewProvider.class)
-@FxViewRegistration(id = DebugViewProvider.ID, displayName = "Debugging",
-        location = FxViewLocation.CENTER_BOTTOM, position = 20)
+@ViewRegistration(id = DebugViewProvider.ID, displayName = "Debugging",
+        location = ViewLocation.CENTER_BOTTOM, position = 20)
 public final class DebugViewProvider implements ViewProvider {
 
     /** The stable id of the view, used by the layout persistence and the view manager. */

@@ -1,7 +1,7 @@
 package com.gluonhq.netbeans.nbfx.project.ui.java;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxViewLocation;
-import com.gluonhq.netbeans.nbfx.annotations.FxViewRegistration;
+import com.gluonhq.netbeans.nbfx.annotations.ViewLocation;
+import com.gluonhq.netbeans.nbfx.annotations.ViewRegistration;
 import com.gluonhq.netbeans.nbfx.api.project.ProjectIconProvider;
 import com.gluonhq.netbeans.nbfx.api.project.ProjectOpener;
 import com.gluonhq.netbeans.nbfx.api.view.ViewProvider;
@@ -63,9 +63,9 @@ import static org.netbeans.api.java.project.JavaProjectConstants.SOURCES_TYPE_RE
     @ServiceProvider(service = ViewProvider.class, position = 10),
     @ServiceProvider(service = ProjectIconProvider.class, position = 10)
 })
-@FxViewRegistration(displayName = "Projects",
+@ViewRegistration(displayName = "Projects",
         iconName = "com/gluonhq/netbeans/nbfx/project/ui/java/projectTab.png",
-        location = FxViewLocation.LEFT, position = 10, navigator = true)
+        location = ViewLocation.LEFT, position = 10, navigator = true)
 public class ProjectNavigatorImpl extends AbstractNavigatorProvider<ProjectEntry> implements ProjectIconProvider {
 
     private static final Logger LOG = Logger.getLogger(ProjectNavigatorImpl.class.getName());

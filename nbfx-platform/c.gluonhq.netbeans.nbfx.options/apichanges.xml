@@ -14,9 +14,9 @@
             <author login="sven"/>
             <compatibility addition="yes" semantic="compatible"/>
             <description>
-                Introduces <code>FxOptionsPanel</code>, <code>OptionsRegistration</code>,
+                Introduces <code>FxOptionsPanel</code>, <code>OptionsPanelEntry</code>,
                 <code>OptionsRegistry</code> and <code>FxOptionsDialog</code>. Panels are registered
-                with <code>@FxOptionsRegistration</code> under <code>NbFx/Options</code>. The API is
+                with <code>@OptionsRegistration</code> under <code>NbFx/Options</code>. The API is
                 under development until the MVP freeze.
             </description>
             <class package="com.gluonhq.netbeans.nbfx.options" name="FxOptionsPanel"/>

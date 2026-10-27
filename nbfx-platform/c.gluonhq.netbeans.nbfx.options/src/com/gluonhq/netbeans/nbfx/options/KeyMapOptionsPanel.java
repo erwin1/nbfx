@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.options;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxOptionsRegistration;
+import com.gluonhq.netbeans.nbfx.annotations.OptionsRegistration;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionRegistry;
 import com.gluonhq.netbeans.nbfx.api.actions.Command;
 import com.gluonhq.netbeans.nbfx.api.actions.KeyMap;
@@ -39,10 +39,10 @@ import org.openide.util.NbBundle;
  *
  * @since 1.0
  */
-@FxOptionsRegistration(id = KeyMapOptionsPanel.ID, categoryName = "Keymap", position = 20)
+@OptionsRegistration(id = KeyMapOptionsPanel.ID, categoryName = "Keymap", position = 20)
 public final class KeyMapOptionsPanel implements FxOptionsPanel {
 
-    /** The panel id, referenced by {@code @FxOptionsRegistration}. */
+    /** The panel id, referenced by {@code @OptionsRegistration}. */
     public static final String ID = "keymap";
 
     private final TableView<Command> table = new TableView<>();

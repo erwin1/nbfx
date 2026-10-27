@@ -24,7 +24,7 @@
       Build, run and test activities write into named consoles obtained from the <code>FxOutput</code>
       service. Each console accumulates text thread-safely and marshals it to the JavaFX Application
       Thread; the Output view shows the consoles as tabs. The default implementation is registered
-      with <code>@ServiceProvider</code>; the view with <code>@FxViewRegistration</code>.
+      with <code>@ServiceProvider</code>; the view with <code>@ViewRegistration</code>.
     </p>
   </answer>
 

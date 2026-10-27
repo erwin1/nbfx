@@ -16,7 +16,7 @@
             <description>
                 Introduces <code>FxStatusElement</code>, <code>StatusElement</code>,
                 <code>StatusElementRegistry</code> and <code>FxStatusBar</code>. Elements are
-                registered with <code>@FxStatusRegistration</code> and discovered from
+                registered with <code>@StatusRegistration</code> and discovered from
                 <code>NbFx/Status</code>. The API is under development until the MVP freeze.
             </description>
             <class package="com.gluonhq.netbeans.nbfx.statusbar" name="FxStatusElement"/>

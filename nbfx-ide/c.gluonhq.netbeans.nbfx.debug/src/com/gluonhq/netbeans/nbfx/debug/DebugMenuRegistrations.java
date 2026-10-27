@@ -26,22 +26,22 @@ import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.DEBUG_STEP_OVER;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.DEBUG_STOP;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.TOGGLE_BREAKPOINT;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxActionReference;
-import com.gluonhq.netbeans.nbfx.annotations.FxMenuRegistration;
+import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
+import com.gluonhq.netbeans.nbfx.annotations.MenuRegistration;
 
 /**
  * Declares the Debug menu entries in the layer.
  * <p>
  * This class carries metadata only; it is never instantiated.
  */
-@FxMenuRegistration(id = "Debug", position = 50)
-@FxActionReference(id = DEBUG_FILE, path = "Menus/Debug", position = 10)
-@FxActionReference(id = DEBUG_CONTINUE, path = "Menus/Debug", position = 20, separatorBefore = true)
-@FxActionReference(id = DEBUG_STEP_OVER, path = "Menus/Debug", position = 30)
-@FxActionReference(id = DEBUG_STEP_INTO, path = "Menus/Debug", position = 40)
-@FxActionReference(id = DEBUG_STEP_OUT, path = "Menus/Debug", position = 50)
-@FxActionReference(id = DEBUG_STOP, path = "Menus/Debug", position = 60, separatorBefore = true)
-@FxActionReference(id = TOGGLE_BREAKPOINT, path = "Menus/Debug", position = 70, separatorBefore = true)
+@MenuRegistration(id = "Debug", position = 50)
+@ActionReference(id = DEBUG_FILE, path = "Menus/Debug", position = 10)
+@ActionReference(id = DEBUG_CONTINUE, path = "Menus/Debug", position = 20, separatorBefore = true)
+@ActionReference(id = DEBUG_STEP_OVER, path = "Menus/Debug", position = 30)
+@ActionReference(id = DEBUG_STEP_INTO, path = "Menus/Debug", position = 40)
+@ActionReference(id = DEBUG_STEP_OUT, path = "Menus/Debug", position = 50)
+@ActionReference(id = DEBUG_STOP, path = "Menus/Debug", position = 60, separatorBefore = true)
+@ActionReference(id = TOGGLE_BREAKPOINT, path = "Menus/Debug", position = 70, separatorBefore = true)
 final class DebugMenuRegistrations {
 
     private DebugMenuRegistrations() {

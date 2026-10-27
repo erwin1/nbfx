@@ -46,11 +46,11 @@ public class WizardRegistryTest {
         alpha.setAttribute("category", "Project");
         alpha.setAttribute("position", 10);
 
-        List<WizardRegistration> registrations =
+        List<WizardEntry> registrations =
                 WizardRegistry.read(folder, List.of(wizard("bravo"), wizard("alpha")));
 
         assertEquals(List.of("alpha", "bravo"),
-                registrations.stream().map(WizardRegistration::id).toList());
+                registrations.stream().map(WizardEntry::id).toList());
         assertEquals("Alpha", registrations.get(0).displayName());
     }
 
@@ -58,7 +58,7 @@ public class WizardRegistryTest {
     public void fallsBackToWizardDefaults() throws IOException {
         FileObject folder = wizardFolder();
 
-        List<WizardRegistration> registrations = WizardRegistry.read(folder, List.of(wizard("x")));
+        List<WizardEntry> registrations = WizardRegistry.read(folder, List.of(wizard("x")));
 
         assertEquals("x", registrations.get(0).id());
         assertEquals("x", registrations.get(0).displayName());

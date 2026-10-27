@@ -21,7 +21,7 @@ package com.gluonhq.netbeans.nbfx.debug;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionIds;
 import com.gluonhq.netbeans.nbfx.api.actions.Command;
 import com.gluonhq.netbeans.nbfx.api.actions.ContextAction;
-import com.gluonhq.netbeans.nbfx.api.actions.FxActionContext;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionContext;
 import com.gluonhq.netbeans.nbfx.api.editor.CaretInfo;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
 import java.io.IOException;
@@ -48,7 +48,7 @@ final class ToggleBreakpointCommand {
                 ToggleBreakpointCommand::toggle, EditorDocument.class);
     }
 
-    private static void toggle(FxActionContext context) {
+    private static void toggle(ActionContext context) {
         EditorDocument document = context.lookup(EditorDocument.class);
         if (document == null) {
             return;

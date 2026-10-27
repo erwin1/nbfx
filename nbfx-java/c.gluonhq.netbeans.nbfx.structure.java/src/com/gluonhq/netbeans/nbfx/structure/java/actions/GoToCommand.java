@@ -23,8 +23,8 @@ import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.GO_TO_IMPLEMENTATI
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.GO_TO_SOURCE;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.GO_TO_SUPER_IMPLEMENTATION;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxActionReference;
-import com.gluonhq.netbeans.nbfx.annotations.FxMenuRegistration;
+import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
+import com.gluonhq.netbeans.nbfx.annotations.MenuRegistration;
 import com.gluonhq.netbeans.nbfx.api.actions.AbstractCommand;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionIds;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
@@ -47,16 +47,16 @@ import org.openide.util.NbBundle;
  * The editor's Navigate submenu is declared here, in the layer, as the Go to commands are the first
  * of its entries; the menu bar's Navigate menu is the shell's.
  */
-@FxMenuRegistration(id = "Navigate", path = "ContextMenus/Editor", displayName = "#MENU_Navigate",
+@MenuRegistration(id = "Navigate", path = "ContextMenus/Editor", displayName = "#MENU_Navigate",
         position = 100, separatorBefore = true)
-@FxActionReference(id = GO_TO_SOURCE, path = "Menus/Navigate", position = 10)
-@FxActionReference(id = GO_TO_DECLARATION, path = "Menus/Navigate", position = 20)
-@FxActionReference(id = GO_TO_SUPER_IMPLEMENTATION, path = "Menus/Navigate", position = 30)
-@FxActionReference(id = GO_TO_IMPLEMENTATION, path = "Menus/Navigate", position = 40)
-@FxActionReference(id = GO_TO_SOURCE, path = "ContextMenus/Editor/Navigate", position = 10)
-@FxActionReference(id = GO_TO_DECLARATION, path = "ContextMenus/Editor/Navigate", position = 20)
-@FxActionReference(id = GO_TO_SUPER_IMPLEMENTATION, path = "ContextMenus/Editor/Navigate", position = 30)
-@FxActionReference(id = GO_TO_IMPLEMENTATION, path = "ContextMenus/Editor/Navigate", position = 40)
+@ActionReference(id = GO_TO_SOURCE, path = "Menus/Navigate", position = 10)
+@ActionReference(id = GO_TO_DECLARATION, path = "Menus/Navigate", position = 20)
+@ActionReference(id = GO_TO_SUPER_IMPLEMENTATION, path = "Menus/Navigate", position = 30)
+@ActionReference(id = GO_TO_IMPLEMENTATION, path = "Menus/Navigate", position = 40)
+@ActionReference(id = GO_TO_SOURCE, path = "ContextMenus/Editor/Navigate", position = 10)
+@ActionReference(id = GO_TO_DECLARATION, path = "ContextMenus/Editor/Navigate", position = 20)
+@ActionReference(id = GO_TO_SUPER_IMPLEMENTATION, path = "ContextMenus/Editor/Navigate", position = 30)
+@ActionReference(id = GO_TO_IMPLEMENTATION, path = "ContextMenus/Editor/Navigate", position = 40)
 final class GoToCommand extends AbstractCommand {
 
     static final KeyCombination SOURCE_SHORTCUT =

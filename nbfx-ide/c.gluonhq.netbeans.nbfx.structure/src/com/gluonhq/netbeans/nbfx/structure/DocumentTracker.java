@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.structure;
 
-import com.gluonhq.netbeans.nbfx.api.actions.FxActionContext;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionContext;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
 import com.gluonhq.netbeans.nbfx.api.editor.OpenSources;
 import java.io.IOException;
@@ -65,7 +65,7 @@ public final class DocumentTracker<R> {
     private final PauseTransition editDelay = new PauseTransition(EDIT_DELAY);
     private final LookupListener contextListener = this::contextChanged;
     /** The context followed, {@code null} while the panel is not the active one. */
-    private FxActionContext context;
+    private ActionContext context;
     private Lookup.Result<EditorDocument> documents;
     private Lookup.Result<FileObject> files;
     /** The file shown, from an editor ({@link #document}), from a project view or pinned. */
@@ -106,7 +106,7 @@ public final class DocumentTracker<R> {
     }
 
     /** Starts following {@code context}; the panel became the active one. FX thread. */
-    public void activate(FxActionContext context) {
+    public void activate(ActionContext context) {
         if (this.context == context) {
             return;
         }

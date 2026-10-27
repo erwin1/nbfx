@@ -5,7 +5,7 @@ import com.gluonhq.netbeans.nbfx.api.actions.ActionLayerReader;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionRegistry;
 import com.gluonhq.netbeans.nbfx.api.actions.Command;
 import com.gluonhq.netbeans.nbfx.api.actions.FileContextMenuContributor;
-import com.gluonhq.netbeans.nbfx.api.actions.FxActionRef;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionRef;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorContext;
 import com.gluonhq.netbeans.nbfx.api.project.OpenProject;
 import com.gluonhq.netbeans.nbfx.api.project.ProjectOpener;
@@ -161,16 +161,16 @@ final class NavigatorContextMenuFactory<T> {
     /**
      * Adds the layer-registered {@code ContextMenus/Navigator} action references that apply to
      * {@code fo}'s content type (mime), so modules can extend the navigator node menu declaratively
-     * with {@code @FxActionReference(path = "ContextMenus/Navigator", mimeType = "...")}.
+     * with {@code @ActionReference(path = "ContextMenus/Navigator", mimeType = "...")}.
      */
     private static void addNavigatorLayerItems(ContextMenu menu, FileObject fo) {
-        List<FxActionRef> refs = ActionLayerReader.readForMime("NbFx/ContextMenus/Navigator", fo.getMIMEType());
+        List<ActionRef> refs = ActionLayerReader.readForMime("NbFx/ContextMenus/Navigator", fo.getMIMEType());
         if (refs.isEmpty()) {
             return;
         }
         ActionRegistry registry = Lookup.getDefault().lookup(ActionRegistry.class);
         List<MenuItem> items = new ArrayList<>();
-        for (FxActionRef ref : refs) {
+        for (ActionRef ref : refs) {
             Command command = registry == null ? null : registry.find(ref.actionId()).orElse(null);
             if (command == null) {
                 continue;

@@ -20,7 +20,7 @@
 
   <answer id="arch-overall">
     <p>
-      Panels are declared with <code>@FxOptionsRegistration</code> and discovered from
+      Panels are declared with <code>@OptionsRegistration</code> and discovered from
       <code>NbFx/Options</code>. <code>FxOptionsDialog</code> shows a category list and the selected
       panel, with OK / Apply / Cancel driving <code>load</code>, <code>apply</code> and
       <code>cancel</code>.

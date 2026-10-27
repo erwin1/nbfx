@@ -44,40 +44,40 @@ public class FxAnnotationsProcessorTest {
             "package demo;\n"
             + "import com.gluonhq.netbeans.nbfx.annotations.*;\n"
             + "public class DemoActions {\n"
-            + "    @FxActionRegistration(id = \"demo.hello\", displayName = \"Hello\", iconName = \"hello.png\","
+            + "    @ActionRegistration(id = \"demo.hello\", displayName = \"Hello\", iconName = \"hello.png\","
             + " accelerator = \"Shortcut+H\")\n"
-            + "    @FxActionReference(id = \"demo.hello\", path = \"Menus/File\", position = 100)\n"
-            + "    @FxActionReference(id = \"demo.hello\", path = \"Toolbars/Main\", position = 10)\n"
+            + "    @ActionReference(id = \"demo.hello\", path = \"Menus/File\", position = 100)\n"
+            + "    @ActionReference(id = \"demo.hello\", path = \"Toolbars/Main\", position = 10)\n"
             + "    public static class Hello implements Runnable {\n"
             + "        public void run() {}\n"
             + "    }\n"
-            + "    @FxViewRegistration(id = \"demo.view\", displayName = \"Demo View\")\n"
+            + "    @ViewRegistration(id = \"demo.view\", displayName = \"Demo View\")\n"
             + "    public static class DemoView {}\n"
-            + "    @FxViewRegistration(id = \"demo.structure\", displayName = \"Structure\","
-            + " iconName = \"demo/structure.png\", location = FxViewLocation.LEFT_BOTTOM, openAtStartup = true)\n"
+            + "    @ViewRegistration(id = \"demo.structure\", displayName = \"Structure\","
+            + " iconName = \"demo/structure.png\", location = ViewLocation.LEFT_BOTTOM, openAtStartup = true)\n"
             + "    public static class DemoStructure {}\n"
-            + "    @FxMenuRegistration(id = \"Navigate\", position = 40)\n"
-            + "    @FxMenuRegistration(id = \"Inspect\", path = \"ContextMenus/Editor\", position = 100,"
+            + "    @MenuRegistration(id = \"Navigate\", position = 40)\n"
+            + "    @MenuRegistration(id = \"Inspect\", path = \"ContextMenus/Editor\", position = 100,"
             + " separatorBefore = true)\n"
-            + "    @FxActionReference(id = \"demo.hello\", path = \"ContextMenus/Editor/Inspect\", position = 10)\n"
+            + "    @ActionReference(id = \"demo.hello\", path = \"ContextMenus/Editor/Inspect\", position = 10)\n"
             + "    public static class DemoMenus {}\n"
-            + "    @FxStatusRegistration(id = \"demo.status\")\n"
+            + "    @StatusRegistration(id = \"demo.status\")\n"
             + "    public static class DemoStatus {}\n"
-            + "    @FxPropertyEditorRegistration(valueType = String.class)\n"
+            + "    @PropertyEditorRegistration(valueType = String.class)\n"
             + "    public static class StringEditor {}\n"
-            + "    @FxOptionsRegistration(id = \"demo.options\", categoryName = \"Demo\")\n"
+            + "    @OptionsRegistration(id = \"demo.options\", categoryName = \"Demo\")\n"
             + "    public static class DemoOptions {}\n"
             + "}\n";
 
     private static final String PROCESSORS = String.join(",",
-            "com.gluonhq.netbeans.nbfx.annotations.processors.FxActionRegistrationProcessor",
-            "com.gluonhq.netbeans.nbfx.annotations.processors.FxViewRegistrationProcessor",
-            "com.gluonhq.netbeans.nbfx.annotations.processors.FxMenuRegistrationProcessor",
-            "com.gluonhq.netbeans.nbfx.annotations.processors.FxStatusRegistrationProcessor",
-            "com.gluonhq.netbeans.nbfx.annotations.processors.FxPropertyEditorRegistrationProcessor",
-            "com.gluonhq.netbeans.nbfx.annotations.processors.FxOptionsRegistrationProcessor",
-            "com.gluonhq.netbeans.nbfx.annotations.processors.FxProjectTypeRegistrationProcessor",
-            "com.gluonhq.netbeans.nbfx.annotations.processors.FxWizardRegistrationProcessor");
+            "com.gluonhq.netbeans.nbfx.annotations.processors.ActionRegistrationProcessor",
+            "com.gluonhq.netbeans.nbfx.annotations.processors.ViewRegistrationProcessor",
+            "com.gluonhq.netbeans.nbfx.annotations.processors.MenuRegistrationProcessor",
+            "com.gluonhq.netbeans.nbfx.annotations.processors.StatusRegistrationProcessor",
+            "com.gluonhq.netbeans.nbfx.annotations.processors.PropertyEditorRegistrationProcessor",
+            "com.gluonhq.netbeans.nbfx.annotations.processors.OptionsRegistrationProcessor",
+            "com.gluonhq.netbeans.nbfx.annotations.processors.ProjectTypeRegistrationProcessor",
+            "com.gluonhq.netbeans.nbfx.annotations.processors.WizardRegistrationProcessor");
 
     @Test
     public void generatesLayerFragments() throws Exception {

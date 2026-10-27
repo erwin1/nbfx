@@ -25,8 +25,8 @@ import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.DEBUG_STEP_OUT;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.DEBUG_STEP_OVER;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.DEBUG_STOP;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxActionReference;
-import com.gluonhq.netbeans.nbfx.annotations.FxToolbarRegistration;
+import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
+import com.gluonhq.netbeans.nbfx.annotations.ToolbarRegistration;
 
 /**
  * Declares the Debug tool bar contents in the layer, so the global Debug tool bar is assembled from
@@ -34,13 +34,13 @@ import com.gluonhq.netbeans.nbfx.annotations.FxToolbarRegistration;
  * <p>
  * This class carries metadata only; it is never instantiated.
  */
-@FxToolbarRegistration(id = "debug", position = 50)
-@FxActionReference(id = DEBUG_FILE, path = "Toolbars/debug", position = 10)
-@FxActionReference(id = DEBUG_CONTINUE, path = "Toolbars/debug", position = 20)
-@FxActionReference(id = DEBUG_STEP_OVER, path = "Toolbars/debug", position = 30)
-@FxActionReference(id = DEBUG_STEP_INTO, path = "Toolbars/debug", position = 40)
-@FxActionReference(id = DEBUG_STEP_OUT, path = "Toolbars/debug", position = 50)
-@FxActionReference(id = DEBUG_STOP, path = "Toolbars/debug", position = 60)
+@ToolbarRegistration(id = "debug", position = 50)
+@ActionReference(id = DEBUG_FILE, path = "Toolbars/debug", position = 10)
+@ActionReference(id = DEBUG_CONTINUE, path = "Toolbars/debug", position = 20)
+@ActionReference(id = DEBUG_STEP_OVER, path = "Toolbars/debug", position = 30)
+@ActionReference(id = DEBUG_STEP_INTO, path = "Toolbars/debug", position = 40)
+@ActionReference(id = DEBUG_STEP_OUT, path = "Toolbars/debug", position = 50)
+@ActionReference(id = DEBUG_STOP, path = "Toolbars/debug", position = 60)
 final class DebugToolbarRegistrations {
 
     private DebugToolbarRegistrations() {

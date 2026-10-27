@@ -15,9 +15,9 @@
             <compatibility addition="yes" semantic="compatible"/>
             <description>
                 Introduces <code>FxWizard</code>, <code>FxWizardPanel</code>,
-                <code>WizardRegistration</code>, <code>WizardRegistry</code> and
+                <code>WizardEntry</code>, <code>WizardRegistry</code> and
                 <code>FxWizardDialog</code>. Wizards are registered with
-                <code>@FxWizardRegistration</code> under <code>NbFx/Wizards</code>. The API is under
+                <code>@WizardRegistration</code> under <code>NbFx/Wizards</code>. The API is under
                 development until the MVP freeze.
             </description>
             <class package="com.gluonhq.netbeans.nbfx.wizard" name="FxWizard"/>

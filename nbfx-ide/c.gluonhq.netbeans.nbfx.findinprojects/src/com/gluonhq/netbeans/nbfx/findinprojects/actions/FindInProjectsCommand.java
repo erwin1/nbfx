@@ -3,7 +3,7 @@ package com.gluonhq.netbeans.nbfx.findinprojects.actions;
 import com.gluonhq.netbeans.nbfx.api.actions.AbstractCommand;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionIds;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionRegistry;
-import com.gluonhq.netbeans.nbfx.api.actions.FxActionContext;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionContext;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
 import com.gluonhq.netbeans.nbfx.findinprojects.model.FindModel;
 import com.gluonhq.netbeans.nbfx.findinprojects.query.FindQuery;
@@ -98,7 +98,7 @@ final class FindInProjectsCommand extends AbstractCommand {
     }
 
     private String selectedText() {
-        FxActionContext context = FxActionContext.getDefault();
+        ActionContext context = ActionContext.getDefault();
         EditorDocument document = context == null ? null : context.lookup(EditorDocument.class);
         String text = document == null ? null : document.getSelectedText();
         return text == null ? "" : text;

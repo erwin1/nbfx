@@ -19,7 +19,7 @@
 package com.gluonhq.netbeans.nbfx.project.actions;
 
 import com.gluonhq.netbeans.nbfx.api.actions.ContextSensitiveCommand;
-import com.gluonhq.netbeans.nbfx.api.actions.FxActionContext;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionContext;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
 import com.gluonhq.netbeans.nbfx.api.project.OpenProject;
 import com.gluonhq.netbeans.nbfx.project.context.ProjectContext;
@@ -49,7 +49,7 @@ final class BuildCommand extends ContextSensitiveCommand {
     }
 
     @Override
-    protected boolean isEnabled(FxActionContext context) {
+    protected boolean isEnabled(ActionContext context) {
         OpenProject project = ProjectContext.selectedProject();
         return project != null && BuildActions.isEnabled(Paths.get(project.getPath()), command);
     }

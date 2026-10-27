@@ -48,10 +48,10 @@ public class ActionLayerReaderTest {
         // A .ref file without an actionId is ignored.
         menu.createData("broken", "ref");
 
-        List<FxActionRef> refs = ActionLayerReader.read(menu);
+        List<ActionRef> refs = ActionLayerReader.read(menu);
 
         assertEquals(List.of("save", "save-as", "run"),
-                refs.stream().map(FxActionRef::actionId).toList());
+                refs.stream().map(ActionRef::actionId).toList());
         assertFalse(refs.get(0).separatorBefore());
         assertTrue(refs.get(1).separatorBefore());
     }
@@ -62,9 +62,9 @@ public class ActionLayerReaderTest {
         addRef(menu, "z", "z", 1, false);
         addRef(menu, "a", "a", 1, false);
 
-        List<FxActionRef> refs = ActionLayerReader.read(menu);
+        List<ActionRef> refs = ActionLayerReader.read(menu);
 
-        assertEquals(List.of("a", "z"), refs.stream().map(FxActionRef::actionId).toList());
+        assertEquals(List.of("a", "z"), refs.stream().map(ActionRef::actionId).toList());
     }
 
     @Test
@@ -87,7 +87,7 @@ public class ActionLayerReaderTest {
         // Empty folders are not submenus.
         FileUtil.createFolder(menu, "Empty");
 
-        List<ActionLayerReader.FxSubmenu> submenus = ActionLayerReader.readSubmenus(menu);
+        List<ActionLayerReader.Submenu> submenus = ActionLayerReader.readSubmenus(menu);
 
         assertEquals(2, submenus.size());
         assertEquals("Help", submenus.get(0).displayName());
@@ -102,7 +102,7 @@ public class ActionLayerReaderTest {
         ideTools.setAttribute("displayName", "IDE Tools & Properties");
         addRef(ideTools, "properties", "select-properties", 10, false);
 
-        List<ActionLayerReader.FxSubmenu> submenus = ActionLayerReader.readSubmenus(menu);
+        List<ActionLayerReader.Submenu> submenus = ActionLayerReader.readSubmenus(menu);
 
         assertEquals("IDE Tools & Properties", submenus.get(0).displayName());
     }
@@ -114,14 +114,14 @@ public class ActionLayerReaderTest {
         addRefWithMime(menu, "java", "java-only", 20, false, "text/x-java");
         addRefWithMime(menu, "xml", "xml-only", 30, false, "text/x-xml");
 
-        List<FxActionRef> java = ActionLayerReader.readForMime(menu, "text/x-java");
-        assertEquals(List.of("any", "java-only"), java.stream().map(FxActionRef::actionId).toList());
+        List<ActionRef> java = ActionLayerReader.readForMime(menu, "text/x-java");
+        assertEquals(List.of("any", "java-only"), java.stream().map(ActionRef::actionId).toList());
 
-        List<FxActionRef> other = ActionLayerReader.readForMime(menu, "text/plain");
-        assertEquals(List.of("any"), other.stream().map(FxActionRef::actionId).toList());
+        List<ActionRef> other = ActionLayerReader.readForMime(menu, "text/plain");
+        assertEquals(List.of("any"), other.stream().map(ActionRef::actionId).toList());
 
-        List<FxActionRef> noMime = ActionLayerReader.readForMime(menu, null);
-        assertEquals(List.of("any"), noMime.stream().map(FxActionRef::actionId).toList());
+        List<ActionRef> noMime = ActionLayerReader.readForMime(menu, null);
+        assertEquals(List.of("any"), noMime.stream().map(ActionRef::actionId).toList());
     }
 
     private static FileObject menuFolder() throws IOException {

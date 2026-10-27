@@ -6,12 +6,12 @@ import com.gluonhq.netbeans.nbfx.ui.session.AppState;
 import com.gluonhq.netbeans.nbfx.ui.session.DocumentCloser;
 import com.gluonhq.netbeans.nbfx.ui.shell.TabContextMenu;
 import com.gluonhq.netbeans.nbfx.ui.shell.ToolBarContainer;
-import com.gluonhq.netbeans.nbfx.menus.MenuRegistrations;
+import com.gluonhq.netbeans.nbfx.menus.Menus;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionIds;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionLayerReader;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionRegistry;
 import com.gluonhq.netbeans.nbfx.api.actions.Command;
-import com.gluonhq.netbeans.nbfx.api.actions.FxActionRef;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionRef;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorSettings;
 import com.gluonhq.netbeans.nbfx.api.project.OpenProject;
@@ -230,7 +230,7 @@ public final class ActionBars {
      * file of the globally active editor in the Projects / Files view; Select in Projects is also
      * in the editor's context menu, the right-clicked editor being the active one, as opening the
      * menu focuses it. The menu entries themselves are declared in the layer by
-     * {@link MenuRegistrations}. Their shortcuts (Shift+Shortcut+1 / +2) are bound by the windows
+     * {@link Menus}. Their shortcuts (Shift+Shortcut+1 / +2) are bound by the windows
      * themselves, so they also work in detached windows; the commands carry them for the menus to
      * show.
      */
@@ -345,7 +345,7 @@ public final class ActionBars {
             return null;
         }
         Menu menu = new Menu(spec.title().isEmpty() ? spec.id() : spec.title());
-        for (FxActionRef ref : spec.refs()) {
+        for (ActionRef ref : spec.refs()) {
             MenuItem item = createOptionalMenuItem(ref.actionId(), mainScope, null);
             if (item == null) {
                 continue;
@@ -388,7 +388,7 @@ public final class ActionBars {
     }
 
     /** A menu declared in the layer: its id, title, order and references. */
-    private record MenuSpec(String id, String title, int position, List<FxActionRef> refs) {
+    private record MenuSpec(String id, String title, int position, List<ActionRef> refs) {
     }
 
     /**
@@ -400,10 +400,10 @@ public final class ActionBars {
         Menu fileMenu = new Menu(message("Menu.file"));
         recentMenu = new Menu(message("Menu.openRecent"));
         refreshRecentProjects();
-        List<FxActionRef> refs = ActionLayerReader.read("NbFx/Menus/File");
+        List<ActionRef> refs = ActionLayerReader.read("NbFx/Menus/File");
         if (!refs.isEmpty()) {
-            for (FxActionRef ref : refs) {
-                if (MenuRegistrations.OPEN_RECENT.equals(ref.actionId())) {
+            for (ActionRef ref : refs) {
+                if (Menus.OPEN_RECENT.equals(ref.actionId())) {
                     fileMenu.getItems().add(recentMenu);
                     continue;
                 }
@@ -484,10 +484,10 @@ public final class ActionBars {
      */
     private Menu createWindowMenu(ObservableValue<EditorDocument> mainScope) {
         Menu windowMenu = new Menu(message("Menu.window"));
-        List<FxActionRef> refs = ActionLayerReader.read("NbFx/Menus/Window");
+        List<ActionRef> refs = ActionLayerReader.read("NbFx/Menus/Window");
         if (!refs.isEmpty()) {
-            for (FxActionRef ref : refs) {
-                if (MenuRegistrations.CONFIGURE_WINDOW.equals(ref.actionId())) {
+            for (ActionRef ref : refs) {
+                if (Menus.CONFIGURE_WINDOW.equals(ref.actionId())) {
                     addSeparatorIfNeeded(windowMenu, ref);
                     windowMenu.getItems().add(TabContextMenu.createConfigureWindowMenu());
                     continue;
@@ -530,7 +530,7 @@ public final class ActionBars {
     /**
      * Appends the submenus declared as subfolders of {@code layerPath} (for example
      * {@code NbFx/Menus/Window/IDE Tools}) to {@code parent}, in position order. A submenu's display
-     * name and position come from the folder attributes written by {@code @FxMenuRegistration}.
+     * name and position come from the folder attributes written by {@code @MenuRegistration}.
      */
     private void addSubmenus(Menu parent, String layerPath, ObservableValue<EditorDocument> scope) {
         FileObject folder = FileUtil.getConfigFile(layerPath);
@@ -557,14 +557,14 @@ public final class ActionBars {
 
     /** Builds the submenu declared by {@code folder}, or {@code null} when it has no items. */
     private Menu submenu(FileObject folder, ObservableValue<EditorDocument> scope) {
-        List<FxActionRef> refs = ActionLayerReader.read(folder);
+        List<ActionRef> refs = ActionLayerReader.read(folder);
         if (refs.isEmpty()) {
             return null;
         }
         String displayName = folder.getAttribute("displayName") instanceof String s && !s.isEmpty()
                 ? s : folder.getName();
         Menu menu = new Menu(displayName);
-        for (FxActionRef ref : refs) {
+        for (ActionRef ref : refs) {
             MenuItem item = createOptionalMenuItem(ref.actionId(), scope, null);
             if (item == null) {
                 continue;
@@ -576,7 +576,7 @@ public final class ActionBars {
     }
 
     /** Adds a separator before the next item when the reference asks for one and it is not already there. */
-    private static void addSeparatorIfNeeded(Menu menu, FxActionRef ref) {
+    private static void addSeparatorIfNeeded(Menu menu, ActionRef ref) {
         ObservableList<MenuItem> items = menu.getItems();
         if (ref.separatorBefore() && !items.isEmpty()
                 && !(items.get(items.size() - 1) instanceof SeparatorMenuItem)) {
@@ -647,9 +647,9 @@ public final class ActionBars {
      */
     private Menu createEditMenu(ObservableValue<EditorDocument> scope, ObservableValue<Boolean> preferFile) {
         Menu editMenu = new Menu(message("Menu.edit"));
-        List<FxActionRef> refs = ActionLayerReader.read("NbFx/Menus/Edit");
+        List<ActionRef> refs = ActionLayerReader.read("NbFx/Menus/Edit");
         if (!refs.isEmpty()) {
-            for (FxActionRef ref : refs) {
+            for (ActionRef ref : refs) {
                 MenuItem item = createOptionalMenuItem(ref.actionId(), scope, preferFile);
                 if (item == null) {
                     continue;
@@ -851,7 +851,7 @@ public final class ActionBars {
             if (!folder.isFolder()) {
                 continue;
             }
-            List<String> ids = ActionLayerReader.read(folder).stream().map(FxActionRef::actionId).toList();
+            List<String> ids = ActionLayerReader.read(folder).stream().map(ActionRef::actionId).toList();
             if (ids.isEmpty()) {
                 continue;
             }

@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.macos;
 
-import com.gluonhq.netbeans.nbfx.api.FxApplicationMenu;
+import com.gluonhq.netbeans.nbfx.api.ApplicationMenu;
 import java.awt.Desktop;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,8 +37,8 @@ import org.openide.util.lookup.ServiceProvider;
  *
  * @since 1.0
  */
-@ServiceProvider(service = FxApplicationMenu.class)
-public final class MacApplicationMenu implements FxApplicationMenu {
+@ServiceProvider(service = ApplicationMenu.class)
+public final class MacApplicationMenu implements ApplicationMenu {
 
     private static final Logger LOG = Logger.getLogger(MacApplicationMenu.class.getName());
 

@@ -20,14 +20,14 @@ package com.gluonhq.netbeans.nbfx.plugins;
 
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.SELECT_PLUGINS;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxActionReference;
+import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
 
 /**
  * Declares the Tools ▸ Plugins entry in the layer.
  * <p>
  * This class carries metadata only; it is never instantiated.
  */
-@FxActionReference(id = SELECT_PLUGINS, path = "Menus/Tools", position = 10)
+@ActionReference(id = SELECT_PLUGINS, path = "Menus/Tools", position = 10)
 final class PluginsMenuRegistrations {
 
     private PluginsMenuRegistrations() {

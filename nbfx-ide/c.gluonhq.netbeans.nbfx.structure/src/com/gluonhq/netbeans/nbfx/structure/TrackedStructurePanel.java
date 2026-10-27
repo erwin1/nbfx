@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.structure;
 
-import com.gluonhq.netbeans.nbfx.api.actions.FxActionContext;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionContext;
 import java.util.Objects;
 import javafx.scene.Node;
 import org.openide.filesystems.FileObject;
@@ -79,7 +79,7 @@ public abstract class TrackedStructurePanel<R> implements FxStructurePanel {
     }
 
     @Override
-    public void panelActivated(FxActionContext context) {
+    public void panelActivated(ActionContext context) {
         tracker().activate(context);
     }
 

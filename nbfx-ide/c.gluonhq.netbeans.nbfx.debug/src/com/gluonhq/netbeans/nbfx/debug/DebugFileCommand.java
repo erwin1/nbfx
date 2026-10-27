@@ -21,7 +21,7 @@ package com.gluonhq.netbeans.nbfx.debug;
 import com.gluonhq.netbeans.nbfx.api.ErrorReporter;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionIds;
 import com.gluonhq.netbeans.nbfx.api.actions.ContextSensitiveCommand;
-import com.gluonhq.netbeans.nbfx.api.actions.FxActionContext;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionContext;
 import com.gluonhq.netbeans.nbfx.api.editor.CaretInfo;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
 import org.openide.filesystems.FileObject;
@@ -37,7 +37,7 @@ final class DebugFileCommand extends ContextSensitiveCommand {
     }
 
     @Override
-    protected boolean isEnabled(FxActionContext context) {
+    protected boolean isEnabled(ActionContext context) {
         EditorDocument document = context.lookup(EditorDocument.class);
         FileObject file = document == null ? null : document.getFileObject();
         return file != null && DebugLauncher.isRunnableJavaFile(file);
@@ -45,7 +45,7 @@ final class DebugFileCommand extends ContextSensitiveCommand {
 
     @Override
     public void run() {
-        FxActionContext context = context();
+        ActionContext context = context();
         EditorDocument document = context == null ? null : context.lookup(EditorDocument.class);
         FileObject file = document == null ? null : document.getFileObject();
         if (file == null) {

@@ -17,12 +17,12 @@
                 Introduces <code>WindowEnvironment</code>, the host contract the JavaFX window
                 system resolves from the Lookup for detached-window bars, navigator reveal, project
                 switching and tab home resolution, replacing static setters on the tab pane. Also
-                introduces <code>ViewRegistration</code> and <code>ViewRegistry</code>, which
+                introduces <code>ViewSpec</code> and <code>ViewRegistry</code>, which
                 discover the views registered under <code>NbFx/Views</code> by
-                <code>@FxViewRegistration</code>. The API is under development until the MVP freeze.
+                <code>@ViewRegistration</code>. The API is under development until the MVP freeze.
             </description>
             <class package="com.gluonhq.netbeans.nbfx.windows" name="WindowEnvironment"/>
-            <class package="com.gluonhq.netbeans.nbfx.windows" name="ViewRegistration"/>
+            <class package="com.gluonhq.netbeans.nbfx.windows" name="ViewSpec"/>
             <class package="com.gluonhq.netbeans.nbfx.windows" name="ViewRegistry"/>
         </change>
     </changes>

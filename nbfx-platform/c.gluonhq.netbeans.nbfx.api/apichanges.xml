@@ -6,21 +6,34 @@
         <apidef name="netbeansfx_api">NetBeansFX API</apidef>
     </apidefs>
     <changes>
+        <change id="api.naming">
+            <api name="netbeansfx_api"/>
+            <summary>Drop the Fx prefix from the nbfx.api types.</summary>
+            <version major="1" minor="0"/>
+            <date day="21" month="10" year="2026"/>
+            <author login="sven"/>
+            <compatibility binary="incompatible" source="incompatible" semantic="compatible" addition="no"/>
+            <description>
+                Renames FxActionRef to ActionRef, FxApplicationMenu to ApplicationMenu, FxArea to
+                ViewArea, FxProgress to Progress, the nested FxSubmenu to Submenu, and
+                FxActionContext to ActionContext. Source-incompatible; the API is pre-freeze.
+            </description>
+        </change>
         <change id="fxprogress.handle">
             <api name="netbeansfx_api"/>
-            <summary>FxProgress.start returns a Handle; concurrent activities no longer share a slot.</summary>
+            <summary>Progress.start returns a Handle; concurrent activities no longer share a slot.</summary>
             <version major="1" minor="0"/>
             <date day="19" month="10" year="2026"/>
             <author login="sven"/>
             <compatibility binary="incompatible" source="incompatible" semantic="incompatible" addition="no"/>
             <description>
-                <code>FxProgress.start</code> now returns an <code>FxProgress.Handle</code> and
-                <code>FxProgress.finish()</code> is removed: each start is its own task, so a project
+                <code>Progress.start</code> now returns an <code>Progress.Handle</code> and
+                <code>Progress.finish()</code> is removed: each start is its own task, so a project
                 load and a build no longer merge into one status-line bar, and an activity finishes
                 only its own task. The API was under development (<code>@since 1.0</code>, no
                 released consumer) and is changed before the freeze.
             </description>
-            <class package="com.gluonhq.netbeans.nbfx.api.progress" name="FxProgress"/>
+            <class package="com.gluonhq.netbeans.nbfx.api.progress" name="Progress"/>
         </change>
         <change id="actionlayer.reader">
             <api name="netbeansfx_api"/>
@@ -30,13 +43,13 @@
             <author login="sven"/>
             <compatibility addition="yes" semantic="compatible"/>
             <description>
-                Adds <code>FxActionRef</code>, <code>ActionLayerReader</code> and
+                Adds <code>ActionRef</code>, <code>ActionLayerReader</code> and
                 <code>LayerMenuBuilder</code>, so menus can be assembled from the action references
                 the nbfx annotations write under <code>NbFx/Menus</code>, <code>NbFx/Toolbars</code>
                 and <code>NbFx/ContextMenus</code> instead of hard-coded id lists. The API is under
                 development until the MVP freeze.
             </description>
-            <class package="com.gluonhq.netbeans.nbfx.api.actions" name="FxActionRef"/>
+            <class package="com.gluonhq.netbeans.nbfx.api.actions" name="ActionRef"/>
             <class package="com.gluonhq.netbeans.nbfx.api.actions" name="ActionLayerReader"/>
             <class package="com.gluonhq.netbeans.nbfx.api.actions" name="LayerMenuBuilder"/>
         </change>

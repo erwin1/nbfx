@@ -7,7 +7,7 @@ import javafx.beans.value.ObservableValue;
  * editor.
  * <p>
  * The application shell, which owns the panes and the focus tracking, publishes the active component
- * here; the global action context ({@code FxActionContext}) follows it. It is resolved through the
+ * here; the global action context ({@code ActionContext}) follows it. It is resolved through the
  * global {@link org.openide.util.Lookup}.
  *
  * @since 1.0

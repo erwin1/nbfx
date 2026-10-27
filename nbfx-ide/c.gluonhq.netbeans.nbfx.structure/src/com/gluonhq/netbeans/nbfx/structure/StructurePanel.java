@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.structure;
 
-import com.gluonhq.netbeans.nbfx.api.actions.FxActionContext;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -90,7 +90,7 @@ final class StructurePanel extends BorderPane {
         activate(null);
         updateHeader();
 
-        FxActionContext context = FxActionContext.getDefault();
+        ActionContext context = ActionContext.getDefault();
         if (context != null) {
             // The global context follows the active component (§22): the file it carries is all that
             // decides the content type, so a single FileObject result is enough.
@@ -107,7 +107,7 @@ final class StructurePanel extends BorderPane {
     }
 
     /** Re-resolves the panels for the current content type, rebuilding the selector when it changes. */
-    private void update(FxActionContext context) {
+    private void update(ActionContext context) {
         String contentType = contentTypeOf(context);
         if (Objects.equals(contentType, currentContentType)) {
             return;
@@ -182,7 +182,7 @@ final class StructurePanel extends BorderPane {
         if (currentContentType != null) {
             prefs.put(LAST_PANEL + currentContentType, panel.getClass().getName());
         }
-        FxActionContext context = FxActionContext.getDefault();
+        ActionContext context = ActionContext.getDefault();
         if (context != null) {
             panel.panelActivated(context);
         }
@@ -200,7 +200,7 @@ final class StructurePanel extends BorderPane {
     }
 
     /** The content type to show the structure for, or {@code null} when there is no file. */
-    private static String contentTypeOf(FxActionContext context) {
+    private static String contentTypeOf(ActionContext context) {
         FileObject file = FxStructurePanel.selectedFile(context);
         return file == null ? null : file.getMIMEType();
     }

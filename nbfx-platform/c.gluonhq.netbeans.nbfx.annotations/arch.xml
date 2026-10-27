@@ -22,7 +22,7 @@
   <answer id="arch-overall">
     <p>
       The module contains only <code>SOURCE</code>-retention annotations, the
-      <a href="@TOP@/com/gluonhq/netbeans/nbfx/annotations/FxLayer.html">FxLayer</a> path constants,
+      <a href="@TOP@/com/gluonhq/netbeans/nbfx/annotations/LayerPaths.html">LayerPaths</a> path constants,
       and annotation processors built on
       <code>org.openide.filesystems.annotations.LayerGeneratingProcessor</code>. The processors
       emit <code>META-INF/generated-layer.xml</code> fragments under the <code>NbFx/</code> paths;
@@ -37,11 +37,11 @@
       Primary use cases:
     </p>
     <ul>
-      <li>A module declares an action with <code>@FxActionRegistration</code> and places it in a
-          menu, tool bar or context menu with <code>@FxActionReference</code>.</li>
-      <li>A module declares a dockable view with <code>@FxViewRegistration</code>.</li>
-      <li>A module contributes a status bar element with <code>@FxStatusRegistration</code>.</li>
-      <li>A module contributes a property editor with <code>@FxPropertyEditorRegistration</code>.</li>
+      <li>A module declares an action with <code>@ActionRegistration</code> and places it in a
+          menu, tool bar or context menu with <code>@ActionReference</code>.</li>
+      <li>A module declares a dockable view with <code>@ViewRegistration</code>.</li>
+      <li>A module contributes a status bar element with <code>@StatusRegistration</code>.</li>
+      <li>A module contributes a property editor with <code>@PropertyEditorRegistration</code>.</li>
     </ul>
   </answer>
 

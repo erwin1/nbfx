@@ -21,8 +21,8 @@ package com.gluonhq.netbeans.nbfx.project;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.NEW_PROJECT;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.OPEN_PROJECT;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxActionReference;
-import com.gluonhq.netbeans.nbfx.annotations.FxToolbarRegistration;
+import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
+import com.gluonhq.netbeans.nbfx.annotations.ToolbarRegistration;
 
 /**
  * Declares the File tool bar and its project entries in the layer, so the window builds the tool bar
@@ -30,9 +30,9 @@ import com.gluonhq.netbeans.nbfx.annotations.FxToolbarRegistration;
  * <p>
  * This class carries metadata only; it is never instantiated.
  */
-@FxToolbarRegistration(id = "file", position = 10)
-@FxActionReference(id = NEW_PROJECT, path = "Toolbars/file", position = 10)
-@FxActionReference(id = OPEN_PROJECT, path = "Toolbars/file", position = 20)
+@ToolbarRegistration(id = "file", position = 10)
+@ActionReference(id = NEW_PROJECT, path = "Toolbars/file", position = 10)
+@ActionReference(id = OPEN_PROJECT, path = "Toolbars/file", position = 20)
 final class ProjectToolbarRegistrations {
 
     private ProjectToolbarRegistrations() {

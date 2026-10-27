@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.statusbar;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxStatusAlignment;
+import com.gluonhq.netbeans.nbfx.annotations.StatusAlignment;
 import java.util.List;
 import javafx.scene.Node;
 import static org.junit.Assert.assertEquals;
@@ -34,10 +34,10 @@ public class StatusElementRegistryTest {
 
     @Test
     public void sortsBySlotThenPositionThenId() {
-        StatusElement right = element("a-right", FxStatusAlignment.RIGHT, 10);
-        StatusElement leftLate = element("b-left", FxStatusAlignment.LEFT, 20);
-        StatusElement leftEarly = element("c-left", FxStatusAlignment.LEFT, 10);
-        StatusElement center = element("d-center", FxStatusAlignment.CENTER, 5);
+        StatusElement right = element("a-right", StatusAlignment.RIGHT, 10);
+        StatusElement leftLate = element("b-left", StatusAlignment.LEFT, 20);
+        StatusElement leftEarly = element("c-left", StatusAlignment.LEFT, 10);
+        StatusElement center = element("d-center", StatusAlignment.CENTER, 5);
 
         List<StatusElement> sorted =
                 StatusElementRegistry.sort(List.of(right, leftLate, leftEarly, center));
@@ -48,15 +48,15 @@ public class StatusElementRegistryTest {
 
     @Test
     public void breaksPositionTiesById() {
-        StatusElement second = element("z", FxStatusAlignment.LEFT, 1);
-        StatusElement first = element("a", FxStatusAlignment.LEFT, 1);
+        StatusElement second = element("z", StatusAlignment.LEFT, 1);
+        StatusElement first = element("a", StatusAlignment.LEFT, 1);
 
         List<StatusElement> sorted = StatusElementRegistry.sort(List.of(second, first));
 
         assertEquals(List.of("a", "z"), sorted.stream().map(StatusElement::id).toList());
     }
 
-    private static StatusElement element(String id, FxStatusAlignment alignment, int position) {
+    private static StatusElement element(String id, StatusAlignment alignment, int position) {
         return new StatusElement(id, alignment, position, new FxStatusElement() {
             @Override
             public String getId() {

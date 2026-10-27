@@ -18,9 +18,9 @@
  */
 package com.gluonhq.netbeans.nbfx.vcs;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxActionReference;
-import com.gluonhq.netbeans.nbfx.annotations.FxViewLocation;
-import com.gluonhq.netbeans.nbfx.annotations.FxViewRegistration;
+import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
+import com.gluonhq.netbeans.nbfx.annotations.ViewLocation;
+import com.gluonhq.netbeans.nbfx.annotations.ViewRegistration;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionIds;
 import com.gluonhq.netbeans.nbfx.api.view.DockLocation;
 import com.gluonhq.netbeans.nbfx.api.view.ViewManager;
@@ -37,9 +37,9 @@ import org.openide.util.lookup.ServiceProvider;
  * @since 1.0
  */
 @ServiceProvider(service = ViewProvider.class)
-@FxViewRegistration(id = GitStatusViewProvider.ID, displayName = "Versioning",
-        location = FxViewLocation.LEFT_BOTTOM, position = 10)
-@FxActionReference(id = ActionIds.SELECT_GIT, path = "Menus/Window", position = 56)
+@ViewRegistration(id = GitStatusViewProvider.ID, displayName = "Versioning",
+        location = ViewLocation.LEFT_BOTTOM, position = 10)
+@ActionReference(id = ActionIds.SELECT_GIT, path = "Menus/Window", position = 56)
 public final class GitStatusViewProvider implements ViewProvider {
 
     /** The stable id of the view, used by the layout persistence and the view manager. */

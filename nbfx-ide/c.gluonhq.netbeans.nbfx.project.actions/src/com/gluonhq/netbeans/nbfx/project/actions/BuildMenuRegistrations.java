@@ -25,8 +25,8 @@ import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.JAVADOC;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.RUN;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.TEST;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxActionReference;
-import com.gluonhq.netbeans.nbfx.annotations.FxMenuRegistration;
+import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
+import com.gluonhq.netbeans.nbfx.annotations.MenuRegistration;
 
 /**
  * Declares the Build menu entries in the layer, so the menu is assembled from registrations. The
@@ -34,13 +34,13 @@ import com.gluonhq.netbeans.nbfx.annotations.FxMenuRegistration;
  * <p>
  * This class carries metadata only; it is never instantiated.
  */
-@FxMenuRegistration(id = "Build", position = 40)
-@FxActionReference(id = BUILD, path = "Menus/Build", position = 10)
-@FxActionReference(id = CLEAN_BUILD, path = "Menus/Build", position = 20)
-@FxActionReference(id = CLEAN, path = "Menus/Build", position = 30, separatorBefore = true)
-@FxActionReference(id = TEST, path = "Menus/Build", position = 40, separatorBefore = true)
-@FxActionReference(id = RUN, path = "Menus/Build", position = 50, separatorBefore = true)
-@FxActionReference(id = JAVADOC, path = "Menus/Build", position = 60, separatorBefore = true)
+@MenuRegistration(id = "Build", position = 40)
+@ActionReference(id = BUILD, path = "Menus/Build", position = 10)
+@ActionReference(id = CLEAN_BUILD, path = "Menus/Build", position = 20)
+@ActionReference(id = CLEAN, path = "Menus/Build", position = 30, separatorBefore = true)
+@ActionReference(id = TEST, path = "Menus/Build", position = 40, separatorBefore = true)
+@ActionReference(id = RUN, path = "Menus/Build", position = 50, separatorBefore = true)
+@ActionReference(id = JAVADOC, path = "Menus/Build", position = 60, separatorBefore = true)
 final class BuildMenuRegistrations {
 
     private BuildMenuRegistrations() {

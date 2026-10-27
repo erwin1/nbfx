@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.structure;
 
-import com.gluonhq.netbeans.nbfx.api.actions.FxActionContext;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionContext;
 import javafx.scene.Node;
 import org.openide.filesystems.FileObject;
 
@@ -78,7 +78,7 @@ public interface FxStructurePanel {
      *
      * @param context the global action context the panel should read from
      */
-    default void panelActivated(FxActionContext context) {
+    default void panelActivated(ActionContext context) {
     }
 
     /** Called when this panel is about to be hidden, so it can detach from the context. */
@@ -95,7 +95,7 @@ public interface FxStructurePanel {
      * @return the file to show, or {@code null} when the context carries none
      * @since 1.0
      */
-    static FileObject selectedFile(FxActionContext context) {
+    static FileObject selectedFile(ActionContext context) {
         return context.lookup(FileObject.class);
     }
 }

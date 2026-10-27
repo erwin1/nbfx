@@ -24,14 +24,14 @@ import java.util.List;
  * A JavaFX wizard: an ordered list of pages the user fills in, and the action that runs when they
  * press Finish.
  * <p>
- * Wizards are registered with {@code @FxWizardRegistration} and discovered through
+ * Wizards are registered with {@code @WizardRegistration} and discovered through
  * {@link WizardRegistry}.
  *
  * @since 1.0
  */
 public interface FxWizard {
 
-    /** The stable identifier of the wizard; must match the id used in {@code @FxWizardRegistration}. */
+    /** The stable identifier of the wizard; must match the id used in {@code @WizardRegistration}. */
     String getId();
 
     /** The wizard's display name, used as the dialog title. */

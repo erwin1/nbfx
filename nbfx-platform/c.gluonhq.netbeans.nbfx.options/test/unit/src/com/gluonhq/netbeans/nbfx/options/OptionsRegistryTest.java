@@ -45,11 +45,11 @@ public class OptionsRegistryTest {
         alpha.setAttribute("displayName", "Alpha");
         alpha.setAttribute("position", 10);
 
-        List<OptionsRegistration> registrations =
+        List<OptionsPanelEntry> registrations =
                 OptionsRegistry.read(folder, List.of(panel("bravo"), panel("alpha")));
 
         assertEquals(List.of("alpha", "bravo"),
-                registrations.stream().map(OptionsRegistration::id).toList());
+                registrations.stream().map(OptionsPanelEntry::id).toList());
         assertEquals("Alpha", registrations.get(0).displayName());
     }
 
@@ -57,7 +57,7 @@ public class OptionsRegistryTest {
     public void fallsBackToPanelDefaults() throws IOException {
         FileObject folder = optionsFolder();
 
-        List<OptionsRegistration> registrations = OptionsRegistry.read(folder, List.of(panel("x")));
+        List<OptionsPanelEntry> registrations = OptionsRegistry.read(folder, List.of(panel("x")));
 
         assertEquals("x", registrations.get(0).id());
         assertEquals("x", registrations.get(0).displayName());

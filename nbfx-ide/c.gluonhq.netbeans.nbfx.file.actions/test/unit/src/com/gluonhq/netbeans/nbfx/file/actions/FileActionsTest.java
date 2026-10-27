@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.file.actions;
 
-import com.gluonhq.netbeans.nbfx.api.actions.FxActionContext;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionContext;
 
 import java.io.File;
 
@@ -86,13 +86,13 @@ public class FileActionsTest extends NbTestCase {
         assertNull(FileActions.targetFolder(contextOf()));
     }
 
-    private static FxActionContext contextOf(Object... instances) {
+    private static ActionContext contextOf(Object... instances) {
         InstanceContent content = new InstanceContent();
         Lookup delegate = new AbstractLookup(content);
         for (Object instance : instances) {
             content.add(instance);
         }
-        return new FxActionContext() {
+        return new ActionContext() {
             @Override
             public <T> T lookup(Class<T> clazz) {
                 return delegate.lookup(clazz);

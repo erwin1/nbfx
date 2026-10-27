@@ -21,7 +21,7 @@ package com.gluonhq.netbeans.nbfx.structure.java.actions;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.INSPECT_FILE_MEMBERS;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.INSPECT_MEMBERS;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxActionReference;
+import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
 import com.gluonhq.netbeans.nbfx.api.actions.AbstractCommand;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionIds;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
@@ -40,9 +40,9 @@ import org.openide.util.NbBundle;
  * active Java document, or of the document's main type, and records it in the Inspect Members
  * history. Enabled while the active document is a Java file.
  */
-@FxActionReference(id = INSPECT_MEMBERS, path = "Menus/Navigate", position = 50, separatorBefore = true)
-@FxActionReference(id = INSPECT_FILE_MEMBERS, path = "Menus/Navigate", position = 60)
-@FxActionReference(id = INSPECT_MEMBERS, path = "ContextMenus/Editor/Navigate", position = 50, separatorBefore = true)
+@ActionReference(id = INSPECT_MEMBERS, path = "Menus/Navigate", position = 50, separatorBefore = true)
+@ActionReference(id = INSPECT_FILE_MEMBERS, path = "Menus/Navigate", position = 60)
+@ActionReference(id = INSPECT_MEMBERS, path = "ContextMenus/Editor/Navigate", position = 50, separatorBefore = true)
 final class InspectMembersCommand extends AbstractCommand {
 
     static final KeyCombination MEMBERS_SHORTCUT =

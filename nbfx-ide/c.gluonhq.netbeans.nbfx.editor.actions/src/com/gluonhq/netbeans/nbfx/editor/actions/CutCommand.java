@@ -1,6 +1,6 @@
 package com.gluonhq.netbeans.nbfx.editor.actions;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxActionReference;
+import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionIds;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
 
@@ -16,7 +16,7 @@ import org.openide.util.NbBundle;
  * Cuts the current selection of the active editor document to the clipboard. Enabled only when
  * the active document has a non-empty selection.
  */
-@FxActionReference(id = ActionIds.CUT, path = "ContextMenus/Editor", position = 10)
+@ActionReference(id = ActionIds.CUT, path = "ContextMenus/Editor", position = 10)
 class CutCommand extends ActiveDocumentCommand {
 
     CutCommand(ObservableValue<EditorDocument> activeDocument) {

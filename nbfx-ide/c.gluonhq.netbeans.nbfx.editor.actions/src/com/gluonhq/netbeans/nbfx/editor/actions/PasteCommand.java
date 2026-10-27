@@ -1,6 +1,6 @@
 package com.gluonhq.netbeans.nbfx.editor.actions;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxActionReference;
+import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionIds;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
 
@@ -16,7 +16,7 @@ import org.openide.util.NbBundle;
  * Pastes the clipboard content into the active editor document. Enabled whenever the active
  * document is editable.
  */
-@FxActionReference(id = ActionIds.PASTE, path = "ContextMenus/Editor", position = 30)
+@ActionReference(id = ActionIds.PASTE, path = "ContextMenus/Editor", position = 30)
 class PasteCommand extends ActiveDocumentCommand {
 
     PasteCommand(ObservableValue<EditorDocument> activeDocument) {

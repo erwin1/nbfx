@@ -18,21 +18,21 @@
  */
 package com.gluonhq.netbeans.nbfx.ui;
 
-import com.gluonhq.netbeans.nbfx.api.progress.FxProgress;
+import com.gluonhq.netbeans.nbfx.api.progress.Progress;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.netbeans.api.progress.ProgressHandle;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
- * The launcher's {@link FxProgress}: a thin adapter over the standard progress API, so every
+ * The launcher's {@link Progress}: a thin adapter over the standard progress API, so every
  * nbfx-notified activity (a project load, a build) becomes an ordinary task shown by the FX
  * progress UI in the status line and in the running-tasks popup. Each {@link #start} creates an
  * independent task with its own cancel action; concurrent activities no longer share a slot.
  *
  * @since 1.0
  */
-@ServiceProvider(service = FxProgress.class)
-public final class FxProgressImpl implements FxProgress {
+@ServiceProvider(service = Progress.class)
+public final class FxProgressImpl implements Progress {
 
     @Override
     public Handle start(String message, Runnable onCancel) {

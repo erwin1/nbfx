@@ -37,7 +37,7 @@ import static org.junit.Assert.assertTrue;
 public class ContextSensitiveCommandTest {
 
     private final InstanceContent content = new InstanceContent();
-    private final FxActionContext context = new DelegatingContext(new AbstractLookup(content));
+    private final ActionContext context = new DelegatingContext(new AbstractLookup(content));
 
     @Before
     public void setUp() {
@@ -75,7 +75,7 @@ public class ContextSensitiveCommandTest {
         }
 
         @Override
-        protected boolean isEnabled(FxActionContext context) {
+        protected boolean isEnabled(ActionContext context) {
             return context.lookup(String.class) != null || context.lookup(Integer.class) != null;
         }
 
@@ -85,7 +85,7 @@ public class ContextSensitiveCommandTest {
         }
     }
 
-    private static final class DelegatingContext extends FxActionContext {
+    private static final class DelegatingContext extends ActionContext {
         private final Lookup delegate;
 
         DelegatingContext(Lookup delegate) {

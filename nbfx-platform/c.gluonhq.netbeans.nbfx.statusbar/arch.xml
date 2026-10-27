@@ -22,7 +22,7 @@
 
   <answer id="arch-overall">
     <p>
-      Elements are registered with <code>@FxStatusRegistration</code>, which generates
+      Elements are registered with <code>@StatusRegistration</code>, which generates
       <code>NbFx/Status/&lt;id&gt;.instance</code> layer entries carrying the alignment and position.
       <code>StatusElementRegistry</code> reads that folder and returns
       the elements ordered by slot, position and id; <code>FxStatusBar</code> places their nodes in

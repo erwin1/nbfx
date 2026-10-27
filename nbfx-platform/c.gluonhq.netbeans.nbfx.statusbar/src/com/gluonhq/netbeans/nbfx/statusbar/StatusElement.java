@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.statusbar;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxStatusAlignment;
+import com.gluonhq.netbeans.nbfx.annotations.StatusAlignment;
 import java.util.Objects;
 
 /**
@@ -30,7 +30,7 @@ import java.util.Objects;
  * @param element   the element
  * @since 1.0
  */
-public record StatusElement(String id, FxStatusAlignment alignment, int position, FxStatusElement element) {
+public record StatusElement(String id, StatusAlignment alignment, int position, FxStatusElement element) {
 
     public StatusElement {
         Objects.requireNonNull(id, "id");

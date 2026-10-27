@@ -101,8 +101,10 @@ com.gluonhq.netbeans.nbfx.libs.<library>              bundled external library  
 
 **Forbidden in public API:** `Fx*`/`Sw*` names, `*Impl` names, `Object`-typed factories,
 `Map`-parameters with string keys. The only permitted shared constant class is `LayerPaths` (§3.3).
-The current tree has **60 public `Fx*` types** (56 in exported packages; the other 4 are implementation in
-`nbfx.progress`, where C.1 allows the prefix — [`figures.md`](figures.md)); the rename is
+The current tree has **28 public `Fx*` types** (24 in exported packages; the other 4 are implementation in
+`nbfx.progress`/`nbfx.context`, where C.1 allows the prefix — [`figures.md`](figures.md)); the annotations and
+`nbfx.api` slices of the rename are landed; the remaining exported ones are implementation classes that
+`refactor/api-split` moves out of exported packages; the rename is
 [Appendix C](appendix/C-naming-and-rename-table.md) and the step is `refactor/api-naming` (W1).
 
 ### 3.3 Layer paths
@@ -581,7 +583,7 @@ else keeps the trunk green (§11.0.6).
 
 **W1 — Containment, naming and API split.** `refactor/guard-java-source` (denylist/allowlist guard over the
 current 4-module allowlist; [Appendix B.5](appendix/B-java-source-isolation.md)) → `refactor/api-naming`
-([Appendix C](appendix/C-naming-and-rename-table.md): drop `Fx*` from the 56 exported types, move processors
+([Appendix C](appendix/C-naming-and-rename-table.md): drop `Fx*` from the remaining 24 exported types, move processors
 out of exported packages, introduce `api.layer.LayerPaths`; no behaviour change) →
 `refactor/java-plumbing` (`java.model` bridge; dedupe the three in-memory-file helpers and the position
 conversions) → `refactor/editor-split` (`platform.editor` / `java.editor` / `ide.editor.{xml,css}`; delivers the
@@ -753,7 +755,7 @@ Order and the per-proposal credibility test are in [H.8](appendix/H-upstream-pro
 |---|---|
 | [A — Toolkit policy](appendix/A-toolkit-policy.md) | allowed/forbidden types per tier, the `java.awt`/`javax.swing` decision, the bridge-vs-replace table, the nb-javac rule, the exemption register, the guard mechanism |
 | [B — Java source isolation](appendix/B-java-source-isolation.md) | the `java.source` audit, the existing seams, the `java.model` bridge, the module split, the policy and the migration steps |
-| [C — Naming and rename table](appendix/C-naming-and-rename-table.md) | the rule per location, all 60 public `Fx*` types and their targets, `api.layer.LayerPaths`, the `refactor/api-naming` step |
+| [C — Naming and rename table](appendix/C-naming-and-rename-table.md) | the rule per location, all 28 public `Fx*` types and their targets, `api.layer.LayerPaths`, the `refactor/api-naming` step |
 | D — [Bridge and retirement matrix](appendix/D-bridge-and-retirement-matrix.md) | every upstream module (Swing API bridges, the 50 editor/Java modules (`figures.md`), the indexing dependency, the compiler choice) with mechanism, owner, milestone and exemptions, plus the retirement matrix per milestone |
 | E — [Contracts](appendix/E-contracts.md) | threading per SPI, disposal/ownership + the leak test, accessibility, error/logging, the precise `Lookup` rule, the plugin allowlist, and the removal of the generic-`C` factories |
 | F — [Node and view migration](appendix/F-node-and-view-migration.md) | the 25 tree/table/list view files, today's item models, the target `api.nodes` model, and the migration order |

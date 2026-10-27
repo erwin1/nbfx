@@ -18,14 +18,14 @@
  */
 package com.gluonhq.netbeans.nbfx.statusbar;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxStatusAlignment;
+import com.gluonhq.netbeans.nbfx.annotations.StatusAlignment;
 import javafx.scene.Node;
 
 /**
  * One element of the JavaFX status bar: the caret position, the line separator, the selected
  * project, a progress indicator, the VCS branch...
  * <p>
- * Elements are registered with {@code @FxStatusRegistration}; the generated layer entry under
+ * Elements are registered with {@code @StatusRegistration}; the generated layer entry under
  * {@code NbFx/Status} supplies the alignment and position, so the methods here are only a fallback
  * for programmatically created elements. The {@link #getNode() node} is created once, when the
  * status bar is built on the JavaFX Application Thread, and {@link #dispose() disposed} when the
@@ -42,8 +42,8 @@ public interface FxStatusElement {
      * The horizontal slot this element occupies. Overridden by the registered
      * {@code alignment} attribute when one is present.
      */
-    default FxStatusAlignment alignment() {
-        return FxStatusAlignment.LEFT;
+    default StatusAlignment alignment() {
+        return StatusAlignment.LEFT;
     }
 
     /**

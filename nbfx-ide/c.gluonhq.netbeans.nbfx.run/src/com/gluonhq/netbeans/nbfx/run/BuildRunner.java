@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.run;
 
-import com.gluonhq.netbeans.nbfx.api.progress.FxProgress;
+import com.gluonhq.netbeans.nbfx.api.progress.Progress;
 import com.gluonhq.netbeans.nbfx.output.FxConsole;
 import com.gluonhq.netbeans.nbfx.output.FxOutput;
 import com.gluonhq.netbeans.nbfx.project.ui.api.BuildActionProvider;
@@ -81,7 +81,7 @@ public final class BuildRunner {
         FxConsole console = output.console(consoleName);
         console.clear();
         console.show();
-        FxProgress progress = Lookup.getDefault().lookup(FxProgress.class);
+        Progress progress = Lookup.getDefault().lookup(Progress.class);
         try {
             if (starter.start(output(console), progress(progress, consoleName)) == null) {
                 console.append(NbBundle.getMessage(BuildRunner.class, "BuildCommand.noTool") + "\n");
@@ -105,7 +105,7 @@ public final class BuildRunner {
         console.clear();
         console.show();
 
-        FxProgress progress = Lookup.getDefault().lookup(FxProgress.class);
+        Progress progress = Lookup.getDefault().lookup(Progress.class);
         BuildActionProvider provider = BuildActions.providerFor(dir);
         LOG.info(() -> "Build " + command + " in " + dir + " via "
                 + (provider == null ? "CLI" : provider.getClass().getName()));
@@ -126,7 +126,7 @@ public final class BuildRunner {
     }
 
     /** The CLI fallback: detect the tool from marker files and run it as a process. */
-    private static void runCli(Path dir, String command, String consoleName, FxConsole console, FxProgress progress) {
+    private static void runCli(Path dir, String command, String consoleName, FxConsole console, Progress progress) {
         List<String> commandLine = BuildTool.detect(dir).commandLine(dir, command);
         if (commandLine == null) {
             BuildActionProvider provider = BuildActions.providerFor(dir);
@@ -139,7 +139,7 @@ public final class BuildRunner {
             return;
         }
         AtomicReference<Process> process = new AtomicReference<>();
-        FxProgress.Handle handle = progress == null ? null : progress.start(consoleName, () -> {
+        Progress.Handle handle = progress == null ? null : progress.start(consoleName, () -> {
             Process running = process.get();
             if (running != null) {
                 running.destroy();
@@ -172,9 +172,9 @@ public final class BuildRunner {
         };
     }
 
-    private static BuildProgress progress(FxProgress progress, String name) {
+    private static BuildProgress progress(Progress progress, String name) {
         return new BuildProgress() {
-            private FxProgress.Handle handle;
+            private Progress.Handle handle;
 
             @Override
             public void start(String displayName, Runnable cancel) {

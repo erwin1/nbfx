@@ -2,7 +2,7 @@ package com.gluonhq.netbeans.nbfx.findinprojects.actions;
 
 import com.gluonhq.netbeans.nbfx.api.actions.ActionIds;
 import com.gluonhq.netbeans.nbfx.api.actions.Command;
-import com.gluonhq.netbeans.nbfx.api.actions.FxActionContext;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionContext;
 import com.gluonhq.netbeans.nbfx.api.actions.RunnableCommand;
 import com.gluonhq.netbeans.nbfx.api.file.FileSelectionContext;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import org.openide.util.NbBundle;
  * the selected folders - a selected file stands for its folder, as NetBeans' node
  * {@code SearchInfo} does - as the "Selected Packages and Folders" scope.
  * <p>
- * The selection is the {@link FileObject}s carried by the {@link FxActionContext}: since the global
+ * The selection is the {@link FileObject}s carried by the {@link ActionContext}: since the global
  * context follows the active component, a focused navigator publishes its own selection there, so
  * this no longer reads the retired shared selection slot.
  */
@@ -48,7 +48,7 @@ final class FindInSelectionCommand {
         Objects.requireNonNull(context);
         Objects.requireNonNull(open);
         ObservableValue<Boolean> focused = context.navigatorFocused();
-        FxActionContext action = FxActionContext.getDefault();
+        ActionContext action = ActionContext.getDefault();
         SimpleBooleanProperty hasSelection = new SimpleBooleanProperty(false);
         if (action != null) {
             LookupListener listener = event -> hasSelection.set(!selectionOf(action).isEmpty());
@@ -69,7 +69,7 @@ final class FindInSelectionCommand {
     }
 
     /** The navigator selection carried by {@code context}, in iteration order. */
-    private static List<FileObject> selectionOf(FxActionContext context) {
+    private static List<FileObject> selectionOf(ActionContext context) {
         return new ArrayList<>(context.lookupAll(FileObject.class));
     }
 

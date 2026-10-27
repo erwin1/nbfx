@@ -6,7 +6,7 @@ import java.util.List;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionIds;
 import com.gluonhq.netbeans.nbfx.api.actions.Command;
 import com.gluonhq.netbeans.nbfx.api.actions.ContextAction;
-import com.gluonhq.netbeans.nbfx.api.actions.FxActionContext;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionContext;
 import com.gluonhq.netbeans.nbfx.api.actions.RunnableCommand;
 import com.gluonhq.netbeans.nbfx.api.view.ViewProvider;
 
@@ -20,7 +20,7 @@ import org.openide.util.NbBundle;
 
 /**
  * Builds the file-scoped {@link Command}s (Cut / Copy / Paste / Undo / Redo, registered under the
- * {@code file.*} ids) driven by the global {@link FxActionContext}, the system clipboard and the
+ * {@code file.*} ids) driven by the global {@link ActionContext}, the system clipboard and the
  * shared {@link FileUndoManager}.
  *
  * <p>The file selection is the set of {@link FileObject}s carried by the context; the system
@@ -72,29 +72,29 @@ public final class FileActions {
         return redoCommand;
     }
 
-    static boolean canCopyCut(FxActionContext context) {
+    static boolean canCopyCut(ActionContext context) {
         return !realFiles(context).isEmpty();
     }
 
-    static boolean canPaste(FxActionContext context) {
+    static boolean canPaste(ActionContext context) {
         return FileClipboard.hasFiles() && targetFolder(context) != null;
     }
 
-    private static void copy(FxActionContext context) {
+    private static void copy(ActionContext context) {
         List<FileObject> files = realFiles(context);
         if (!files.isEmpty()) {
             FileClipboardActions.copy(files);
         }
     }
 
-    private static void cut(FxActionContext context) {
+    private static void cut(ActionContext context) {
         List<FileObject> files = realFiles(context);
         if (!files.isEmpty()) {
             FileClipboardActions.cut(files);
         }
     }
 
-    private static void paste(FxActionContext context) {
+    private static void paste(ActionContext context) {
         FileObject target = targetFolder(context);
         if (target != null) {
             FileClipboardActions.paste(target);
@@ -102,7 +102,7 @@ public final class FileActions {
     }
 
     /** The current selection restricted to entries backed by a real file on disk. */
-    private static List<FileObject> realFiles(FxActionContext context) {
+    private static List<FileObject> realFiles(ActionContext context) {
         List<FileObject> files = new ArrayList<>();
         for (FileObject fo : context.lookupAll(FileObject.class)) {
             if (hasRealFile(fo)) {
@@ -113,7 +113,7 @@ public final class FileActions {
     }
 
     /** The folder a paste targets: the first selected entry if a folder, else its parent. */
-    static FileObject targetFolder(FxActionContext context) {
+    static FileObject targetFolder(ActionContext context) {
         for (FileObject fo : context.lookupAll(FileObject.class)) {
             return fo.isFolder() ? fo : fo.getParent();
         }

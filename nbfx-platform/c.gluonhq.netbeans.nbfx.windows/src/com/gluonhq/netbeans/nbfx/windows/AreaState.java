@@ -28,7 +28,7 @@ import java.util.Objects;
  * <p>Docked areas carry no geometry: the coordinates are NaN until the area is detached into its own
  * window.
  *
- * @param areaId        the {@link com.gluonhq.netbeans.nbfx.api.view.FxArea#id() area id}
+ * @param areaId        the {@link com.gluonhq.netbeans.nbfx.api.view.ViewArea#id() area id}
  * @param viewIds       the attached view tab ids, in display order
  * @param activeViewId  the id of the active tab, or {@code null} when the area has no tabs
  * @param x             the detach-window x, or NaN when docked

@@ -21,14 +21,14 @@ package com.gluonhq.netbeans.nbfx.options;
 import javafx.scene.Node;
 
 /**
- * One panel of the Options dialog. Panels are registered with {@code @FxOptionsRegistration} and
+ * One panel of the Options dialog. Panels are registered with {@code @OptionsRegistration} and
  * discovered through {@link OptionsRegistry}.
  *
  * @since 1.0
  */
 public interface FxOptionsPanel {
 
-    /** The stable identifier of the panel; must match {@code @FxOptionsRegistration#id()}. */
+    /** The stable identifier of the panel; must match {@code @OptionsRegistration#id()}. */
     String getId();
 
     /** The panel's display name, shown in the category list. */

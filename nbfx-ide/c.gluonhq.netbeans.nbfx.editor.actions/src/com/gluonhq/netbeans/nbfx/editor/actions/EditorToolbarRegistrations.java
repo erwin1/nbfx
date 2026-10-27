@@ -27,8 +27,8 @@ import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.SAVE;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.SAVE_ALL;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.UNDO;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxActionReference;
-import com.gluonhq.netbeans.nbfx.annotations.FxToolbarRegistration;
+import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
+import com.gluonhq.netbeans.nbfx.annotations.ToolbarRegistration;
 
 /**
  * Declares the Clipboard and Edit tool bars and their editor entries in the layer, and the save
@@ -36,16 +36,16 @@ import com.gluonhq.netbeans.nbfx.annotations.FxToolbarRegistration;
  * <p>
  * This class carries metadata only; it is never instantiated.
  */
-@FxToolbarRegistration(id = "clipboard", position = 20)
-@FxToolbarRegistration(id = "edit", position = 30)
-@FxActionReference(id = SAVE, path = "Toolbars/file", position = 30)
-@FxActionReference(id = SAVE_ALL, path = "Toolbars/file", position = 40)
-@FxActionReference(id = CUT, path = "Toolbars/clipboard", position = 10)
-@FxActionReference(id = COPY, path = "Toolbars/clipboard", position = 20)
-@FxActionReference(id = PASTE, path = "Toolbars/clipboard", position = 30)
-@FxActionReference(id = FIND, path = "Toolbars/clipboard", position = 40)
-@FxActionReference(id = UNDO, path = "Toolbars/edit", position = 10)
-@FxActionReference(id = REDO, path = "Toolbars/edit", position = 20)
+@ToolbarRegistration(id = "clipboard", position = 20)
+@ToolbarRegistration(id = "edit", position = 30)
+@ActionReference(id = SAVE, path = "Toolbars/file", position = 30)
+@ActionReference(id = SAVE_ALL, path = "Toolbars/file", position = 40)
+@ActionReference(id = CUT, path = "Toolbars/clipboard", position = 10)
+@ActionReference(id = COPY, path = "Toolbars/clipboard", position = 20)
+@ActionReference(id = PASTE, path = "Toolbars/clipboard", position = 30)
+@ActionReference(id = FIND, path = "Toolbars/clipboard", position = 40)
+@ActionReference(id = UNDO, path = "Toolbars/edit", position = 10)
+@ActionReference(id = REDO, path = "Toolbars/edit", position = 20)
 final class EditorToolbarRegistrations {
 
     private EditorToolbarRegistrations() {

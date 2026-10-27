@@ -63,13 +63,13 @@ public final class LayerMenuBuilder {
      */
     public List<MenuItem> build(FileObject folder) {
         List<Node> nodes = new ArrayList<>();
-        for (FxActionRef ref : ActionLayerReader.read(folder)) {
+        for (ActionRef ref : ActionLayerReader.read(folder)) {
             registry.find(ref.actionId()).ifPresentOrElse(
                     command -> nodes.add(new Node(ref.position(),
                             ref.separatorBefore(), item(command))),
                     () -> LOG.warning("No command registered for action reference: " + ref.actionId()));
         }
-        for (ActionLayerReader.FxSubmenu submenu : ActionLayerReader.readSubmenus(folder)) {
+        for (ActionLayerReader.Submenu submenu : ActionLayerReader.readSubmenus(folder)) {
             List<MenuItem> children = build(submenu.folder());
             if (!children.isEmpty()) {
                 Menu menu = new Menu(submenu.displayName());

@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.options;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxOptionsRegistration;
+import com.gluonhq.netbeans.nbfx.annotations.OptionsRegistration;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorSettings;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -34,10 +34,10 @@ import org.openide.util.NbBundle;
  *
  * @since 1.0
  */
-@FxOptionsRegistration(id = EditorOptionsPanel.ID, categoryName = "Editor", position = 10)
+@OptionsRegistration(id = EditorOptionsPanel.ID, categoryName = "Editor", position = 10)
 public final class EditorOptionsPanel implements FxOptionsPanel {
 
-    /** The panel id, referenced by {@code @FxOptionsRegistration}. */
+    /** The panel id, referenced by {@code @OptionsRegistration}. */
     public static final String ID = "editor";
 
     private final GridPane grid = new GridPane();

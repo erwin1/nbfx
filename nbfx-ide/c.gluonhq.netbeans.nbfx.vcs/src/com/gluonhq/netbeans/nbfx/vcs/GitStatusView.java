@@ -19,7 +19,7 @@
 package com.gluonhq.netbeans.nbfx.vcs;
 
 import com.gluonhq.netbeans.nbfx.api.ErrorReporter;
-import com.gluonhq.netbeans.nbfx.api.actions.FxActionContext;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionContext;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
 import com.gluonhq.netbeans.nbfx.api.project.OpenProject;
 import com.gluonhq.netbeans.nbfx.project.context.ProjectContext;
@@ -83,7 +83,7 @@ final class GitStatusView extends BorderPane {
 
         // Follow the global action context: reload when the selected file/project or the active
         // editor document changes, so the view always shows the current selection's repository.
-        FxActionContext context = FxActionContext.getDefault();
+        ActionContext context = ActionContext.getDefault();
         if (context != null) {
             LookupListener listener = event -> reload();
             for (Class<?> type : List.of(FileObject.class, EditorDocument.class, OpenProject.class)) {

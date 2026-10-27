@@ -12,11 +12,11 @@ import org.openide.util.LookupListener;
 
 /**
  * Base class for {@link Command}s whose enabled state is derived from the global
- * {@link FxActionContext}.
+ * {@link ActionContext}.
  * <p>
  * This is the nbfx counterpart of the Swing {@code LookupSensitiveAction}: instead of each command
  * reaching into the project, file and editor registries and re-implementing its own listeners, it
- * declares the context types it depends on and {@link #isEnabled(FxActionContext)}, and the base
+ * declares the context types it depends on and {@link #isEnabled(ActionContext)}, and the base
  * class re-evaluates the command whenever one of those types changes. The command is disabled when
  * no context is registered.
  * <p>
@@ -51,7 +51,7 @@ public abstract class ContextSensitiveCommand extends AbstractCommand {
     protected ContextSensitiveCommand(String id, String text, KeyCombination accelerator,
             Class<?>... observedTypes) {
         super(id, text, accelerator);
-        FxActionContext context = FxActionContext.getDefault();
+        ActionContext context = ActionContext.getDefault();
         if (context != null) {
             for (Class<?> type : observedTypes) {
                 Lookup.Result<?> result = context.lookupResult(type);
@@ -69,18 +69,18 @@ public abstract class ContextSensitiveCommand extends AbstractCommand {
      *
      * @return the context, or {@code null}
      */
-    protected final FxActionContext context() {
-        return FxActionContext.getDefault();
+    protected final ActionContext context() {
+        return ActionContext.getDefault();
     }
 
     /**
-     * Re-evaluates {@link #isEnabled(FxActionContext)} and updates the disabled state. Called
+     * Re-evaluates {@link #isEnabled(ActionContext)} and updates the disabled state. Called
      * automatically when an observed context type changes, and once after construction. A subclass
      * that needs the state to be correct before the next JavaFX pulse (for example in a headless
      * unit test) may call it at the end of its constructor.
      */
     protected final void refreshContext() {
-        FxActionContext context = context();
+        ActionContext context = context();
         setDisabled(context == null || !isEnabled(context));
     }
 
@@ -104,7 +104,7 @@ public abstract class ContextSensitiveCommand extends AbstractCommand {
      * @param context the global action context, never {@code null}
      * @return {@code true} when the command is enabled
      */
-    protected abstract boolean isEnabled(FxActionContext context);
+    protected abstract boolean isEnabled(ActionContext context);
 
     @Override
     public void dispose() {

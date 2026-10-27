@@ -1,7 +1,7 @@
 package com.gluonhq.netbeans.nbfx.progress;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxStatusAlignment;
-import com.gluonhq.netbeans.nbfx.annotations.FxStatusRegistration;
+import com.gluonhq.netbeans.nbfx.annotations.StatusAlignment;
+import com.gluonhq.netbeans.nbfx.annotations.StatusRegistration;
 import com.gluonhq.netbeans.nbfx.statusbar.FxStatusElement;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
@@ -19,7 +19,7 @@ import org.openide.util.NbBundle;
  * the all-tasks popup (plus a cancel button for a cancellable active task). Driven by the
  * {@link FxProgressWorker} singleton, which receives events from the reused progress controller.
  */
-@FxStatusRegistration(id = "progress", alignment = FxStatusAlignment.LEFT, position = 100)
+@StatusRegistration(id = "progress", alignment = StatusAlignment.LEFT, position = 100)
 public final class FxProgressElement implements FxStatusElement {
 
     private final FxProgressWorker worker = FxProgressWorker.getInstance();

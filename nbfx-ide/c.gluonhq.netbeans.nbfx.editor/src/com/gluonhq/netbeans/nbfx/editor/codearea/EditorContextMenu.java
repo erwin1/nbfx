@@ -4,7 +4,7 @@ import com.gluonhq.netbeans.nbfx.api.actions.ActionLayerReader;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionRegistry;
 import com.gluonhq.netbeans.nbfx.api.actions.Command;
 import com.gluonhq.netbeans.nbfx.api.actions.EditorContextMenuIds;
-import com.gluonhq.netbeans.nbfx.api.actions.FxActionRef;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionRef;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -22,8 +22,8 @@ import org.openide.util.Lookup;
 
 /**
  * The context menu of a code editor, built each time it opens from the {@code NbFx/ContextMenus/Editor}
- * layer folder - the references modules declare with {@code @FxActionReference}, and the submenus
- * they declare with {@code @FxMenuRegistration(path = "ContextMenus/Editor")}, such as Navigate -
+ * layer folder - the references modules declare with {@code @ActionReference}, and the submenus
+ * they declare with {@code @MenuRegistration(path = "ContextMenus/Editor")}, such as Navigate -
  * resolved against the {@link ActionRegistry}, so the items reflect the current enablement; the ids
  * of {@link EditorContextMenuIds} are the fallback of a layer without entries. Opening the menu
  * focuses the editor first, making it the active document the commands act on.
@@ -101,13 +101,13 @@ final class EditorContextMenu {
         record Entry(int position, boolean separatorBefore, MenuItem item) {
         }
         List<Entry> entries = new ArrayList<>();
-        for (FxActionRef ref : ActionLayerReader.read(folder)) {
+        for (ActionRef ref : ActionLayerReader.read(folder)) {
             Command command = registry.find(ref.actionId()).orElse(null);
             if (command != null) {
                 entries.add(new Entry(ref.position(), ref.separatorBefore(), itemFor(command)));
             }
         }
-        for (ActionLayerReader.FxSubmenu submenu : ActionLayerReader.readSubmenus(folder)) {
+        for (ActionLayerReader.Submenu submenu : ActionLayerReader.readSubmenus(folder)) {
             List<MenuItem> children = build(submenu.folder(), registry);
             if (!children.isEmpty()) {
                 Menu nested = new Menu(submenu.displayName());

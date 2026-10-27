@@ -33,43 +33,43 @@ public class FxAreaTest {
 
     @Test
     public void defaultsMirrorTheSwingModes() {
-        assertEquals("editor", FxArea.EDITOR.id());
-        assertEquals(DockLocation.CENTER, FxArea.EDITOR.location());
+        assertEquals("editor", ViewArea.EDITOR.id());
+        assertEquals(DockLocation.CENTER, ViewArea.EDITOR.location());
 
-        assertEquals("explorer", FxArea.EXPLORER.id());
-        assertEquals(DockLocation.LEFT, FxArea.EXPLORER.location());
+        assertEquals("explorer", ViewArea.EXPLORER.id());
+        assertEquals(DockLocation.LEFT, ViewArea.EXPLORER.location());
 
-        assertEquals("navigator", FxArea.NAVIGATOR.id());
-        assertEquals(DockLocation.LEFT_BOTTOM, FxArea.NAVIGATOR.location());
+        assertEquals("navigator", ViewArea.NAVIGATOR.id());
+        assertEquals(DockLocation.LEFT_BOTTOM, ViewArea.NAVIGATOR.location());
 
-        assertEquals("properties", FxArea.PROPERTIES.id());
-        assertEquals(DockLocation.RIGHT, FxArea.PROPERTIES.location());
+        assertEquals("properties", ViewArea.PROPERTIES.id());
+        assertEquals(DockLocation.RIGHT, ViewArea.PROPERTIES.location());
 
-        assertEquals("output", FxArea.OUTPUT.id());
-        assertEquals(DockLocation.CENTER_BOTTOM, FxArea.OUTPUT.location());
+        assertEquals("output", ViewArea.OUTPUT.id());
+        assertEquals(DockLocation.CENTER_BOTTOM, ViewArea.OUTPUT.location());
     }
 
     @Test
     public void looksUpByIdCaseInsensitively() {
-        assertEquals(FxArea.EDITOR, FxArea.lookUp("Editor").orElseThrow());
-        assertEquals(FxArea.OUTPUT, FxArea.lookUp("output").orElseThrow());
-        assertEquals(Optional.empty(), FxArea.lookUp("console"));
+        assertEquals(ViewArea.EDITOR, ViewArea.lookUp("Editor").orElseThrow());
+        assertEquals(ViewArea.OUTPUT, ViewArea.lookUp("output").orElseThrow());
+        assertEquals(Optional.empty(), ViewArea.lookUp("console"));
     }
 
     @Test
     public void resolvesTheDefaultForALocation() {
-        assertEquals(Optional.of(FxArea.EXPLORER), FxArea.defaultFor(DockLocation.LEFT));
-        assertEquals(Optional.of(FxArea.NAVIGATOR), FxArea.defaultFor(DockLocation.LEFT_BOTTOM));
-        assertEquals(Optional.of(FxArea.OUTPUT), FxArea.defaultFor(DockLocation.CENTER_BOTTOM));
-        assertEquals(Optional.of(FxArea.PROPERTIES), FxArea.defaultFor(DockLocation.RIGHT));
+        assertEquals(Optional.of(ViewArea.EXPLORER), ViewArea.defaultFor(DockLocation.LEFT));
+        assertEquals(Optional.of(ViewArea.NAVIGATOR), ViewArea.defaultFor(DockLocation.LEFT_BOTTOM));
+        assertEquals(Optional.of(ViewArea.OUTPUT), ViewArea.defaultFor(DockLocation.CENTER_BOTTOM));
+        assertEquals(Optional.of(ViewArea.PROPERTIES), ViewArea.defaultFor(DockLocation.RIGHT));
     }
 
     @Test
     public void keepsWeightsInBounds() {
-        assertTrue(FxArea.EXPLORER.weight() > 0 && FxArea.EXPLORER.weight() < 1);
-        assertTrue(FxArea.EDITOR.weight() == 1.0d);
+        assertTrue(ViewArea.EXPLORER.weight() > 0 && ViewArea.EXPLORER.weight() < 1);
+        assertTrue(ViewArea.EDITOR.weight() == 1.0d);
         try {
-            new FxArea("bad", "Bad", DockLocation.CENTER, 1.5);
+            new ViewArea("bad", "Bad", DockLocation.CENTER, 1.5);
             fail("expected an out-of-range weight to be rejected");
         } catch (IllegalArgumentException expected) {
             // good

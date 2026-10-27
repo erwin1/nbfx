@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.api.actions;
 
-import com.gluonhq.netbeans.nbfx.annotations.FxLayer;
+import com.gluonhq.netbeans.nbfx.annotations.LayerPaths;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -36,8 +36,8 @@ import org.openide.filesystems.FileUtil;
  */
 public final class ActionLayerReader {
 
-    private static final String REF_EXT = FxLayer.REF_SUFFIX.startsWith(".")
-            ? FxLayer.REF_SUFFIX.substring(1) : FxLayer.REF_SUFFIX;
+    private static final String REF_EXT = LayerPaths.REF_SUFFIX.startsWith(".")
+            ? LayerPaths.REF_SUFFIX.substring(1) : LayerPaths.REF_SUFFIX;
 
     private ActionLayerReader() {
     }
@@ -48,11 +48,11 @@ public final class ActionLayerReader {
      * @param folder the surface folder (for example {@code NbFx/Menus/File}); may be {@code null}
      * @return the ordered references, never {@code null}
      */
-    public static List<FxActionRef> read(FileObject folder) {
+    public static List<ActionRef> read(FileObject folder) {
         if (folder == null) {
             return List.of();
         }
-        List<FxActionRef> refs = new ArrayList<>();
+        List<ActionRef> refs = new ArrayList<>();
         for (FileObject child : folder.getChildren()) {
             if (!child.isData() || !child.hasExt(REF_EXT)) {
                 continue;
@@ -60,10 +60,10 @@ public final class ActionLayerReader {
             if (child.getAttribute("actionId") instanceof String actionId && !actionId.isBlank()) {
                 int position = child.getAttribute("position") instanceof Integer p ? p : Integer.MAX_VALUE;
                 boolean separatorBefore = Boolean.TRUE.equals(child.getAttribute("separatorBefore"));
-                refs.add(new FxActionRef(actionId, position, separatorBefore));
+                refs.add(new ActionRef(actionId, position, separatorBefore));
             }
         }
-        refs.sort(Comparator.comparingInt(FxActionRef::position).thenComparing(FxActionRef::actionId));
+        refs.sort(Comparator.comparingInt(ActionRef::position).thenComparing(ActionRef::actionId));
         return List.copyOf(refs);
     }
 
@@ -77,11 +77,11 @@ public final class ActionLayerReader {
      * @param mimeType the content type of the node the surface is being built for, or {@code null}
      * @return the ordered references, never {@code null}
      */
-    public static List<FxActionRef> readForMime(FileObject folder, String mimeType) {
+    public static List<ActionRef> readForMime(FileObject folder, String mimeType) {
         if (folder == null) {
             return List.of();
         }
-        List<FxActionRef> refs = new ArrayList<>();
+        List<ActionRef> refs = new ArrayList<>();
         for (FileObject child : folder.getChildren()) {
             if (!child.isData() || !child.hasExt(REF_EXT)) {
                 continue;
@@ -94,9 +94,9 @@ public final class ActionLayerReader {
             }
             int position = child.getAttribute("position") instanceof Integer p ? p : Integer.MAX_VALUE;
             boolean separatorBefore = Boolean.TRUE.equals(child.getAttribute("separatorBefore"));
-            refs.add(new FxActionRef(actionId, position, separatorBefore));
+            refs.add(new ActionRef(actionId, position, separatorBefore));
         }
-        refs.sort(Comparator.comparingInt(FxActionRef::position).thenComparing(FxActionRef::actionId));
+        refs.sort(Comparator.comparingInt(ActionRef::position).thenComparing(ActionRef::actionId));
         return List.copyOf(refs);
     }
 
@@ -108,7 +108,7 @@ public final class ActionLayerReader {
      * @param mimeType  the content type of the node, or {@code null}
      * @return the ordered references, never {@code null}
      */
-    public static List<FxActionRef> readForMime(String layerPath, String mimeType) {
+    public static List<ActionRef> readForMime(String layerPath, String mimeType) {
         return readForMime(layerPath == null ? null : FileUtil.getConfigFile(layerPath), mimeType);
     }
 
@@ -128,14 +128,14 @@ public final class ActionLayerReader {
      * @param displayName    the submenu's title, from its {@code displayName} attribute or folder name
      * @param folder         the layer folder holding the submenu's contents
      */
-    public record FxSubmenu(int position, boolean separatorBefore, String displayName, FileObject folder) {
+    public record Submenu(int position, boolean separatorBefore, String displayName, FileObject folder) {
 
-        static FxSubmenu of(FileObject folder) {
+        static Submenu of(FileObject folder) {
             String displayName = folder.getAttribute("displayName") instanceof String name && !name.isBlank()
                     ? name : folder.getName();
             int position = folder.getAttribute("position") instanceof Integer p ? p : Integer.MAX_VALUE;
             boolean separatorBefore = Boolean.TRUE.equals(folder.getAttribute("separatorBefore"));
-            return new FxSubmenu(position, separatorBefore, displayName, folder);
+            return new Submenu(position, separatorBefore, displayName, folder);
         }
     }
 
@@ -147,17 +147,17 @@ public final class ActionLayerReader {
      * @param folder the surface folder (for example {@code NbFx/Menus/Window}); may be {@code null}
      * @return the ordered submenu folders, never {@code null}
      */
-    public static List<FxSubmenu> readSubmenus(FileObject folder) {
+    public static List<Submenu> readSubmenus(FileObject folder) {
         if (folder == null) {
             return List.of();
         }
-        List<FxSubmenu> submenus = new ArrayList<>();
+        List<Submenu> submenus = new ArrayList<>();
         for (FileObject child : folder.getChildren()) {
             if (child.isFolder() && hasContent(child)) {
-                submenus.add(FxSubmenu.of(child));
+                submenus.add(Submenu.of(child));
             }
         }
-        submenus.sort(Comparator.comparingInt(FxSubmenu::position).thenComparing(FxSubmenu::displayName));
+        submenus.sort(Comparator.comparingInt(Submenu::position).thenComparing(Submenu::displayName));
         return List.copyOf(submenus);
     }
 
@@ -181,7 +181,7 @@ public final class ActionLayerReader {
      * @param layerPath the layer path; may be {@code null}
      * @return the ordered references, never {@code null}
      */
-    public static List<FxActionRef> read(String layerPath) {
+    public static List<ActionRef> read(String layerPath) {
         return read(layerPath == null ? null : FileUtil.getConfigFile(layerPath));
     }
 }

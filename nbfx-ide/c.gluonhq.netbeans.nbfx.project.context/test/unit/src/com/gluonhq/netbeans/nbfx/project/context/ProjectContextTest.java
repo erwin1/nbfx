@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.project.context;
 
-import com.gluonhq.netbeans.nbfx.api.actions.FxActionContext;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionContext;
 import com.gluonhq.netbeans.nbfx.api.project.OpenProject;
 import com.gluonhq.netbeans.nbfx.api.project.ProjectRegistry;
 
@@ -87,7 +87,7 @@ public class ProjectContextTest {
         assertNull(ProjectContext.selectedProject());
     }
 
-    private static final class DelegatingContext extends FxActionContext {
+    private static final class DelegatingContext extends ActionContext {
         private final Lookup delegate;
 
         DelegatingContext(Lookup delegate) {
