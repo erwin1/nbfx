@@ -1,6 +1,6 @@
 package com.gluonhq.netbeans.nbfx.findusages.ui;
 
-import com.gluonhq.netbeans.nbfx.api.ContentManager;
+import com.gluonhq.netbeans.nbfx.api.editor.ContentManager;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorPreview;
 import com.gluonhq.netbeans.nbfx.api.view.CellBreadth;
 import com.gluonhq.netbeans.nbfx.api.project.OpenProject;

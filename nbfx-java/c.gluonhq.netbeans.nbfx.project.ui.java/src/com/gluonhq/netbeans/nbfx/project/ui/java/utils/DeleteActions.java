@@ -7,7 +7,7 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.gluonhq.netbeans.nbfx.api.ContentManager;
+import com.gluonhq.netbeans.nbfx.api.editor.ContentManager;
 import com.gluonhq.netbeans.nbfx.project.ui.java.ProjectEntry;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;

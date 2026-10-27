@@ -1,4 +1,4 @@
-package com.gluonhq.netbeans.nbfx.api;
+package com.gluonhq.netbeans.nbfx.api.dialogs;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

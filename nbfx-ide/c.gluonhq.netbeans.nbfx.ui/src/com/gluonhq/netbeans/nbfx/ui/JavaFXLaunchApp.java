@@ -35,7 +35,7 @@ import com.gluonhq.netbeans.nbfx.windows.WindowState;
 import com.gluonhq.netbeans.nbfx.windows.ViewSpec;
 import com.gluonhq.netbeans.nbfx.windows.ViewRegistry;
 
-import com.gluonhq.netbeans.nbfx.api.ContentManager;
+import com.gluonhq.netbeans.nbfx.api.editor.ContentManager;
 import com.gluonhq.netbeans.nbfx.api.view.ApplicationMenu;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionIds;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionRegistry;

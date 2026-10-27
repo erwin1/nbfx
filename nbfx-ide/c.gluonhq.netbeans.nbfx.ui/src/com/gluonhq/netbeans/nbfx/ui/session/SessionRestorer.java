@@ -9,7 +9,7 @@ import com.gluonhq.netbeans.nbfx.ui.shell.EditorSplit;
 import com.gluonhq.netbeans.nbfx.ui.shell.NbfxTabPane;
 import com.gluonhq.netbeans.nbfx.ui.shell.SlidingArea;
 
-import com.gluonhq.netbeans.nbfx.api.ContentManager;
+import com.gluonhq.netbeans.nbfx.api.editor.ContentManager;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
 import com.gluonhq.netbeans.nbfx.api.view.ViewProvider;
 import com.gluonhq.netbeans.nbfx.ui.session.AppState.Layout;

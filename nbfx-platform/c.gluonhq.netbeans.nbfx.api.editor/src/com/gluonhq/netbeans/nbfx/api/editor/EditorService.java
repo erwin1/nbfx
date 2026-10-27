@@ -4,7 +4,7 @@ import org.openide.filesystems.FileObject;
 
 /**
  * Factory for editor documents. The resulting {@link EditorDocument} is handed to the
- * {@link com.gluonhq.netbeans.nbfx.api.ContentManager}.
+ * {@link com.gluonhq.netbeans.nbfx.api.editor.ContentManager}.
  */
 public interface EditorService {
 

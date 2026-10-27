@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.vcs;
 
-import com.gluonhq.netbeans.nbfx.api.ErrorReporter;
+import com.gluonhq.netbeans.nbfx.api.dialogs.ErrorReporter;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionContext;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
 import com.gluonhq.netbeans.nbfx.api.project.OpenProject;

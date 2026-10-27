@@ -2,7 +2,7 @@ package com.gluonhq.netbeans.nbfx.ui.session;
 
 import com.gluonhq.netbeans.nbfx.ui.context.EditorContexts;
 
-import com.gluonhq.netbeans.nbfx.api.ContentManager;
+import com.gluonhq.netbeans.nbfx.api.editor.ContentManager;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
 
 import java.util.ArrayList;

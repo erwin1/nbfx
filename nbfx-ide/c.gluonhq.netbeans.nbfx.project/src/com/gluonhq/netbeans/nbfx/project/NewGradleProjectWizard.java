@@ -19,7 +19,7 @@
 package com.gluonhq.netbeans.nbfx.project;
 
 import com.gluonhq.netbeans.nbfx.annotations.WizardRegistration;
-import com.gluonhq.netbeans.nbfx.api.ErrorReporter;
+import com.gluonhq.netbeans.nbfx.api.dialogs.ErrorReporter;
 import com.gluonhq.netbeans.nbfx.api.project.ProjectRegistry;
 import com.gluonhq.netbeans.nbfx.wizard.FxWizard;
 import com.gluonhq.netbeans.nbfx.wizard.FxWizardPanel;

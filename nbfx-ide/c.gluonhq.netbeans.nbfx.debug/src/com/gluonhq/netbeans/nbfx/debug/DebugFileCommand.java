@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.debug;
 
-import com.gluonhq.netbeans.nbfx.api.ErrorReporter;
+import com.gluonhq.netbeans.nbfx.api.dialogs.ErrorReporter;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionIds;
 import com.gluonhq.netbeans.nbfx.api.actions.ContextSensitiveCommand;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionContext;

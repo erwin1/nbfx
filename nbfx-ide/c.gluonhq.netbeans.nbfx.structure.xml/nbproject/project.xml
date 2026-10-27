@@ -26,14 +26,6 @@
             <code-name-base>com.gluonhq.netbeans.nbfx.structure.xml</code-name-base>
             <module-dependencies>
                 <dependency>
-                    <code-name-base>com.gluonhq.netbeans.nbfx.api</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <specification-version>1.0</specification-version>
-                    </run-dependency>
-                </dependency>
-                <dependency>
                     <code-name-base>com.gluonhq.netbeans.nbfx.lib.javafx</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>

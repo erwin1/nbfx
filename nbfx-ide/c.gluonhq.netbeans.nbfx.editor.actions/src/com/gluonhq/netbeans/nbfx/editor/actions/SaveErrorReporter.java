@@ -2,7 +2,7 @@ package com.gluonhq.netbeans.nbfx.editor.actions;
 
 import java.util.List;
 
-import com.gluonhq.netbeans.nbfx.api.ErrorReporter;
+import com.gluonhq.netbeans.nbfx.api.dialogs.ErrorReporter;
 
 /**
  * Surfaces save failures to the user through a modal error dialog, so that a save can never

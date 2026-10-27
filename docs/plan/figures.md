@@ -9,9 +9,9 @@ Every number the plan states is derived here from the tree. Regenerate with
 | nbfx modules | 51 |
 | nbfx source files | 585 |
 | modules exporting packages (`<public-packages>`) | 39 |
-| of those, subtree exports (`<subpackages>`) | 23 |
+| of those, subtree exports (`<subpackages>`) | 22 |
 | modules with `arch.xml` | 18 |
-| modules with `apichanges.xml` | 10 |
+| modules with `apichanges.xml` | 9 |
 | distinct `OpenIDE-Module-Specification-Version` values | 1: 1.0 |
 | public `Fx*` types (total) | 28 |
 | public `Fx*` types in exporting modules | 24 |
@@ -23,7 +23,7 @@ Every number the plan states is derived here from the tree. Regenerate with
 | files importing `org.netbeans.api.java.source` | 43 |
 | files touching the Java semantic surface (`java.source`, `api.java.*`, `com.sun.source`, `libs.javacapi`) | 62 |
 | files using `NbBundle` | 152 |
-| `Bundle.properties` files | 59 |
+| `Bundle.properties` files | 58 |
 | test files | 33 |
 | modules with tests | 25 of 51 |
 | upstream editor/Java modules (ide/editor*, java/java.source*, java.java.hints*) | 50 |

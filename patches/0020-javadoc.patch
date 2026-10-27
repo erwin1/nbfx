@@ -12,38 +12,3 @@ index 692f477ba5..4cfd85548a 100644
  
  # List of modules that provide stable javadoc
  config.javadoc.stable=\
-@@ -201,6 +202,7 @@ config.javadoc.devel=\
-     spi.java.hints,\
-     java.hints.test,\
-     api.web.webmodule,\
-+    c.gluonhq.netbeans.nbfx.api,\
-     xml.xam,\
-     xml.xdm
- 
-diff --git a/nbbuild/javadoctools/links.xml b/nbbuild/javadoctools/links.xml
-index c8ed87f8f2..b5742af84f 100644
---- a/nbbuild/javadoctools/links.xml
-+++ b/nbbuild/javadoctools/links.xml
-@@ -245,3 +245,4 @@
- <link href="${javadoc.docs.org-netbeans-api-dashboard}" offline="true" packagelistloc="${netbeans.javadoc.dir}/org-netbeans-api-dashboard"/>
- <link href="${javadoc.docs.org-netbeans-modules-project-dependency}" offline="true" packagelistloc="${netbeans.javadoc.dir}/org-netbeans-modules-project-dependency"/>
- 
-+<link href="${javadoc.docs.com-gluonhq-netbeans-nbfx-api}" offline="true" packagelistloc="${netbeans.javadoc.dir}/com-gluonhq-netbeans-nbfx-api"/>
-diff --git a/nbbuild/javadoctools/properties.xml b/nbbuild/javadoctools/properties.xml
-index 43e7e24c1e..72657ffb1d 100644
---- a/nbbuild/javadoctools/properties.xml
-+++ b/nbbuild/javadoctools/properties.xml
-@@ -241,3 +241,4 @@
- <property name="javadoc.docs.org-netbeans-modules-xml-wsdl-model" value="${javadoc.web.root}/org-netbeans-modules-xml-wsdl-model"/>
- <property name="javadoc.docs.org-netbeans-api-dashboard" value="${javadoc.web.root}/org-netbeans-api-dashboard"/>
- <property name="javadoc.docs.org-netbeans-modules-project-dependency" value="${javadoc.web.root}/org-netbeans-modules-project-dependency"/>
-+<property name="javadoc.docs.com-gluonhq-netbeans-nbfx-api" value="${javadoc.web.root}/com-gluonhq-netbeans-nbfx-api"/>
-diff --git a/nbbuild/javadoctools/replaces.xml b/nbbuild/javadoctools/replaces.xml
-index 4a457d1cd1..883c901ce6 100644
---- a/nbbuild/javadoctools/replaces.xml
-+++ b/nbbuild/javadoctools/replaces.xml
-@@ -244,3 +244,4 @@
- <!-- deprecated not linked-->
- <!-- replacefilter token="@org-openide-compat@" value="${javadoc.docs.org-openide-compat}"/ -->
- <!-- unsorted filter --><replacefilter token="@org-netbeans-modules-project-dependency@" value="${javadoc.docs.org-netbeans-modules-project-dependency}"/>
-+<replacefilter token="@com-gluonhq-netbeans-nbfx-api@" value="${javadoc.docs.com-gluonhq-netbeans-nbfx-api}"/>

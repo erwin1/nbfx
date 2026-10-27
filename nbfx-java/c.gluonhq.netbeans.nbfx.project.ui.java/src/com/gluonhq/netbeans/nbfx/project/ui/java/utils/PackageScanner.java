@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
-import com.gluonhq.netbeans.nbfx.api.ContentManager;
+import com.gluonhq.netbeans.nbfx.api.editor.ContentManager;
 import com.gluonhq.netbeans.nbfx.api.file.FileTypes;
 import com.gluonhq.netbeans.nbfx.project.ui.java.ProjectEntry;
 import org.netbeans.api.queries.VisibilityQuery;

@@ -103,7 +103,7 @@ com.gluonhq.netbeans.nbfx.libs.<library>              bundled external library  
 `Map`-parameters with string keys. The only permitted shared constant class is `LayerPaths` (§3.3).
 The current tree has **28 public `Fx*` types** (24 in exported packages; the other 4 are implementation in
 `nbfx.progress`/`nbfx.context`, where C.1 allows the prefix — [`figures.md`](figures.md)); the annotations and
-`nbfx.api` slices of the rename are landed; the remaining exported ones are implementation classes that
+the `api.*` split slices of the rename are landed; the remaining exported ones are implementation classes that
 `refactor/api-split` moves out of exported packages; the rename is
 [Appendix C](appendix/C-naming-and-rename-table.md) and the step is `refactor/api-naming` (W1).
 
@@ -380,7 +380,7 @@ that needs it starts ([Appendix G](appendix/G-licences-and-notices.md) rule 6).
 | `nbfx.structure.java` | `java.structure` (+ `java.model`) |
 
 The table is **total**: every current module and every root-package class has exactly one target. The tree
-has 51 modules / 585 source files (`nbfx.editor` 88, `nbfx.api` 3, `nbfx.api.actions` 16, `nbfx.api.editor` 18, `nbfx.api.views` 10, `nbfx.api.project` 4, `nbfx.api.elements` 5, `nbfx.api.file` 3, `nbfx.api.progress` 2, `nbfx.api.search` 2, `nbfx.ui` 40, `nbfx.findinprojects` 39,
+has 51 modules / 585 source files (`nbfx.editor` 88, `nbfx.api.actions` 16, `nbfx.api.dialogs` 1, `nbfx.api.editor` 20, `nbfx.api.views` 10, `nbfx.api.project` 4, `nbfx.api.elements` 5, `nbfx.api.file` 3, `nbfx.api.progress` 2, `nbfx.api.search` 2, `nbfx.ui` 40, `nbfx.findinprojects` 39,
 `nbfx.structure.java` 32, `nbfx.findusages` 34). A reverse index (target ← sources) is added when the split
 starts; a target with neither a source nor a "new" note is a bug in the table.
 

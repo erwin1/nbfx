@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.project.ui.java.utils;
 
-import com.gluonhq.netbeans.nbfx.api.ErrorReporter;
+import com.gluonhq.netbeans.nbfx.api.dialogs.ErrorReporter;
 import java.io.IOException;
 import javafx.scene.control.TextInputDialog;
 import org.openide.filesystems.FileLock;

@@ -14,14 +14,6 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
-                    <code-name-base>com.gluonhq.netbeans.nbfx.api</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <specification-version>1.0</specification-version>
-                    </run-dependency>
-                </dependency>
-                <dependency>
                     <code-name-base>com.gluonhq.netbeans.nbfx.wizard</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -69,6 +61,18 @@
                 </dependency>
                 <dependency>
                     <code-name-base>com.gluonhq.netbeans.nbfx.api.actions</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency><specification-version>1.0</specification-version></run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>com.gluonhq.netbeans.nbfx.api.dialogs</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency><specification-version>1.0</specification-version></run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>com.gluonhq.netbeans.nbfx.api.editor</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency><specification-version>1.0</specification-version></run-dependency>

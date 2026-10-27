@@ -1,7 +1,5 @@
-package com.gluonhq.netbeans.nbfx.api;
+package com.gluonhq.netbeans.nbfx.api.editor;
 
-import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
-import com.gluonhq.netbeans.nbfx.api.editor.EditorService;
 import com.gluonhq.netbeans.nbfx.api.file.FileIconProvider;
 import com.gluonhq.netbeans.nbfx.api.project.OpenProject;
 

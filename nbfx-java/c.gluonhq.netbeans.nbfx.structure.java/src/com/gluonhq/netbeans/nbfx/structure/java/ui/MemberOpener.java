@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.structure.java.ui;
 
-import com.gluonhq.netbeans.nbfx.api.ContentManager;
+import com.gluonhq.netbeans.nbfx.api.editor.ContentManager;
 import com.gluonhq.netbeans.nbfx.api.editor.OpenSources;
 import com.gluonhq.netbeans.nbfx.api.elements.SourceLocation;
 import com.gluonhq.netbeans.nbfx.structure.BackgroundScans;

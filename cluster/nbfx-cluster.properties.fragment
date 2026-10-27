@@ -24,7 +24,15 @@ nb.cluster.nbfx-platform.depends=\
 nb.cluster.nbfx-platform=\
         c.gluonhq.netbeans.nbfx.actions,\
         c.gluonhq.netbeans.nbfx.annotations,\
-        c.gluonhq.netbeans.nbfx.api,\
+        c.gluonhq.netbeans.nbfx.api.actions,\
+        c.gluonhq.netbeans.nbfx.api.dialogs,\
+        c.gluonhq.netbeans.nbfx.api.editor,\
+        c.gluonhq.netbeans.nbfx.api.elements,\
+        c.gluonhq.netbeans.nbfx.api.file,\
+        c.gluonhq.netbeans.nbfx.api.progress,\
+        c.gluonhq.netbeans.nbfx.api.project,\
+        c.gluonhq.netbeans.nbfx.api.search,\
+        c.gluonhq.netbeans.nbfx.api.views,\
         c.gluonhq.netbeans.nbfx.context,\
         c.gluonhq.netbeans.nbfx.docking,\
         c.gluonhq.netbeans.nbfx.lib.javafx,\

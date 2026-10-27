@@ -150,11 +150,17 @@ public class ScenarioTest extends NbTestCase {
         budget.put("totalAfterFxMs", ms(t0, tRun));
         writeBudget(budget, getWorkDir().toPath().resolve("budget.json"));
 
+        // Close before committing: NetBeans writes nbproject/project.properties and
+        // nbproject/private as the project closes, which would otherwise dirty the
+        // fixture after the final commit.
+        ScenarioSupport.onFx(() -> {
+            registry.close(project);
+            return null;
+        });
+
         ScenarioSupport.git(work, "add", "-A");
         ScenarioSupport.git(work, "commit", "-m", "w0 scenario");
         assertEquals("git status is not clean", "", ScenarioSupport.git(work, "status", "--porcelain").trim());
-
-        registry.close(project);
     }
 
     private static boolean opens(FileObject root) {

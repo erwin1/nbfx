@@ -5,7 +5,7 @@ import com.gluonhq.netbeans.nbfx.ui.shell.NbfxTabPane;
 import com.gluonhq.netbeans.nbfx.ui.shell.TabContextMenu;
 import com.gluonhq.netbeans.nbfx.ui.shell.TabTitles;
 
-import com.gluonhq.netbeans.nbfx.api.ContentManager;
+import com.gluonhq.netbeans.nbfx.api.editor.ContentManager;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorContext;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorService;

@@ -1,7 +1,7 @@
 package com.gluonhq.netbeans.nbfx.findusages.actions;
 
 import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
-import com.gluonhq.netbeans.nbfx.api.ErrorReporter;
+import com.gluonhq.netbeans.nbfx.api.dialogs.ErrorReporter;
 import com.gluonhq.netbeans.nbfx.api.actions.AbstractCommand;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionIds;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
