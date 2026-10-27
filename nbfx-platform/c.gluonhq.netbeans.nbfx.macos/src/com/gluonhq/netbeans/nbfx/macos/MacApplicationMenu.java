@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.macos;
 
-import com.gluonhq.netbeans.nbfx.api.ApplicationMenu;
+import com.gluonhq.netbeans.nbfx.api.view.ApplicationMenu;
 import java.awt.Desktop;
 import java.util.logging.Level;
 import java.util.logging.Logger;

@@ -6,11 +6,11 @@ Every number the plan states is derived here from the tree. Regenerate with
 
 | Figure | Value |
 |---|---|
-| nbfx modules | 50 |
+| nbfx modules | 51 |
 | nbfx source files | 585 |
-| modules exporting packages (`<public-packages>`) | 38 |
+| modules exporting packages (`<public-packages>`) | 39 |
 | of those, subtree exports (`<subpackages>`) | 23 |
-| modules with `arch.xml` | 17 |
+| modules with `arch.xml` | 18 |
 | modules with `apichanges.xml` | 10 |
 | distinct `OpenIDE-Module-Specification-Version` values | 1: 1.0 |
 | public `Fx*` types (total) | 28 |
@@ -25,7 +25,7 @@ Every number the plan states is derived here from the tree. Regenerate with
 | files using `NbBundle` | 152 |
 | `Bundle.properties` files | 59 |
 | test files | 33 |
-| modules with tests | 23 of 50 |
+| modules with tests | 25 of 51 |
 | upstream editor/Java modules (ide/editor*, java/java.source*, java.java.hints*) | 50 |
 | of their source files, Swing/AWT-touching | 847 of 1647 |
 | upstream modules depending on `org.openide.nodes` | 388 |

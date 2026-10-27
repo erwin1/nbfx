@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.gluonhq.netbeans.nbfx.api;
+package com.gluonhq.netbeans.nbfx.api.view;
 
 /**
  * The native application menu integration of a platform (currently only macOS, whose application
