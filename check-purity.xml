@@ -139,7 +139,7 @@
         <echo message="[purity] forbidden Swing window-system jar(s) in the distribution: ${packaging.violations}"/>
     </target>
 
-    <target name="check-purity" depends="check-sources,check-dependencies,check-jars,check-packaging">
+    <target name="check-purity" depends="check-sources,check-java-source,check-dependencies,check-jars,check-packaging">
         <fail message="[purity] ${src.violations} forbidden import(s), ${dep.violations} forbidden dependency(ies), ${jar.violations} forbidden bundled-class violation(s) and ${packaging.violations} forbidden window-system jar(s) found under the nbfx clusters;">
             <condition>
                 <and>
@@ -183,6 +183,17 @@
             <arg value="${nbfx.budget.file}"/>
         </exec>
         <echo message="[budget] within tolerance"/>
+    </target>
+
+    <!--
+        Java semantic boundary: org.netbeans.api.java.source / libs.javacapi may be imported only by
+        modules whose nbproject/nbfx-policy.properties allows the family (Appendix A.5 / B.5).
+    -->
+    <target name="check-java-source">
+        <exec executable="${java.home}/bin/java" failonerror="true" dir="${basedir}">
+            <arg value="nbfx-tests/tools/ImportGuard.java"/>
+            <arg value="${basedir}"/>
+        </exec>
     </target>
 
 </project>
