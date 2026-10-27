@@ -131,7 +131,7 @@ it must be **bridged** (the `ProgressHandle` situation). File shares overstate r
 | groovy | 11 | **4** | 259 | 73 |
 | php | 38 | **5** | 1833 | 475 |
 | enterprise (JavaEE) | 117 | **47** | 5079 | 1269 |
-| webcommon | 59 | **22** | 1415 | 420 |
+| webcommon | 59 | **22** | 1408 | 420 |
 
 So Groovy is **4 reusable / 7 mixed-or-replace**, not "72 % reusable" — and the mixed modules are exactly where
 the holes are, which is why the spikes target them. The four Swing-free modules are

@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  actions: write
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -17,11 +18,45 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    env:
+      # netbeans.osuosl.org has an AAAA record, but GitHub runners have no
+      # usable IPv6 route; without this Java tries IPv6 first and times out.
+      ANT_OPTS: >-
+        -Djava.net.preferIPv4Stack=true
+        -DdownloadBinaries.connectTimeoutMs=30000
     steps:
       - name: Checkout (with the NetBeans submodule)
         uses: actions/checkout@v7
         with:
           submodules: recursive
+
+      # Apache NetBeans fetches external binaries (jhall, RAT, sigtest, junit, ...)
+      # from netbeans.osuosl.org. Restore the newest cache for this binaries-list
+      # revision; the run id forces a restore-key lookup so a later save can use
+      # a content-addressed key instead of being blocked by an earlier partial key.
+      - name: Restore external binary cache
+        uses: actions/cache/restore@v6
+        with:
+          path: ~/.hgexternalcache
+          key: ${{ runner.os }}-${{ hashFiles('netbeans/**/external/binaries-list') }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-${{ hashFiles('netbeans/**/external/binaries-list') }}-
+
+      # The platform's only non-Maven external binary. The OSUOSL mirror is not
+      # reachable from GitHub runners here, but Maven Central hosts the identical
+      # JavaHelp 2.0.05 jar (same SHA-1 as platform/javahelp/external/binaries-list).
+      # This seeds an empty cache; later runs skip the download via the cache.
+      - name: Seed jhall external binary
+        run: |
+          cache="${HOME}/.hgexternalcache"
+          jhall="${cache}/CA70822C47A67FC3A11670270567C2D01566DAE1-jhall-2.0_05.jar"
+          mkdir -p "$cache"
+          if [ ! -f "$jhall" ]; then
+            curl --fail --location --retry 5 --retry-all-errors \
+              --output "$jhall" \
+              https://repo.maven.apache.org/maven2/javax/help/javahelp/2.0.05/javahelp-2.0.05.jar
+          fi
+          echo "ca70822c47a67fc3a11670270567c2d01566dae1  ${jhall}" | sha1sum -c -
 
       - name: JDK 25
         uses: actions/setup-java@v6
@@ -37,8 +72,32 @@ jobs:
 
       - name: Bootstrap and build the nbfx clusters
         run: |
-          ant bootstrap
-          ant build
+          # HTTPS to OSUOSL is unreachable from GitHub runners; try its HTTP
+          # endpoint. DownloadBinaries still verifies each file's SHA-1.
+          ant -Dbinaries.server=http://netbeans.osuosl.org/binaries/ bootstrap
+          ant -Dbinaries.server=http://netbeans.osuosl.org/binaries/ build
+
+      # Save even if the build failed: DownloadBinaries only writes complete,
+      # hash-verified files, so the inventory is always a valid cache seed. The
+      # content fingerprint makes a later run save a fuller cache instead of
+      # being blocked by an immutable partial key.
+      - name: Fingerprint external binary cache
+        id: external-cache-key
+        if: always()
+        run: |
+          cache="${HOME}/.hgexternalcache"
+          if [ -d "${cache}" ] && [ -n "$(find "${cache}" -type f -print -quit)" ]; then
+            fingerprint=$(cd "${cache}" && find . -type f -printf '%P %s\n' | sort | sha256sum | cut -d' ' -f1)
+            echo "key=${{ runner.os }}-${{ hashFiles('netbeans/**/external/binaries-list') }}-${fingerprint}" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Save external binary cache
+        if: always() && steps.external-cache-key.outputs.key != ''
+        continue-on-error: true
+        uses: actions/cache/save@v6
+        with:
+          path: ~/.hgexternalcache
+          key: ${{ steps.external-cache-key.outputs.key }}
 
       - name: Guards
         run: |
