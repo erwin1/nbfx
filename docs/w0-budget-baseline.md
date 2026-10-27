@@ -46,6 +46,30 @@ ant run
 The first (cold) run was 3323 ms; subsequent runs settle around 1.4–1.5 s. The marks are relative to the
 JVM start. The budget mode waits for `usable`, writes the JSON and exits (`Platform.exit`).
 
+A **windowed** run (macOS, real display, no headless flags) measured:
+
+| Mark | ms |
+|---|---:|
+| `modulesValidated` | 552 |
+| `platformReady` | 1143 |
+| `fxStart` | 1256 |
+| `usable` | 1978 |
+
+`docs/w0-budget-baseline.json` is the **cold** startup baseline used by `check-budget`
+(614 / 2088 / 2177 / 3323); the table above is the warm median. A fresh app start is cold, so the
+check compares the cold values and a warm run passes with margin.
+
+## check-budget
+
+```sh
+NBFX_BUDGET=/tmp/nbfx-budget.json ant run        # writes the JSON
+ant -f check-purity.xml check-budget -Dnbfx.budget.file=/tmp/nbfx-budget.json
+```
+
+`nbfx-tests/tools/BudgetCheck.java` compares the marks with the committed baseline and fails on a
+regression beyond **20 % or 100 ms** (whichever is larger). Marks missing from the current run are
+reported but do not fail. Verified: the cold baseline passes; a synthetic `usable=5000` fails.
+
 ## Caveats (deliberate)
 
 - **Harness startup, not the shell's “usable”.** The test sets `nbfx.test`, so `FxGuiRunLevel` does not
@@ -58,6 +82,7 @@ JVM start. The budget mode waits for `usable`, writes the JSON and exits (`Platf
 
 ## Next
 
-1. Wire `check-budget` (fail on >20 % regression against the medians above) into `feature/ci`.
-2. Record a windowed (non-headless) reference, so the headless numbers are not mistaken for the product's.
-3. Keep the harness table for the scenario phases; the app table is the “usable” baseline.
+1. Wire `check-budget` into `feature/ci` after `feature/ci` and this branch share a base (the CI
+   branch is a sibling of the app-budget branch; merge #14/#15/#16/#17 first, then add the step).
+2. Keep the harness table for the scenario phases; the app tables are the “usable” baseline.
+3. Re-baseline on the CI runner (cold, Linux) before making the check blocking there.

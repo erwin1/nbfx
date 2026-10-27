@@ -170,4 +170,19 @@
         <echo message="[plan] figures up to date"/>
     </target>
 
+    <!--
+        Startup budget: compare a fresh JSON (written by NBFX_BUDGET) with the committed baseline.
+        Run: ant -f check-purity.xml check-budget -Dnbfx.budget.file=/tmp/nbfx-budget.json
+    -->
+    <target name="check-budget">
+        <fail unless="nbfx.budget.file"
+              message="Set -Dnbfx.budget.file=/path/to/budget.json (run the app with NBFX_BUDGET)"/>
+        <exec executable="${java.home}/bin/java" failonerror="true" dir="${basedir}">
+            <arg value="nbfx-tests/tools/BudgetCheck.java"/>
+            <arg value="docs/w0-budget-baseline.json"/>
+            <arg value="${nbfx.budget.file}"/>
+        </exec>
+        <echo message="[budget] within tolerance"/>
+    </target>
+
 </project>
