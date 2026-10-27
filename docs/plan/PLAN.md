@@ -65,6 +65,9 @@ clusters (build order, dependencies downward only):
 7. **The toolkit policy is Appendix A.** Allowed/forbidden types per tier, the exemption register and the
    guard mechanism live in [Appendix A](appendix/A-toolkit-policy.md); §9 states the guard, Appendix A
    states the rule.
+8. **Test edges are not layer edges.** `<test-dependency>` may point upward — the W0 scenario in `nbfx-ide`
+   needs the Java project type from `nbfx-java` — but it must never be a run dependency, and the test artefact
+   is not shipped. The graph guard distinguishes test edges.
 
 ## 3. Naming conventions
 
@@ -415,7 +418,7 @@ The plan stated none of this; a plugin author and the CI both need it.
 | **FX internals** | `platform.editor` uses `com.sun.jfx.incubator.scene.control.richtext.{RichTextAreaSkinHelper,VFlow,CaretInfo}` | reachable today because the FX jars sit on the **classpath (unnamed module)**; if FX ever moves to the module path, the launcher must add `--add-exports javafx.controls/com.sun.jfx.incubator.scene.control.richtext=ALL-UNNAMED` — centralised in one launcher config, never scattered |
 | **JPMS posture** | NetBeans module system on the classpath; FX is an autoload module (`is.autoload=true`) started by `launcher.FxGuiRunLevel` (`Application.launch`) | no module-path requirement today; a future `jpackage`/`jlink` step must revisit this ([§11 W10](PLAN.md)) |
 | **Profiler** | **agent-free** | the NetBeans profiler agent cannot read class files newer than **55 (JDK 11)** while the target is JDK 25 → profiling = JFR + bundled async-profiler + a JMX sampler. Record this, or someone will "fix" it by re-adding the agent |
-| **Test JVM** | Monocle headless (§10.3) | FX tests run without a window in CI |
+| **Test JVM** | Headless glass (§10.3) | FX tests run without a window in CI; no Monocle |
 
 Checked by `check-baseline` (§9): one `javac.release` across nbfx modules; no `javafx.web` in the bundle; the
 launcher's `--add-exports` list is empty today and lives in one file.
@@ -454,7 +457,7 @@ class that imports a JDK `javax.swing` type passes and the two new clusters are 
 
 | Milestone | Target | Content | Exit |
 |---|---|---|---|
-| **M0 — Shell & platform** | 2026-12 | shell/docking/actions/menus/status, dialogs, progress, theme, options, settings UI, nodes+property views, output, execution, terminal, quick search, credentials, favourites, templates, wizard, packaging (run from the built distribution) | the walking-skeleton scenario (open→edit→build→run→output→commit) runs on a **placeholder project** (no real project type until M2); the `projectuiapi.base` bridge in `launcher`/`ui` is **removed** and the M0 rows of the retirement matrix are absent; `refactor/module-names` + `refactor/api-split` landed; all guards green; budget baseline recorded |
+| **M0 — Shell & platform** | 2026-12 | shell/docking/actions/menus/status, dialogs, progress, theme, options, settings UI, nodes+property views, output, execution, terminal, quick search, credentials, favourites, templates, wizard, packaging (run from the built distribution) | the walking-skeleton scenario (open→edit→build→run→output→commit) runs on a **real Ant/J2SE fixture project** (the Ant/Java project types exist; Maven/Gradle arrive in M2); the `projectuiapi.base` bridge in `launcher`/`ui` is **removed** and the M0 rows of the retirement matrix are absent; `refactor/module-names` + `refactor/api-split` landed; all guards green; budget baseline recorded |
 | **M1 — IDE core** | 2027-03 | project model, editor (core + Java), structure, search, usages (generic + Java), file actions, VCS+Git, diff, local history, tests **UI**, libraries, task list/bookmarks, plugins UI | open/edit/search/find/commit/run-tests in FX on a J2SE project; every explorer panel renders through `api.nodes` (except popups) — [Appendix F](appendix/F-node-and-view-migration.md); the M1 rows of the retirement matrix absent; guards green |
 | **M2 — Java tooling** | 2027-07 | project types (J2SE/Maven/Gradle/Ant), Java Platforms, editor intelligence (goto, usages, hints, refactoring, codegen, Javadoc), debugger, profiler, Java tests engines/coverage | daily Java work on a Maven **and** an Ant project; the M2 rows of the retirement matrix absent; guards green |
 | **M3 — JavaFX usage** | 2027-09 | JavaFX project, FXML editing, SceneBuilder | a JavaFX project opens, edits FXML, and runs; `javafx.enabled` round-trips |
@@ -495,9 +498,16 @@ Not cuttable: the walking skeleton, the guards, the API split, the editor core, 
 
 ### 10.3 Test kit (decided here, implemented in W2)
 
-- **FX headless**: Monocle (`-Dglass.platform=Monocle -Dmonocle.platform=Headless`) for every FX test; no test
-  opens a real window in CI.
-- **UI**: TestFX (`FxRobot`) for the shell scenarios; not for unit tests.
+- **FX headless**: **glass headless** (`-Dglass.platform=Headless -Dprism.order=sw`), already used by
+  `nbfx.api`, `docking`, `progress` and `windows`; no test opens a real window in CI. Monocle is not bundled
+  and not needed.
+- **UI**: TestFX (`FxRobot`) only for shell scenarios; the W0 scenario is service-level (no UI events).
+  Use `org.testfx:testfx-core:4.0.19-gluon` (the Gluon build) with the Headless platform; official TestFX
+  still pulls in Monocle, which nbfx does not use.
+- **QA placement**: end-to-end scenarios live in the application assembly (`nbfx-ide`: launcher `test/unit` or
+  a test-only module); platform modules keep service tests. `<test-dependency>` may cross layers, is never a
+  run dependency and the test artefact is not shipped; the graph guard treats test edges separately. If
+  scenarios multiply, move them to a test-only `nbfx-qa` cluster.
 - **Harness**: NetBeans `nbjunit` (already used: 26 test classes today) + `nbbuild` `sigtest` targets for the
   governed API modules.
 - **Required test types**: unit (model, `M` modules), contract (threading per SPI, layer writer/reader), leak
@@ -549,12 +559,25 @@ workstreams only the stated dependencies do.**
 | W12 CI | the workflow is red on a planted violation and green on the current tree |
 
 **W0 — Walking skeleton & baseline (first on the critical path).** `feature/walking-skeleton`: make the
-existing shell modules run **open → edit → build → run → output → commit** on a J2SE project and record the
-budget baseline. The skeleton is the file set that **exists today** (`figures.md`): `nbfx.launcher` (2),
-`nbfx.ui` (41), `nbfx.docking` (5), `nbfx.windows` (9), `nbfx.menus` (1), `nbfx.statusbar` (4),
-`nbfx.output` (9), `nbfx.editor` (88), `nbfx.project.context` (1), `nbfx.api` (62) — **no new module, no split**.
-Acceptance: the scenario runs from a clean checkout and the budget numbers are recorded; everything else keeps
-it green (§11.0.6).
+existing shell modules run **open → edit → build → run → output → commit** on a real Ant/J2SE project and
+record the budget baseline. The skeleton is the file set that **exists today** (`figures.md`: launcher, ui,
+docking, windows, menus, statusbar, output, editor, project.context, api) — **no new module, no split**.
+
+1. **Fixture** — `nbfx-tests/fixtures/ant-hello`, adapted from
+   `netbeans/ide/jellytools.ide/test/qa-functional/data/SampleProject` (J2SE Ant, `build-impl.xml` checked
+   in); `hello.Main` prints `NB_FX_SCENARIO_OK`. Acceptance: `ant clean build run` prints the marker.
+2. **Scenario** — `ScenarioIT` in `nbfx-ide/.../nbfx.launcher/test/unit` with test-only deps on
+   `nbfx.editor`, `nbfx.run`, `nbfx.vcs`, `nbfx.output`, `project.ui.ant`: copy the fixture to a temp git
+   repo, wait for the async `OpenProjects` open, edit+save, build, run (assert the marker), commit, assert a
+   clean status. Headless: `-Dglass.platform=Headless -Dprism.order=sw`.
+3. **Budget** — a `--budget` mode on the launcher records startup→usable, open, first editor, build; median of
+   5; commit the baseline; `check-budget` compares.
+4. **CI** — Linux, JDK 25: `ant bootstrap`, `ant build`, `check-purity`, `Counts --check`, the scenario and
+   the touched-module tests; PR template and required check.
+5. **Close** — green from a clean checkout, `docs/w0-scenario.md`, a §18 row.
+
+Acceptance: the scenario runs headless from a clean checkout, the budget numbers are recorded, and everything
+else keeps the trunk green (§11.0.6).
 
 **W1 — Containment, naming and API split.** `refactor/guard-java-source` (denylist/allowlist guard over the
 current 4-module allowlist; [Appendix B.5](appendix/B-java-source-isolation.md)) → `refactor/api-naming`
@@ -694,7 +717,7 @@ Order and the per-proposal credibility test are in [H.8](appendix/H-upstream-pro
     nbfx is the first customer, and a fallback is recorded. **At least one accepted upstream change per
     milestone.**
 18. **Baseline**: JDK 25, JavaFX 27, `javac.release=25`, FX on the classpath (unnamed module) with the
-    `--add-exports` list centralised if that ever changes, agent-free profiling, Monocle for tests (§8.1).
+    `--add-exports` list centralised if that ever changes, agent-free profiling, Headless glass for tests (§8.1).
 19. **Packaging**: build the app image from `nbbuild/netbeans` at M0, and produce OS bundles/installers with
     **jpackage** at M4 unless a spike shows it cannot meet the requirement (then NBI). Plugins are built as
     **NBMs** with the NetBeans `nbm` Ant harness (Appendix E.6.1).
@@ -707,6 +730,9 @@ Order and the per-proposal credibility test are in [H.8](appendix/H-upstream-pro
 21. **Tier discipline**: an `api.*` module with a planned consumer is `M`/T2-FX from the start and published
     `devel` when its first consumer lands; no "proposed" tier, no `libs.*` before its step, no capability
     before a spike decides it (§17).
+22. **QA placement**: end-to-end scenarios live in the application assembly (`nbfx-ide`: launcher `test/unit`
+    or a test-only module); platform modules keep service tests; `<test-dependency>` may cross layers, never
+    run dependencies, never shipped; a test-only `nbfx-qa` cluster when scenarios multiply (§10.3).
 
 ## 14. Open questions
 
