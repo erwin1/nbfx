@@ -18,9 +18,14 @@
  */
 package com.gluonhq.netbeans.nbfx.launcher;
 
+import com.gluonhq.netbeans.nbfx.ui.Budget;
 import com.gluonhq.netbeans.nbfx.ui.JavaFXLaunchApp;
+import java.nio.file.Path;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
+import javafx.application.Platform;
 import org.netbeans.core.startup.RunLevel;
 import org.openide.util.lookup.ServiceProvider;
 
@@ -51,9 +56,23 @@ public final class FxGuiRunLevel implements RunLevel {
             LOG.fine("nbfx.test is set; not launching the application");
             return;
         }
+        Budget.mark("platformReady");
         LOG.info("NetBeans Platform loaded, launching JavaFX...");
         Thread thread = new Thread(() -> Application.launch(JavaFXLaunchApp.class), "nbfx-javafx-launcher");
         thread.setDaemon(true);
         thread.start();
+
+        String budgetFile = System.getenv("NBFX_BUDGET");
+        if (budgetFile != null && !budgetFile.isBlank()) {
+            try {
+                Budget.usable().get(60, TimeUnit.SECONDS);
+                Budget.write(Path.of(budgetFile));
+                LOG.info("Wrote the startup budget to " + budgetFile);
+            } catch (Exception ex) {
+                LOG.log(Level.WARNING, "Could not write the startup budget", ex);
+            } finally {
+                Platform.exit();
+            }
+        }
     }
 }

@@ -18,6 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.launcher;
 
+import com.gluonhq.netbeans.nbfx.ui.Budget;
 import com.gluonhq.netbeans.nbfx.ui.project.VersioningOptOut;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,6 +39,7 @@ public class LauncherInstall extends ModuleInstall {
 
     @Override
     public void validate() {
+        Budget.mark("modulesValidated");
         // Before anything can ask a versioning system about a file.
         VersioningOptOut.apply();
         // Before the @OnStart and @OnShowing tasks start running in parallel.

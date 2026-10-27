@@ -26,6 +26,26 @@ Artifact: `nbfx-ide/c.gluonhq.netbeans.nbfx.launcher/build/test/unit/work/*/budg
 | `buildToRunMs` | 610 | `ant run` through `BuildRunner` + marker assertion |
 | `totalAfterFxMs` | 2262 | the scenario after FX is ready |
 
+## App startup (real shell, headless)
+
+Five runs of the real application in budget mode:
+
+```sh
+NBFX_BUDGET=/tmp/nbfx-budget.json \
+JAVA_TOOL_OPTIONS="-Dglass.platform=Headless -Dprism.order=sw -Djava.awt.headless=true" \
+ant run
+```
+
+| Mark | Median ms | What it covers |
+|---|---:|---|
+| `modulesValidated` | 352 | `LauncherInstall.validate`: module system ready for early work |
+| `platformReady` | 835 | `FxGuiRunLevel`: modules enabled, platform up |
+| `fxStart` | 877 | `JavaFXLaunchApp.start` entered |
+| `usable` | 1462 | the shell is shown (window system `show` / `stage.show`) |
+
+The first (cold) run was 3323 ms; subsequent runs settle around 1.4–1.5 s. The marks are relative to the
+JVM start. The budget mode waits for `usable`, writes the JSON and exits (`Platform.exit`).
+
 ## Caveats (deliberate)
 
 - **Harness startup, not the shell's “usable”.** The test sets `nbfx.test`, so `FxGuiRunLevel` does not
@@ -38,7 +58,6 @@ Artifact: `nbfx-ide/c.gluonhq.netbeans.nbfx.launcher/build/test/unit/work/*/budg
 
 ## Next
 
-1. Add `--budget` to the launcher (marks at `LauncherInstall.validate`, `FxGuiRunLevel.run`,
-   `JavaFXLaunchApp.start` and `stage.show`) and write the same JSON.
-2. Run 5×, take the median, commit the baseline.
-3. Wire `check-budget` (fail on >20 % regression) into `feature/ci`.
+1. Wire `check-budget` (fail on >20 % regression against the medians above) into `feature/ci`.
+2. Record a windowed (non-headless) reference, so the headless numbers are not mistaken for the product's.
+3. Keep the harness table for the scenario phases; the app table is the “usable” baseline.

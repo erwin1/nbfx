@@ -152,6 +152,7 @@ public class JavaFXLaunchApp extends Application implements WindowSink {
 
     @Override
     public void start(Stage stage) {
+        Budget.mark("fxStart");
         this.stage = stage;
         instance = this;
         // Resolve the navigator views up front (the ViewProviders registered as navigators).
@@ -318,6 +319,8 @@ public class JavaFXLaunchApp extends Application implements WindowSink {
             stage.show();
         }
 
+        Budget.mark("usable");
+        Budget.markUsable();
         Platform.runLater(this::restoreSessionProjects);
     }
 
