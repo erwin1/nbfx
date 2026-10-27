@@ -3,7 +3,7 @@ package com.gluonhq.netbeans.nbfx.editor.breadcrumbs;
 import com.gluonhq.netbeans.nbfx.api.breadcrumbs.BreadcrumbElement;
 import com.gluonhq.netbeans.nbfx.api.breadcrumbs.BreadcrumbsContext;
 import com.gluonhq.netbeans.nbfx.api.breadcrumbs.SimpleBreadcrumbElement;
-import com.gluonhq.netbeans.nbfx.api.Cancellation;
+import com.gluonhq.netbeans.nbfx.api.progress.Cancellation;
 import com.gluonhq.netbeans.nbfx.api.elements.SourceElementKind;
 import com.gluonhq.netbeans.nbfx.api.elements.SourceTypeKind;
 import com.gluonhq.netbeans.nbfx.editor.processor.semantics.JavaSourceContext;

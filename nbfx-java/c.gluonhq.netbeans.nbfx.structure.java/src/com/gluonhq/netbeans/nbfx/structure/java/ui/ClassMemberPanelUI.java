@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.structure.java.ui;
 
-import com.gluonhq.netbeans.nbfx.api.Cancellation;
+import com.gluonhq.netbeans.nbfx.api.progress.Cancellation;
 import com.gluonhq.netbeans.nbfx.api.actions.ElementContextMenuContributor;
 import com.gluonhq.netbeans.nbfx.api.elements.SourceLocation;
 import com.gluonhq.netbeans.nbfx.api.view.CellBreadth;

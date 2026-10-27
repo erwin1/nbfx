@@ -1,6 +1,6 @@
 package com.gluonhq.netbeans.nbfx.findusages.query;
 
-import com.gluonhq.netbeans.nbfx.api.Cancellation;
+import com.gluonhq.netbeans.nbfx.api.progress.Cancellation;
 import com.gluonhq.netbeans.nbfx.api.ContentManager;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
 import com.gluonhq.netbeans.nbfx.api.editor.OpenSources;

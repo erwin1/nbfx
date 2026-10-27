@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.structure.java.model;
 
-import com.gluonhq.netbeans.nbfx.api.Cancellation;
+import com.gluonhq.netbeans.nbfx.api.progress.Cancellation;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

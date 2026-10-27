@@ -1,6 +1,6 @@
 package com.gluonhq.netbeans.nbfx.editor.breadcrumbs;
 
-import com.gluonhq.netbeans.nbfx.api.Cancellation;
+import com.gluonhq.netbeans.nbfx.api.progress.Cancellation;
 import com.gluonhq.netbeans.nbfx.api.breadcrumbs.BreadcrumbElement;
 import com.gluonhq.netbeans.nbfx.api.breadcrumbs.BreadcrumbsContext;
 import com.gluonhq.netbeans.nbfx.api.breadcrumbs.BreadcrumbsProvider;

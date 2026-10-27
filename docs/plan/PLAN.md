@@ -380,7 +380,7 @@ that needs it starts ([Appendix G](appendix/G-licences-and-notices.md) rule 6).
 | `nbfx.structure.java` | `java.structure` (+ `java.model`) |
 
 The table is **total**: every current module and every root-package class has exactly one target. The tree
-has 48 modules / 585 source files (`nbfx.editor` 88, `nbfx.api` 48, `nbfx.api.project` 4, `nbfx.api.elements` 5, `nbfx.api.file` 3, `nbfx.api.progress` 1, `nbfx.api.search` 2, `nbfx.ui` 40, `nbfx.findinprojects` 39,
+has 49 modules / 585 source files (`nbfx.editor` 88, `nbfx.api` 29, `nbfx.api.editor` 18, `nbfx.api.project` 4, `nbfx.api.elements` 5, `nbfx.api.file` 3, `nbfx.api.progress` 2, `nbfx.api.search` 2, `nbfx.ui` 40, `nbfx.findinprojects` 39,
 `nbfx.structure.java` 32, `nbfx.findusages` 34). A reverse index (target ← sources) is added when the split
 starts; a target with neither a source nor a "new" note is a bug in the table.
 

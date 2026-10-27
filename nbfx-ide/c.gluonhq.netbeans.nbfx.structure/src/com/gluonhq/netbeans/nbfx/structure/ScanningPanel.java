@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.structure;
 
-import com.gluonhq.netbeans.nbfx.api.Cancellation;
+import com.gluonhq.netbeans.nbfx.api.progress.Cancellation;
 import java.io.IOException;
 import javafx.scene.Node;
 import org.openide.filesystems.FileObject;

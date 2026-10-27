@@ -35,7 +35,7 @@ import java.util.logging.Logger;
  * cached and only re-extracted from the model after an edit (mirroring the invalidation pattern
  * of {@code JavaSourceContext}), so plain caret moves stay cheap even for long files. Stale queries
  * are cancelled through the request sequence, exposed to providers as a
- * {@link com.gluonhq.netbeans.nbfx.api.Cancellation}. Left-clicking a crumb
+ * {@link com.gluonhq.netbeans.nbfx.api.progress.Cancellation}. Left-clicking a crumb
  * moves the caret to the element's start offset.</p>
  */
 public final class BreadcrumbsSupport {

@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.structure.gradle;
 
-import com.gluonhq.netbeans.nbfx.api.Cancellation;
+import com.gluonhq.netbeans.nbfx.api.progress.Cancellation;
 import com.gluonhq.netbeans.nbfx.project.ui.gradle.api.GradleTasks;
 import com.gluonhq.netbeans.nbfx.run.BuildRunner;
 import com.gluonhq.netbeans.nbfx.structure.NavigatorIcons;

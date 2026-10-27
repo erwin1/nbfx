@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.structure.css;
 
-import com.gluonhq.netbeans.nbfx.api.Cancellation;
+import com.gluonhq.netbeans.nbfx.api.progress.Cancellation;
 import com.gluonhq.netbeans.nbfx.api.css.CssTokens;
 import com.gluonhq.netbeans.nbfx.api.css.CssTokens.Token;
 import com.gluonhq.netbeans.nbfx.api.css.CssTokens.Type;

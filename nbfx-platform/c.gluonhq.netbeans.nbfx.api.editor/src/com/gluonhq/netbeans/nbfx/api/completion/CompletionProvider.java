@@ -1,6 +1,6 @@
 package com.gluonhq.netbeans.nbfx.api.completion;
 
-import com.gluonhq.netbeans.nbfx.api.Cancellation;
+import com.gluonhq.netbeans.nbfx.api.progress.Cancellation;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

@@ -1,4 +1,4 @@
-package com.gluonhq.netbeans.nbfx.api;
+package com.gluonhq.netbeans.nbfx.api.progress;
 
 /**
  * Cancellation token passed to asynchronous providers (completion, breadcrumbs, …)

@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.structure.xml;
 
-import com.gluonhq.netbeans.nbfx.api.Cancellation;
+import com.gluonhq.netbeans.nbfx.api.progress.Cancellation;
 import com.gluonhq.netbeans.nbfx.structure.xml.XmlNode.Kind;
 import java.util.ArrayDeque;
 import java.util.Deque;

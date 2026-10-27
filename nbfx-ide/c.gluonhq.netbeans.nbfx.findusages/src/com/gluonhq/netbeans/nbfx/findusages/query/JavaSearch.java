@@ -1,6 +1,6 @@
 package com.gluonhq.netbeans.nbfx.findusages.query;
 
-import com.gluonhq.netbeans.nbfx.api.Cancellation;
+import com.gluonhq.netbeans.nbfx.api.progress.Cancellation;
 import com.gluonhq.netbeans.nbfx.findusages.model.Usage;
 import java.io.IOException;
 import java.util.ArrayList;

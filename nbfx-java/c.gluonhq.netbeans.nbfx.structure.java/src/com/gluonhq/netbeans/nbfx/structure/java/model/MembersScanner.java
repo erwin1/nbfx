@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.structure.java.model;
 
-import com.gluonhq.netbeans.nbfx.api.Cancellation;
+import com.gluonhq.netbeans.nbfx.api.progress.Cancellation;
 import com.gluonhq.netbeans.nbfx.api.elements.SourceModifiers;
 import com.gluonhq.netbeans.nbfx.structure.java.model.MemberNode.Segment;
 import com.sun.source.tree.ClassTree;
