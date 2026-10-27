@@ -37,4 +37,12 @@ public interface FxConsole {
 
     /** Brings the console's tab to the front, if it is showing. */
     void show();
+
+    /**
+     * The text accumulated so far. Safe to call from any thread.
+     *
+     * @return the console text, never {@code null}
+     * @since 1.0
+     */
+    String text();
 }

@@ -6,6 +6,19 @@
         <apidef name="netbeansfx_output">NetBeansFX Output API</apidef>
     </apidefs>
     <changes>
+        <change id="output.console.text">
+            <api name="netbeansfx_output"/>
+            <summary>FxConsole exposes the accumulated text.</summary>
+            <version major="1" minor="0"/>
+            <date day="21" month="10" year="2026"/>
+            <author login="sven"/>
+            <compatibility addition="yes" semantic="compatible"/>
+            <description>
+                Adds <code>FxConsole.text()</code>, the text accumulated so far; the headless W0
+                scenario uses it to assert build and run output without reaching into the view.
+            </description>
+            <class package="com.gluonhq.netbeans.nbfx.output" name="FxConsole"/>
+        </change>
         <change id="output.initial">
             <api name="netbeansfx_output"/>
             <summary>Initial pure-JavaFX output consoles.</summary>

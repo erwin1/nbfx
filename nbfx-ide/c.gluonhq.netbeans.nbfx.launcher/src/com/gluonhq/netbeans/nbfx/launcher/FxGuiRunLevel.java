@@ -46,6 +46,11 @@ public final class FxGuiRunLevel implements RunLevel {
 
     @Override
     public void run() {
+        if (Boolean.getBoolean("nbfx.test")) {
+            // Headless tests start and drive the toolkit themselves.
+            LOG.fine("nbfx.test is set; not launching the application");
+            return;
+        }
         LOG.info("NetBeans Platform loaded, launching JavaFX...");
         Thread thread = new Thread(() -> Application.launch(JavaFXLaunchApp.class), "nbfx-javafx-launcher");
         thread.setDaemon(true);

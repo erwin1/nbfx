@@ -74,6 +74,11 @@ final class ConsoleModel implements FxConsole {
         });
     }
 
+    @Override
+    public synchronized String text() {
+        return text.toString();
+    }
+
     /** Installs the view hooks and flushes the text accumulated so far. Called on the FX thread. */
     synchronized void attach(Consumer<String> appender, Runnable clearer, Runnable shower) {
         this.appender = appender;
