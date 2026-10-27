@@ -62,6 +62,20 @@ public final class FxGuiRunLevel implements RunLevel {
         thread.setDaemon(true);
         thread.start();
 
+        String scenario = System.getenv("NBFX_SCENARIO");
+        if (scenario != null && !scenario.isBlank()) {
+            try {
+                Budget.usable().get(60, TimeUnit.SECONDS);
+                int status = ScenarioRunner.run(Path.of(scenario));
+                Platform.exit();
+                System.exit(status);
+            } catch (Exception ex) {
+                LOG.log(Level.WARNING, "The scenario failed", ex);
+                Platform.exit();
+                System.exit(1);
+            }
+        }
+
         String budgetFile = System.getenv("NBFX_BUDGET");
         if (budgetFile != null && !budgetFile.isBlank()) {
             try {

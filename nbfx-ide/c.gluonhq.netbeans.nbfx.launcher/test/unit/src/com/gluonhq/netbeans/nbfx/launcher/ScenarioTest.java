@@ -31,19 +31,13 @@ import java.lang.management.ManagementFactory;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
+import java.util.stream.Stream;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BooleanSupplier;
-import java.util.stream.Stream;
 
 import javafx.application.Platform;
 import junit.framework.Test;
@@ -99,12 +93,12 @@ public class ScenarioTest extends NbTestCase {
 
         Path work = getWorkDir().toPath().resolve("ant-hello");
         deleteTree(work);
-        copyTree(fixture, work);
-        git(work, "init");
-        git(work, "config", "user.email", "w0@nbfx.local");
-        git(work, "config", "user.name", "nbfx W0");
-        git(work, "add", "-A");
-        git(work, "commit", "-m", "fixture");
+        ScenarioSupport.copyTree(fixture, work);
+        ScenarioSupport.git(work, "init");
+        ScenarioSupport.git(work, "config", "user.email", "w0@nbfx.local");
+        ScenarioSupport.git(work, "config", "user.name", "nbfx W0");
+        ScenarioSupport.git(work, "add", "-A");
+        ScenarioSupport.git(work, "commit", "-m", "fixture");
 
         FileObject root = FileUtil.toFileObject(work.toFile());
         assertNotNull("fixture root not found", root);
@@ -117,7 +111,7 @@ public class ScenarioTest extends NbTestCase {
         ProjectRegistry registry = Lookup.getDefault().lookup(ProjectRegistry.class);
         assertNotNull("no ProjectRegistry", registry);
         OpenProject project = registry.open(root);
-        await("project open", 20, () -> opens(root));
+        ScenarioSupport.await("project open", 20, () -> opens(root));
         long tOpen = System.nanoTime();
         budget.put("fxReadyToOpenMs", ms(t0, tOpen));
 
@@ -125,7 +119,7 @@ public class ScenarioTest extends NbTestCase {
         assertNotNull("no EditorService", editors);
         FileObject main = root.getFileObject("src/hello/Main.java");
         assertNotNull("Main.java not found", main);
-        onFx(() -> {
+        ScenarioSupport.onFx(() -> {
             EditorDocument document = editors.createDocument(main);
             assertTrue("the document is read-only", document.replaceRange(0, 0, "// W0 scenario edit\n"));
             document.save();
@@ -142,23 +136,23 @@ public class ScenarioTest extends NbTestCase {
         FxConsole console = output.console("w0-scenario");
         console.clear();
         BuildRunner.run(work, "build", "w0-scenario");
-        await("build (console: " + console.text() + ")", 180,
+        ScenarioSupport.await("build (console: " + console.text() + ")", 180,
                 () -> console.text().contains("BUILD SUCCESSFUL"));
         long tBuild = System.nanoTime();
         budget.put("editToBuildMs", ms(tEdit, tBuild));
 
         console.clear();
         BuildRunner.run(work, "run", "w0-scenario");
-        await("run marker (console: " + console.text() + ")", 180,
+        ScenarioSupport.await("run marker (console: " + console.text() + ")", 180,
                 () -> console.text().contains("NB_FX_SCENARIO_OK"));
         long tRun = System.nanoTime();
         budget.put("buildToRunMs", ms(tBuild, tRun));
         budget.put("totalAfterFxMs", ms(t0, tRun));
         writeBudget(budget, getWorkDir().toPath().resolve("budget.json"));
 
-        git(work, "add", "-A");
-        git(work, "commit", "-m", "w0 scenario");
-        assertEquals("git status is not clean", "", git(work, "status", "--porcelain").trim());
+        ScenarioSupport.git(work, "add", "-A");
+        ScenarioSupport.git(work, "commit", "-m", "w0 scenario");
+        assertEquals("git status is not clean", "", ScenarioSupport.git(work, "status", "--porcelain").trim());
 
         registry.close(project);
     }
@@ -184,29 +178,6 @@ public class ScenarioTest extends NbTestCase {
         }
     }
 
-    private static <T> T onFx(Callable<T> action) throws Exception {
-        if (Platform.isFxApplicationThread()) {
-            return action.call();
-        }
-        AtomicReference<T> result = new AtomicReference<>();
-        AtomicReference<Throwable> error = new AtomicReference<>();
-        CountDownLatch latch = new CountDownLatch(1);
-        Platform.runLater(() -> {
-            try {
-                result.set(action.call());
-            } catch (Throwable t) {
-                error.set(t);
-            } finally {
-                latch.countDown();
-            }
-        });
-        assertTrue("the FX action did not finish", latch.await(60, TimeUnit.SECONDS));
-        if (error.get() != null) {
-            throw new AssertionError(error.get());
-        }
-        return result.get();
-    }
-
     private static long ms(long fromNanos, long toNanos) {
         return TimeUnit.NANOSECONDS.toMillis(toNanos - fromNanos);
     }
@@ -227,52 +198,6 @@ public class ScenarioTest extends NbTestCase {
             line.append(entry.getKey()).append('=').append(entry.getValue()).append("ms ");
         }
         System.out.println(line.toString().trim());
-    }
-
-    private static void await(String what, int seconds, BooleanSupplier condition) throws Exception {
-        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(seconds);
-        while (System.nanoTime() < deadline) {
-            if (condition.getAsBoolean()) {
-                return;
-            }
-            Thread.sleep(200);
-        }
-        fail("timed out waiting for " + what);
-    }
-
-    private static String git(Path dir, String... args) throws Exception {
-        List<String> command = new ArrayList<>();
-        command.add("git");
-        command.addAll(List.of(args));
-        Process process = new ProcessBuilder(command)
-                .directory(dir.toFile())
-                .redirectErrorStream(true)
-                .start();
-        String out = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-        int exit = process.waitFor();
-        assertEquals("git " + String.join(" ", args) + " failed:\n" + out, 0, exit);
-        return out;
-    }
-
-    private static void copyTree(Path from, Path to) throws IOException {
-        try (Stream<Path> walk = Files.walk(from)) {
-            for (Path path : (Iterable<Path>) walk::iterator) {
-                Path relative = from.relativize(path);
-                if (relative.toString().isEmpty()
-                        || relative.startsWith("build")
-                        || relative.startsWith("dist")
-                        || relative.startsWith(".git")) {
-                    continue;
-                }
-                Path target = to.resolve(relative.toString());
-                if (Files.isDirectory(path)) {
-                    Files.createDirectories(target);
-                } else {
-                    Files.createDirectories(target.getParent());
-                    Files.copy(path, target, StandardCopyOption.REPLACE_EXISTING);
-                }
-            }
-        }
     }
 
     private static void deleteTree(Path dir) throws IOException {
