@@ -27,13 +27,16 @@ import com.gluonhq.netbeans.nbfx.output.FxOutput;
 import com.gluonhq.netbeans.nbfx.run.BuildRunner;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -86,6 +89,11 @@ public class ScenarioTest extends NbTestCase {
     }
 
     public void testOpenEditBuildRunCommit() throws Exception {
+        long fxReadyMs = System.currentTimeMillis() - ManagementFactory.getRuntimeMXBean().getStartTime();
+        long t0 = System.nanoTime();
+        Map<String, Long> budget = new LinkedHashMap<>();
+        budget.put("jvmToFxReadyMs", fxReadyMs);
+
         Path fixture = Path.of(System.getProperty("nbfx.fixture", ""));
         assertTrue("nbfx.fixture is not set; see project.properties", Files.isDirectory(fixture));
 
@@ -110,6 +118,8 @@ public class ScenarioTest extends NbTestCase {
         assertNotNull("no ProjectRegistry", registry);
         OpenProject project = registry.open(root);
         await("project open", 20, () -> opens(root));
+        long tOpen = System.nanoTime();
+        budget.put("fxReadyToOpenMs", ms(t0, tOpen));
 
         EditorService editors = Lookup.getDefault().lookup(EditorService.class);
         assertNotNull("no EditorService", editors);
@@ -124,6 +134,8 @@ public class ScenarioTest extends NbTestCase {
         assertTrue("the edit was not saved",
                 Files.readString(work.resolve("src/hello/Main.java"), StandardCharsets.UTF_8)
                         .startsWith("// W0 scenario edit"));
+        long tEdit = System.nanoTime();
+        budget.put("openToEditMs", ms(tOpen, tEdit));
 
         FxOutput output = Lookup.getDefault().lookup(FxOutput.class);
         assertNotNull("no FxOutput", output);
@@ -132,11 +144,17 @@ public class ScenarioTest extends NbTestCase {
         BuildRunner.run(work, "build", "w0-scenario");
         await("build (console: " + console.text() + ")", 180,
                 () -> console.text().contains("BUILD SUCCESSFUL"));
+        long tBuild = System.nanoTime();
+        budget.put("editToBuildMs", ms(tEdit, tBuild));
 
         console.clear();
         BuildRunner.run(work, "run", "w0-scenario");
         await("run marker (console: " + console.text() + ")", 180,
                 () -> console.text().contains("NB_FX_SCENARIO_OK"));
+        long tRun = System.nanoTime();
+        budget.put("buildToRunMs", ms(tBuild, tRun));
+        budget.put("totalAfterFxMs", ms(t0, tRun));
+        writeBudget(budget, getWorkDir().toPath().resolve("budget.json"));
 
         git(work, "add", "-A");
         git(work, "commit", "-m", "w0 scenario");
@@ -187,6 +205,28 @@ public class ScenarioTest extends NbTestCase {
             throw new AssertionError(error.get());
         }
         return result.get();
+    }
+
+    private static long ms(long fromNanos, long toNanos) {
+        return TimeUnit.NANOSECONDS.toMillis(toNanos - fromNanos);
+    }
+
+    private static void writeBudget(Map<String, Long> budget, Path file) throws IOException {
+        StringBuilder json = new StringBuilder("{\n");
+        String sep = "";
+        for (Map.Entry<String, Long> entry : budget.entrySet()) {
+            json.append(sep).append("  \"").append(entry.getKey()).append("\": ").append(entry.getValue());
+            sep = ",\n";
+        }
+        json.append("\n}\n");
+        Files.createDirectories(file.getParent());
+        Files.writeString(file, json.toString());
+        System.out.println("[budget] wrote " + file);
+        StringBuilder line = new StringBuilder("[budget] ");
+        for (Map.Entry<String, Long> entry : budget.entrySet()) {
+            line.append(entry.getKey()).append('=').append(entry.getValue()).append("ms ");
+        }
+        System.out.println(line.toString().trim());
     }
 
     private static void await(String what, int seconds, BooleanSupplier condition) throws Exception {
