@@ -35,8 +35,8 @@
 <project basedir="." default="check-purity" name="nbfx-purity">
 
     <property name="nbfx.purity.strict" value="false"/>
-    <property name="nbfx.src.pattern" value="nbfx-platform/*/src/**/*.java,nbfx-ide/*/src/**/*.java,nbfx-java/*/src/**/*.java"/>
-    <property name="nbfx.deps.pattern" value="nbfx-platform/*/nbproject/project.xml,nbfx-ide/*/nbproject/project.xml,nbfx-java/*/nbproject/project.xml"/>
+    <property name="nbfx.src.pattern" value="nbfx-libs/*/src/**/*.java,nbfx-api/*/src/**/*.java,nbfx-platform/*/src/**/*.java,nbfx-ide/*/src/**/*.java,nbfx-java/*/src/**/*.java"/>
+    <property name="nbfx.deps.pattern" value="nbfx-libs/*/nbproject/project.xml,nbfx-api/*/nbproject/project.xml,nbfx-platform/*/nbproject/project.xml,nbfx-ide/*/nbproject/project.xml,nbfx-java/*/nbproject/project.xml"/>
     <property name="nbfx.jar.pattern" value="com-gluonhq-netbeans-nbfx-*.jar"/>
     <property name="nbfx.dist.dir" value="netbeans/nbbuild/netbeans"/>
 
@@ -93,6 +93,8 @@
     <target name="check-jars">
         <apply executable="${java.home}/bin/jar" outputproperty="nbfx.jar.contents"
                failonerror="false" parallel="false" dir="${basedir}">
+            <fileset dir="${nbfx.dist.dir}/nbfx-libs/modules" includes="${nbfx.jar.pattern}"/>
+            <fileset dir="${nbfx.dist.dir}/nbfx-api/modules" includes="${nbfx.jar.pattern}"/>
             <fileset dir="${nbfx.dist.dir}/nbfx-platform/modules" includes="${nbfx.jar.pattern}"/>
             <fileset dir="${nbfx.dist.dir}/nbfx-ide/modules" includes="${nbfx.jar.pattern}"/>
             <fileset dir="${nbfx.dist.dir}/nbfx-java/modules" includes="${nbfx.jar.pattern}"/>
@@ -119,6 +121,8 @@
         <resourcecount property="packaging.violations">
             <fileset dir="${nbfx.dist.dir}">
                 <include name="platform/modules/org-netbeans-core-windows*.jar"/>
+                <include name="nbfx-libs/modules/org-netbeans-core-windows*.jar"/>
+                <include name="nbfx-api/modules/org-netbeans-core-windows*.jar"/>
                 <include name="nbfx-platform/modules/org-netbeans-core-windows*.jar"/>
                 <include name="nbfx-ide/modules/org-netbeans-core-windows*.jar"/>
                 <include name="nbfx-java/modules/org-netbeans-core-windows*.jar"/>
@@ -127,6 +131,8 @@
                 <include name="extide/modules/org-netbeans-core-windows*.jar"/>
                 <include name="apisupport/modules/org-netbeans-core-windows*.jar"/>
                 <include name="platform/modules/locale/org-netbeans-core-windows*.jar"/>
+                <include name="nbfx-libs/modules/locale/org-netbeans-core-windows*.jar"/>
+                <include name="nbfx-api/modules/locale/org-netbeans-core-windows*.jar"/>
                 <include name="nbfx-platform/modules/locale/org-netbeans-core-windows*.jar"/>
                 <include name="nbfx-ide/modules/locale/org-netbeans-core-windows*.jar"/>
                 <include name="nbfx-java/modules/locale/org-netbeans-core-windows*.jar"/>

@@ -436,7 +436,7 @@ not a guardrail until `feature/ci` runs it (§11 W0/W12).
 |---|---|---|---|
 | `check-sources` | **exists** | import denylist + per-module allowlist | a forbidden import family outside its declared owner |
 | `check-dependencies` | **exists** | walk each `project.xml` graph | a forbidden NetBeans UI module, or an upward layer edge |
-| `check-jars` | **exists** (extend to 6 clusters + `jdeps`) | `jdeps` (references) **and** jar listing (bundled classes), on **all** clusters (`nbfx-libs`, `nbfx-api`, `nbfx-platform`, `nbfx-ide`, `nbfx-java`, `nbfx-javafx`) | a reference/bundle of a forbidden package outside an allowed tier or exemption |
+| `check-jars` | **exists** (5 clusters; `jdeps` + `nbfx-javafx` pending) | jar listing (bundled classes) on `nbfx-libs`, `nbfx-api`, `nbfx-platform`, `nbfx-ide`, `nbfx-java`; `jdeps`/`nbfx-javafx` when the cluster lands | a reference/bundle of a forbidden package outside an allowed tier or exemption |
 | `check-packaging` | **exists** (extend to the retirement matrix) | the retirement matrix (absent modules per milestone) | a retired module reappears in the distribution |
 | `check-figures` | **exists** | `ant -f check-purity.xml check-figures` → `java docs/plan/tools/Counts.java --check` | stale figures, a hand-typed count ([`figures.md`](figures.md)) |
 | `check-java-source` | **exists** (W1) | `org.netbeans.api.java.source`/`libs.javacapi` only in the `java.*` semantic modules | imported anywhere else (Appendix B.5) |
@@ -451,9 +451,9 @@ not a guardrail until `feature/ci` runs it (§11 W0/W12).
 | `check-licences` | pending (W10) | every bundled jar/native has a `NOTICE` entry; `javafx.web` absent (`LICENSE`/`THIRDPARTY` present) ([Appendix G](appendix/G-licences-and-notices.md)) | an unnotified bundle |
 | `check-budget` | **exists** (W0) | startup, "usable", first completion, module count, memory | >20 % regression vs the milestone baseline |
 
-The old, grep-only `check-jars` greps the *file list* of three cluster directories for `javax/swing/`, so a
-class that imports a JDK `javax.swing` type passes and the two new clusters are unscanned; that is the gap
-`jdeps` closes.
+The grep-only `check-jars` now covers the five nbfx cluster directories for bundled `javax.swing/` and
+`java/awt/` classes; it still cannot see a class that merely imports a JDK Swing type, which is the gap
+`jdeps` closes. `nbfx-javafx` is scanned when its first module lands.
 
 ## 10. Roadmap
 
@@ -589,10 +589,9 @@ out of exported packages, introduce `api.layer.LayerPaths`; no behaviour change)
 conversions) → `refactor/editor-split` (`platform.editor` / `java.editor` / `ide.editor.{xml,css}`; delivers the
 `api.editor` decoration SPI + `api.language`, acceptance: XML/CSS are modules and the core contains no
 language branch) →
-`refactor/usages-split` (`api.usages` + `ide.usages` + `java.usages`) → `refactor/cluster-layout` (create the
-`nbfx-libs`, `nbfx-api` and `nbfx-javafx` clusters: `cluster/nbfx-cluster.properties.fragment`, `nbbuild`/CI
-wiring, and the `check-purity.xml` `check-jars` includes + `${nbfx.dist.dir}` scans extended to all five
-cluster dirs; acceptance: `check-jars` scans five clusters and a dry-run build produces them) →
+`refactor/usages-split` (`api.usages` + `ide.usages` + `java.usages`) → `refactor/cluster-layout` (**landed**:
+`nbfx-libs` and `nbfx-api` created; `check-jars`/`${nbfx.dist.dir}` scans cover five clusters. `nbfx-javafx`
+is deferred until its first module lands) →
 `refactor/module-names` (rename to
 §3.1; settings/layer round-trip test) → `refactor/api-split` (create the `api.*` modules; move packages
 **wholesale** — same package names, consumers update only their `project.xml`; topological order:

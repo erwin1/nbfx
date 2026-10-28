@@ -1,14 +1,16 @@
-
 # =============================================================================
 # nbfx clusters (appended to nbbuild/cluster.properties by `ant cluster-config`)
 #
 # The FX replacements parallel the NetBeans platform/ide/java clusters; the
-# dependency direction is nb.cluster.platform -> nbfx-platform -> nbfx-ide ->
+# dependency direction is nbfx-libs -> nbfx-api -> nbfx-platform -> nbfx-ide ->
 # nbfx-java. Only the dedicated `nbfx` cluster config pulls these in.
+# `nbfx-javafx` is created when its first module lands (M3).
 # =============================================================================
 
 clusters.config.nbfx.list=\
         nb.cluster.platform,\
+        nb.cluster.nbfx-libs,\
+        nb.cluster.nbfx-api,\
         nb.cluster.nbfx-platform,\
         nb.cluster.nbfx-ide,\
         nb.cluster.nbfx-java,\
@@ -17,12 +19,18 @@ clusters.config.nbfx.list=\
         nb.cluster.extide,\
         nb.cluster.apisupport
 
-# --- nbfx-platform: FX replacements for platform/ -----------------------------
-nb.cluster.nbfx-platform.dir=nbfx-platform
-nb.cluster.nbfx-platform.depends=\
-        nb.cluster.platform
-nb.cluster.nbfx-platform=\
-        c.gluonhq.netbeans.nbfx.actions,\
+# --- nbfx-libs: bundled external libraries ------------------------------------
+nb.cluster.nbfx-libs.dir=nbfx-libs
+nb.cluster.nbfx-libs.depends=
+nb.cluster.nbfx-libs=\
+        c.gluonhq.netbeans.nbfx.lib.javafx
+
+# --- nbfx-api: published/shared APIs ------------------------------------------
+nb.cluster.nbfx-api.dir=nbfx-api
+nb.cluster.nbfx-api.depends=\
+        nb.cluster.platform,\
+        nb.cluster.nbfx-libs
+nb.cluster.nbfx-api=\
         c.gluonhq.netbeans.nbfx.annotations,\
         c.gluonhq.netbeans.nbfx.api.actions,\
         c.gluonhq.netbeans.nbfx.api.dialogs,\
@@ -32,10 +40,17 @@ nb.cluster.nbfx-platform=\
         c.gluonhq.netbeans.nbfx.api.progress,\
         c.gluonhq.netbeans.nbfx.api.project,\
         c.gluonhq.netbeans.nbfx.api.search,\
-        c.gluonhq.netbeans.nbfx.api.views,\
+        c.gluonhq.netbeans.nbfx.api.views
+
+# --- nbfx-platform: FX replacements for platform/ -----------------------------
+nb.cluster.nbfx-platform.dir=nbfx-platform
+nb.cluster.nbfx-platform.depends=\
+        nb.cluster.platform,\
+        nb.cluster.nbfx-api
+nb.cluster.nbfx-platform=\
+        c.gluonhq.netbeans.nbfx.actions,\
         c.gluonhq.netbeans.nbfx.context,\
         c.gluonhq.netbeans.nbfx.docking,\
-        c.gluonhq.netbeans.nbfx.lib.javafx,\
         c.gluonhq.netbeans.nbfx.macos,\
         c.gluonhq.netbeans.nbfx.menus,\
         c.gluonhq.netbeans.nbfx.options,\

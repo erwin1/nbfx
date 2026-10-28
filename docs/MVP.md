@@ -60,7 +60,7 @@ The branch already contains a working **JavaFX shell over the NetBeans Runtime**
   `VersioningOptOut` and `manifest.mf` registers it as `OpenIDE-Module-Install`.
 - The Swing main window is gone, not hidden: `core.windows` was removed from the platform cluster
   (M9.2/M9.4); `SwingWindowSuppressor` deleted.
-- JavaFX is bundled as class-path extensions in `nbfx-platform/c.gluonhq.netbeans.nbfx.lib.javafx`
+- JavaFX is bundled as class-path extensions in `nbfx-libs/c.gluonhq.netbeans.nbfx.lib.javafx`
   (JavaFX 27; `javafx.version`), placed under `release/modules/ext/*.jar`; **`javafx.swing` is not bundled**.
 - Registration today is `@ServiceProvider` (28 occurrences) plus heavy manual wiring in
   `JavaFXLaunchApp.start()` (`:123-259`) and `ActionBars`; there are **no** `layer.xml`,

@@ -67,22 +67,27 @@ and vice versa.
    only scans the `FOREST` dirs plus the dirs of clusters listed there — without this the
    `all-<module>` targets for the nbfx clusters are never created),
 3. drops `core.windows` from the platform cluster (the pure-JavaFX window-system removal, M9.2/M9.4),
-4. appends the fragment (the three `nb.cluster.nbfx-*` definitions and `clusters.config.nbfx.list`),
+4. appends the fragment (the five `nb.cluster.nbfx-*` definitions and `clusters.config.nbfx.list`),
 5. writes the result to `build/cluster.properties` **and installs it as the submodule's
    `nbbuild/cluster.properties`**, because several harness targets read that path directly
    (`-define-cluster-path` builds `cluster.path` from it; packaging targets too). An external
    `-Dclusters.list.file` alone is not sufficient.
 
-The fragment defines the three clusters (dependency direction `platform → nbfx-platform → nbfx-ide →
-nbfx-java`) and the lean `clusters.config.nbfx.list`:
+The fragment defines the five clusters (dependency direction `nbfx-libs → nbfx-api → nbfx-platform →
+nbfx-ide → nbfx-java`) and the lean `clusters.config.nbfx.list`:
 
 ```
-nb.cluster.nbfx-platform.dir=nbfx-platform   depends nb.cluster.platform
-nb.cluster.nbfx-ide.dir=nbfx-ide             depends nb.cluster.nbfx-platform, ide, java
-nb.cluster.nbfx-java.dir=nbfx-java           depends nb.cluster.nbfx-ide, java, extide, apisupport
+nb.cluster.nbfx-libs.dir=nbfx-libs           no cluster dependency
+nb.cluster.nbfx-api.dir=nbfx-api             depends platform, nbfx-libs
+nb.cluster.nbfx-platform.dir=nbfx-platform   depends platform, nbfx-api
+nb.cluster.nbfx-ide.dir=nbfx-ide             depends nbfx-platform, ide, java
+nb.cluster.nbfx-java.dir=nbfx-java           depends nbfx-ide, java, extide, apisupport
 
-clusters.config.nbfx.list = platform, nbfx-platform, nbfx-ide, nbfx-java, java, ide, extide, apisupport
+clusters.config.nbfx.list = platform, nbfx-libs, nbfx-api, nbfx-platform, nbfx-ide, nbfx-java,
+                            java, ide, extide, apisupport
 ```
+
+`nbfx-javafx` is created when its first module lands (M3).
 
 The nbfx clusters are reachable as a normal cluster set via `-Dcluster.config=nbfx`; the nbfx
 clusters themselves are not added to `clusters.config.java`/`release`. Registering the dirs in
@@ -185,7 +190,7 @@ sync from — only the `netbeans` submodule pin is updated over time.
 
 ## 8. Known constraints
 
-- **Bundled JavaFX runtime.** `nbfx-platform/c.gluonhq.netbeans.nbfx.lib.javafx` commits the JavaFX 27
+- **Bundled JavaFX runtime.** `nbfx-libs/c.gluonhq.netbeans.nbfx.lib.javafx` commits the JavaFX 27
   runtime (~16 MB): `release/modules/ext/*.jar` plus natives for macOS, Windows x64 (`amd64/`) and
   Linux x64 (`amd64/linux/`). There is **no arm64** build yet. The `0012` patch keeps these out of the
   external-binaries licence check; migrating them to the `external/` download mechanism is a follow-up.

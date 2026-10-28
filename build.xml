@@ -180,7 +180,7 @@
         <!-- register the nbfx cluster dirs so ModuleListParser finds their modules -->
         <replace file="${nbfx.cluster.file}"
                  token="clusters.config.full.list=\"
-                 value="clusters.config.full.list=\&#10;        nb.cluster.nbfx-platform,\&#10;        nb.cluster.nbfx-ide,\&#10;        nb.cluster.nbfx-java,\"/>
+                 value="clusters.config.full.list=\&#10;        nb.cluster.nbfx-libs,\&#10;        nb.cluster.nbfx-api,\&#10;        nb.cluster.nbfx-platform,\&#10;        nb.cluster.nbfx-ide,\&#10;        nb.cluster.nbfx-java,\"/>
         <!-- pure-JavaFX: the Swing window system (core.windows) is dropped from the platform
              cluster, as in the nbfx source configuration (remove the module + its line ending so
              the backslash-continued property stays valid) -->
@@ -214,12 +214,14 @@
         <!-- the entries have no trailing slash: "nbfx-platform/" would match a directory only,
              not the symlink overlay (it then showed as untracked and git clean -X kept it) -->
         <condition property="nbfx.exclude.need">
-            <not><matches string="${nbfx.sub.exclude}" pattern="(?m)^nbfx-platform$"/></not>
+            <not><matches string="${nbfx.sub.exclude}" pattern="(?m)^nbfx-libs$"/></not>
         </condition>
     </target>
 
     <target name="-overlay-exclude-append" if="nbfx.exclude.need">
         <echo file="${nbfx.sub.gitdir}/info/exclude" append="true">
+nbfx-libs
+nbfx-api
 nbfx-platform
 nbfx-ide
 nbfx-java
@@ -232,9 +234,13 @@ nbfx-java
     <target name="-overlay-sync" unless="nbfx.overlay.symlink">
         <!-- only a previous symlink overlay is removed first (sync cannot write through it);
              a previous sync copy is updated in place, keeping the per-module build output -->
+        <symlink action="delete" link="${nbfx.sub.dir}/nbfx-libs" failonerror="false"/>
+        <symlink action="delete" link="${nbfx.sub.dir}/nbfx-api" failonerror="false"/>
         <symlink action="delete" link="${nbfx.sub.dir}/nbfx-platform" failonerror="false"/>
         <symlink action="delete" link="${nbfx.sub.dir}/nbfx-ide" failonerror="false"/>
         <symlink action="delete" link="${nbfx.sub.dir}/nbfx-java" failonerror="false"/>
+        <nbfx-overlay-sync-one cluster="nbfx-libs"/>
+        <nbfx-overlay-sync-one cluster="nbfx-api"/>
         <nbfx-overlay-sync-one cluster="nbfx-platform"/>
         <nbfx-overlay-sync-one cluster="nbfx-ide"/>
         <nbfx-overlay-sync-one cluster="nbfx-java"/>
@@ -242,6 +248,8 @@ nbfx-java
     </target>
 
     <target name="-overlay-symlink" if="nbfx.overlay.symlink">
+        <nbfx-overlay-symlink-one cluster="nbfx-libs"/>
+        <nbfx-overlay-symlink-one cluster="nbfx-api"/>
         <nbfx-overlay-symlink-one cluster="nbfx-platform"/>
         <nbfx-overlay-symlink-one cluster="nbfx-ide"/>
         <nbfx-overlay-symlink-one cluster="nbfx-java"/>
@@ -250,6 +258,8 @@ nbfx-java
 
     <target name="unoverlay" depends="submodule"
             description="Remove the overlay from the submodule">
+        <nbfx-unoverlay-one cluster="nbfx-libs"/>
+        <nbfx-unoverlay-one cluster="nbfx-api"/>
         <nbfx-unoverlay-one cluster="nbfx-platform"/>
         <nbfx-unoverlay-one cluster="nbfx-ide"/>
         <nbfx-unoverlay-one cluster="nbfx-java"/>
@@ -363,6 +373,8 @@ nbfx-java
         <delete quiet="true">
             <fileset dir="${nbfx.build.dir}" includes="patches-*.stamp"/>
         </delete>
+        <nbfx-unoverlay-one cluster="nbfx-libs"/>
+        <nbfx-unoverlay-one cluster="nbfx-api"/>
         <nbfx-unoverlay-one cluster="nbfx-platform"/>
         <nbfx-unoverlay-one cluster="nbfx-ide"/>
         <nbfx-unoverlay-one cluster="nbfx-java"/>
