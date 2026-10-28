@@ -20,9 +20,9 @@ package com.gluonhq.netbeans.nbfx.structure.gradle;
 
 import com.gluonhq.netbeans.nbfx.api.progress.Cancellation;
 import com.gluonhq.netbeans.nbfx.project.ui.gradle.api.GradleTasks;
-import com.gluonhq.netbeans.nbfx.run.BuildRunner;
-import com.gluonhq.netbeans.nbfx.structure.NavigatorIcons;
-import com.gluonhq.netbeans.nbfx.structure.ScanningPanel;
+import com.gluonhq.netbeans.nbfx.ide.build.BuildRunner;
+import com.gluonhq.netbeans.nbfx.ide.structure.NavigatorIcons;
+import com.gluonhq.netbeans.nbfx.ide.structure.ScanningPanel;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;

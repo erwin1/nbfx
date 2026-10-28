@@ -6,7 +6,7 @@
             <code-name-base>com.gluonhq.netbeans.nbfx.project.ui</code-name-base>
             <module-dependencies>
                 <dependency>
-                    <code-name-base>com.gluonhq.netbeans.nbfx.file.actions</code-name-base>
+                    <code-name-base>com.gluonhq.netbeans.nbfx.ide.file</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>

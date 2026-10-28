@@ -14,7 +14,7 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
-                    <code-name-base>com.gluonhq.netbeans.nbfx.project.customizer</code-name-base>
+                    <code-name-base>com.gluonhq.netbeans.nbfx.ide.project.customizer</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>

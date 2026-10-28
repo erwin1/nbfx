@@ -20,11 +20,11 @@ package com.gluonhq.netbeans.nbfx.structure.java.ui;
 
 import com.gluonhq.netbeans.nbfx.api.dialogs.ErrorReporter;
 import com.gluonhq.netbeans.nbfx.api.editor.OpenSources;
-import com.gluonhq.netbeans.nbfx.structure.BackgroundScans;
-import com.gluonhq.netbeans.nbfx.structure.DocumentTracker;
-import com.gluonhq.netbeans.nbfx.structure.StructurePanel;
-import com.gluonhq.netbeans.nbfx.structure.ScanningPanel;
-import com.gluonhq.netbeans.nbfx.structure.StructureView;
+import com.gluonhq.netbeans.nbfx.ide.structure.BackgroundScans;
+import com.gluonhq.netbeans.nbfx.ide.structure.DocumentTracker;
+import com.gluonhq.netbeans.nbfx.ide.structure.StructurePanel;
+import com.gluonhq.netbeans.nbfx.ide.structure.ScanningPanel;
+import com.gluonhq.netbeans.nbfx.ide.structure.StructureView;
 import com.gluonhq.netbeans.nbfx.structure.java.model.InspectedType;
 import com.gluonhq.netbeans.nbfx.structure.java.model.MemberFilters;
 import com.gluonhq.netbeans.nbfx.structure.java.model.MembersScanner;

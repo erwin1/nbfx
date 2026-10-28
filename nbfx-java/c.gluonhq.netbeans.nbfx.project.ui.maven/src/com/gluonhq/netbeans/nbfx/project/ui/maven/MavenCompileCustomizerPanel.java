@@ -1,6 +1,6 @@
 package com.gluonhq.netbeans.nbfx.project.ui.maven;
 
-import com.gluonhq.netbeans.nbfx.project.customizer.CustomizerPanel;
+import com.gluonhq.netbeans.nbfx.ide.project.customizer.CustomizerPanel;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;

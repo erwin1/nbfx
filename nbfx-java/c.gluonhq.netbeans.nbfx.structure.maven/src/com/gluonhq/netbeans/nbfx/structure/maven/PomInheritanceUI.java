@@ -20,8 +20,8 @@ package com.gluonhq.netbeans.nbfx.structure.maven;
 
 import com.gluonhq.netbeans.nbfx.api.progress.Cancellation;
 import com.gluonhq.netbeans.nbfx.api.editor.ContentManager;
-import com.gluonhq.netbeans.nbfx.structure.NavigatorIcons;
-import com.gluonhq.netbeans.nbfx.structure.ScanningPanel;
+import com.gluonhq.netbeans.nbfx.ide.structure.NavigatorIcons;
+import com.gluonhq.netbeans.nbfx.ide.structure.ScanningPanel;
 import java.io.File;
 import java.util.List;
 import javafx.geometry.Pos;

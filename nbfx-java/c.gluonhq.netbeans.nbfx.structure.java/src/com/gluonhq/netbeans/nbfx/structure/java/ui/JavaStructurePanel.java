@@ -18,8 +18,8 @@
  */
 package com.gluonhq.netbeans.nbfx.structure.java.ui;
 
-import com.gluonhq.netbeans.nbfx.structure.ScanningPanel;
-import com.gluonhq.netbeans.nbfx.structure.TrackedStructurePanel;
+import com.gluonhq.netbeans.nbfx.ide.structure.ScanningPanel;
+import com.gluonhq.netbeans.nbfx.ide.structure.TrackedStructurePanel;
 import java.util.Objects;
 import javafx.scene.Parent;
 import org.openide.filesystems.FileObject;

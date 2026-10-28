@@ -1,5 +1,5 @@
 package com.gluonhq.netbeans.nbfx.project.ui.ant;
-import com.gluonhq.netbeans.nbfx.project.customizer.CustomizerPanel;
+import com.gluonhq.netbeans.nbfx.ide.project.customizer.CustomizerPanel;
 
 import javafx.scene.Node;
 import org.netbeans.api.project.Project;

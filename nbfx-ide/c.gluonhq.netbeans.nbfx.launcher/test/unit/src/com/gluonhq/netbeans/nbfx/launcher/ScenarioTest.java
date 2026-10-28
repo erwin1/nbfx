@@ -24,7 +24,7 @@ import com.gluonhq.netbeans.nbfx.api.project.OpenProject;
 import com.gluonhq.netbeans.nbfx.api.project.ProjectRegistry;
 import com.gluonhq.netbeans.nbfx.platform.output.ConsolePanel;
 import com.gluonhq.netbeans.nbfx.platform.output.OutputConsole;
-import com.gluonhq.netbeans.nbfx.run.BuildRunner;
+import com.gluonhq.netbeans.nbfx.ide.build.BuildRunner;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;

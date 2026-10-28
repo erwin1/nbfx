@@ -22,7 +22,7 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
-                    <code-name-base>com.gluonhq.netbeans.nbfx.structure</code-name-base>
+                    <code-name-base>com.gluonhq.netbeans.nbfx.ide.structure</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>

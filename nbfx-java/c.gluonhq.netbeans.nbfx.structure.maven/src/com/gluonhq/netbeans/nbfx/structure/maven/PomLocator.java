@@ -18,8 +18,8 @@
  */
 package com.gluonhq.netbeans.nbfx.structure.maven;
 
-import com.gluonhq.netbeans.nbfx.structure.xml.XmlNode;
-import com.gluonhq.netbeans.nbfx.structure.xml.XmlScanner;
+import com.gluonhq.netbeans.nbfx.ide.structure.xml.XmlNode;
+import com.gluonhq.netbeans.nbfx.ide.structure.xml.XmlScanner;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.maven.model.InputLocation;

@@ -52,7 +52,7 @@ import com.gluonhq.netbeans.nbfx.api.view.ViewManager;
 import com.gluonhq.netbeans.nbfx.api.view.ViewProvider;
 import com.gluonhq.netbeans.nbfx.api.view.ActiveComponent;
 import com.gluonhq.netbeans.nbfx.api.view.ActiveComponentContext;
-import com.gluonhq.netbeans.nbfx.file.actions.FileUndoManager;
+import com.gluonhq.netbeans.nbfx.ide.file.FileUndoManager;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;

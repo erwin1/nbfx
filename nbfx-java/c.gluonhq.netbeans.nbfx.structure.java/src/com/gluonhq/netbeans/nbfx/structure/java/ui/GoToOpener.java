@@ -22,7 +22,7 @@ import com.gluonhq.netbeans.nbfx.api.editor.ContentManager;
 import com.gluonhq.netbeans.nbfx.api.dialogs.ErrorReporter;
 import com.gluonhq.netbeans.nbfx.api.editor.OpenSources;
 import com.gluonhq.netbeans.nbfx.api.elements.SourceLocation;
-import com.gluonhq.netbeans.nbfx.structure.BackgroundScans;
+import com.gluonhq.netbeans.nbfx.ide.structure.BackgroundScans;
 import com.gluonhq.netbeans.nbfx.structure.java.model.GoToResolver;
 import java.io.IOException;
 import java.util.ArrayList;

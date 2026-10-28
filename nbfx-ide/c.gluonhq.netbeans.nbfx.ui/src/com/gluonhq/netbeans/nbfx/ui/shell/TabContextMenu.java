@@ -4,7 +4,7 @@ import com.gluonhq.netbeans.nbfx.api.editor.ContentManager;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
 import com.gluonhq.netbeans.nbfx.docking.DockArea;
 import com.gluonhq.netbeans.nbfx.docking.DropTarget;
-import com.gluonhq.netbeans.nbfx.file.actions.DesktopActions;
+import com.gluonhq.netbeans.nbfx.ide.file.DesktopActions;
 import com.gluonhq.netbeans.nbfx.ui.session.DocumentCloser;
 import com.gluonhq.netbeans.nbfx.ui.shell.NbfxTabPane.PaneRole;
 import java.io.File;

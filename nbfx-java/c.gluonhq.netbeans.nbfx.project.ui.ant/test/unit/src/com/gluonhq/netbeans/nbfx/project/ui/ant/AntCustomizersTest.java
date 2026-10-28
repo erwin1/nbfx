@@ -18,8 +18,8 @@
  */
 package com.gluonhq.netbeans.nbfx.project.ui.ant;
 
-import com.gluonhq.netbeans.nbfx.project.customizer.CustomizerPanel;
-import com.gluonhq.netbeans.nbfx.project.customizer.Customizers;
+import com.gluonhq.netbeans.nbfx.ide.project.customizer.CustomizerPanel;
+import com.gluonhq.netbeans.nbfx.ide.project.customizer.Customizers;
 import java.io.File;
 import java.util.List;
 import java.util.Set;

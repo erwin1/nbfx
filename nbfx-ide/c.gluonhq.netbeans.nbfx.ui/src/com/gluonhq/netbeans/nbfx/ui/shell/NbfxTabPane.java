@@ -26,7 +26,7 @@ import com.gluonhq.netbeans.nbfx.api.view.ViewProvider;
 import com.gluonhq.netbeans.nbfx.windows.WindowEnvironment;
 import com.gluonhq.netbeans.nbfx.docking.DockArea;
 import com.gluonhq.netbeans.nbfx.docking.DropTarget;
-import com.gluonhq.netbeans.nbfx.file.actions.FileDragAndDrop;
+import com.gluonhq.netbeans.nbfx.ide.file.FileDragAndDrop;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;

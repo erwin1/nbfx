@@ -18,8 +18,8 @@
  */
 package com.gluonhq.netbeans.nbfx.structure.java.ui;
 
-import com.gluonhq.netbeans.nbfx.structure.StructurePanel;
-import com.gluonhq.netbeans.nbfx.structure.ScanningPanel;
+import com.gluonhq.netbeans.nbfx.ide.structure.StructurePanel;
+import com.gluonhq.netbeans.nbfx.ide.structure.ScanningPanel;
 import com.gluonhq.netbeans.nbfx.structure.java.model.BeanPatternsScanner;
 import org.openide.util.NbBundle;
 import org.openide.util.lookup.ServiceProvider;

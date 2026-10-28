@@ -20,12 +20,12 @@ package com.gluonhq.netbeans.nbfx.structure.maven;
 
 import com.gluonhq.netbeans.nbfx.api.progress.Cancellation;
 import com.gluonhq.netbeans.nbfx.api.editor.ContentManager;
-import com.gluonhq.netbeans.nbfx.structure.BackgroundScans;
-import com.gluonhq.netbeans.nbfx.structure.NavigatorButtons;
-import com.gluonhq.netbeans.nbfx.structure.NavigatorIcons;
-import com.gluonhq.netbeans.nbfx.structure.ScanningPanel;
-import com.gluonhq.netbeans.nbfx.structure.TreeScrolling;
-import com.gluonhq.netbeans.nbfx.structure.xml.XmlNode;
+import com.gluonhq.netbeans.nbfx.ide.structure.BackgroundScans;
+import com.gluonhq.netbeans.nbfx.ide.structure.NavigatorButtons;
+import com.gluonhq.netbeans.nbfx.ide.structure.NavigatorIcons;
+import com.gluonhq.netbeans.nbfx.ide.structure.ScanningPanel;
+import com.gluonhq.netbeans.nbfx.ide.structure.TreeScrolling;
+import com.gluonhq.netbeans.nbfx.ide.structure.xml.XmlNode;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;

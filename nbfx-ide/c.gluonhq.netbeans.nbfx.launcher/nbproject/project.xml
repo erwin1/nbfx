@@ -54,7 +54,7 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
-                    <code-name-base>com.gluonhq.netbeans.nbfx.file.actions</code-name-base>
+                    <code-name-base>com.gluonhq.netbeans.nbfx.ide.file</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
@@ -189,7 +189,7 @@
                         <compile-dependency/>
                     </test-dependency>
                     <test-dependency>
-                        <code-name-base>com.gluonhq.netbeans.nbfx.run</code-name-base>
+                        <code-name-base>com.gluonhq.netbeans.nbfx.ide.build</code-name-base>
                         <compile-dependency/>
                     </test-dependency>
                     <test-dependency>

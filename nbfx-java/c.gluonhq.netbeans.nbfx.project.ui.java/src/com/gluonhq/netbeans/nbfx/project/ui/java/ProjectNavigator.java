@@ -15,7 +15,7 @@ import com.gluonhq.netbeans.nbfx.project.ui.java.utils.NavigatorIcons;
 import com.gluonhq.netbeans.nbfx.project.ui.java.utils.PackageScanner;
 import com.gluonhq.netbeans.nbfx.project.ui.utils.Projects;
 import com.gluonhq.netbeans.nbfx.project.ui.java.utils.TreeNav;
-import com.gluonhq.netbeans.nbfx.file.actions.FileDragAndDrop;
+import com.gluonhq.netbeans.nbfx.ide.file.FileDragAndDrop;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;

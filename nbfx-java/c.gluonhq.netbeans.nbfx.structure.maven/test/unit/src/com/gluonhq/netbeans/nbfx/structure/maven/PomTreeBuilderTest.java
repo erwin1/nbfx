@@ -19,7 +19,7 @@
 package com.gluonhq.netbeans.nbfx.structure.maven;
 
 import com.gluonhq.netbeans.nbfx.structure.maven.PomNode.Kind;
-import com.gluonhq.netbeans.nbfx.structure.xml.XmlNode;
+import com.gluonhq.netbeans.nbfx.ide.structure.xml.XmlNode;
 import java.io.StringReader;
 import java.util.List;
 import org.apache.maven.model.InputSource;

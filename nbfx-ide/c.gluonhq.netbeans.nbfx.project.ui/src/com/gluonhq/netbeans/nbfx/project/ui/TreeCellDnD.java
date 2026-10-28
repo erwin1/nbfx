@@ -6,8 +6,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import com.gluonhq.netbeans.nbfx.file.actions.FileClipboardActions;
-import com.gluonhq.netbeans.nbfx.file.actions.FileDragAndDrop;
+import com.gluonhq.netbeans.nbfx.ide.file.FileClipboardActions;
+import com.gluonhq.netbeans.nbfx.ide.file.FileDragAndDrop;
 
 import javafx.animation.PauseTransition;
 import javafx.css.PseudoClass;
@@ -34,7 +34,7 @@ import org.openide.filesystems.FileUtil;
  * collapsed folder for a moment expands it so the gesture can continue into its children.</p>
  *
  * <p>The dragged files are also published on the dragboard (see
- * {@link com.gluonhq.netbeans.nbfx.file.actions.FileDragAndDrop}), so that dropping them on an
+ * {@link com.gluonhq.netbeans.nbfx.ide.file.FileDragAndDrop}), so that dropping them on an
  * editor tab pane opens them.</p>
  */
 public final class TreeCellDnD {

@@ -21,7 +21,7 @@ package com.gluonhq.netbeans.nbfx.structure.java.ui;
 import com.gluonhq.netbeans.nbfx.api.editor.ContentManager;
 import com.gluonhq.netbeans.nbfx.api.editor.OpenSources;
 import com.gluonhq.netbeans.nbfx.api.elements.SourceLocation;
-import com.gluonhq.netbeans.nbfx.structure.BackgroundScans;
+import com.gluonhq.netbeans.nbfx.ide.structure.BackgroundScans;
 import com.gluonhq.netbeans.nbfx.structure.java.model.MemberNode;
 import com.gluonhq.netbeans.nbfx.structure.java.model.MembersScanner;
 import java.io.IOException;

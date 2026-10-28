@@ -1,3 +1,0 @@
-<project basedir="." default="build" name="nbfx-ide/c.gluonhq.netbeans.nbfx.vcs">
-    <import file="../../nbbuild/templates/projectized.xml"/>
-</project>
