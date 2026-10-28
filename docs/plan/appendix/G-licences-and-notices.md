@@ -9,7 +9,7 @@ policy; the check is mechanical (`check-licences`).
 | Component | Version | Licence | Obligation | Bundled by | Milestone |
 |---|---|---|---|---|---|
 | Reused NetBeans platform/IDE/Java modules | pinned `0104eeb3da` | Apache-2.0 | keep the upstream `LICENSE`/`NOTICE`; no relicensing | clusters | — |
-| **JavaFX / OpenJFX** | **27** (`lib.javafx/javafx.version`) | **GPLv2 + Classpath Exception** | ship the licence text + a notice; the CE covers linking, not relicensing; source offer for the FX modules we distribute | `libs.javafx` | M0 |
+| **JavaFX / OpenJFX** | **27** (`lib.javafx/javafx-sdk.properties`) | **GPLv2 + Classpath Exception** | ship the licence text + a notice; the CE covers linking, not relicensing; source offer for the FX modules we distribute | `libs.javafx` | M0 |
 | JavaFX `javafx.web` / WebKit | — | LGPL-2.1/BSD (WebKit) | **do not bundle** — not needed by the IDE scope (PLAN §1 non-goals) | — | — |
 | async-profiler | per decision | Apache-2.0 | NOTICE; native binaries per OS/arch | `libs.asyncprofiler.*` | M2 |
 | JLine | per decision | BSD-3-Clause | NOTICE | `libs.jline` | M0 |

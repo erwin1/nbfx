@@ -3,6 +3,8 @@
 /*/*/build/
 # generated at bootstrap (own cluster configuration)
 /build/
+# the JavaFX SDK, unpacked by `ant javafx-fetch` (javafx-sdk.properties)
+/nbfx-platform/c.gluonhq.netbeans.nbfx.lib.javafx/release/
 # local overrides
 /nbfx-local.properties
 # the netbeans submodule keeps its own ignore rules; the overlay entries are

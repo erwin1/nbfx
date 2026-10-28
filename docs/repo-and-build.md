@@ -185,10 +185,13 @@ sync from — only the `netbeans` submodule pin is updated over time.
 
 ## 8. Known constraints
 
-- **Bundled JavaFX runtime.** `nbfx-platform/c.gluonhq.netbeans.nbfx.lib.javafx` commits the JavaFX 27
-  runtime (~16 MB): `release/modules/ext/*.jar` plus natives for macOS, Windows x64 (`amd64/`) and
-  Linux x64 (`amd64/linux/`). There is **no arm64** build yet. The `0012` patch keeps these out of the
-  external-binaries licence check; migrating them to the `external/` download mechanism is a follow-up.
+- **Bundled JavaFX runtime.** `nbfx-platform/c.gluonhq.netbeans.nbfx.lib.javafx` bundles JavaFX, but
+  nothing of it is in git. `ant javafx-fetch` (part of `bootstrap`) downloads the OpenJFX SDK pinned in
+  `javafx-sdk.properties` (version + SHA-256 per platform) into `~/.hgexternalcache` and unpacks it into
+  the module's git-ignored `release/`: `modules/ext/*.jar`, the natives flat in `modules/lib/`, the
+  licence texts in `legal/javafx/`. The platform is the build machine's (macOS aarch64/x64, Windows x64,
+  Linux x64), or `-Dnbfx.javafx.platform=<id>`. The `0012` patch keeps these files out of the
+  external-binaries licence check.
 - **`lib.javafx` cluster placement.** Several modules reference
   `../c.gluonhq.netbeans.nbfx.lib.javafx/release/modules/lib` via `test-unit-sys-prop.java.library.path`,
   so `lib.javafx` must stay in `nbfx-platform`.
