@@ -157,6 +157,10 @@ public class ScenarioTest extends NbTestCase {
             registry.close(project);
             return null;
         });
+        // The close writes project state asynchronously; let it flush, then discard
+        // the incidental project.properties update (the scenario only edits Main.java).
+        Thread.sleep(500);
+        ScenarioSupport.git(work, "checkout", "--", "nbproject/project.properties");
 
         ScenarioSupport.git(work, "add", "-A");
         ScenarioSupport.git(work, "commit", "-m", "w0 scenario");
