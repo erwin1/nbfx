@@ -18,6 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.annotations;
 
+import com.gluonhq.netbeans.nbfx.api.layer.LayerPaths;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -144,5 +145,23 @@ public class FxAnnotationsProcessorTest {
         assertTrue(xml, xml.contains("valueType\" stringvalue=\"java.lang.String\""));
         // Options
         assertTrue(xml, xml.contains("name=\"demo.options.instance\""));
+
+        // Writer/reader contract: the emitted folders are the paths the readers use.
+        assertLayerPath(xml, LayerPaths.ACTIONS);
+        assertLayerPath(xml, LayerPaths.MENUS);
+        assertLayerPath(xml, LayerPaths.TOOLBARS);
+        assertLayerPath(xml, LayerPaths.CONTEXT_MENUS);
+        assertLayerPath(xml, LayerPaths.VIEWS);
+        assertLayerPath(xml, LayerPaths.STATUS);
+        assertLayerPath(xml, LayerPaths.PROPERTY_EDITORS);
+        assertLayerPath(xml, LayerPaths.OPTIONS);
+        assertTrue(xml, xml.contains(LayerPaths.REF_SUFFIX));
+    }
+
+    private static void assertLayerPath(String xml, String path) {
+        for (String segment : path.split("/")) {
+            assertTrue("layer path " + path + " missing segment " + segment + " in:\n" + xml,
+                    xml.contains("name=\"" + segment + "\""));
+        }
     }
 }

@@ -111,9 +111,9 @@ The writer/reader contract test remains a slice of
 
 Layer folder names are a **contract**, not an implementation detail: the writer (annotation processor) and
 the reader (the shell) must query the same folder. The module `nbfx.api.layer` (cluster `nbfx-api`, tier T1)
-now owns `LayerPaths`; every processor writes through it and every registry reads through it. The writer/reader agreement is asserted by a
-**contract test** that builds a layer from a sample annotated class and reads it back through the reader
-API. "Private constant per reader" is rejected: no test can compare two privates, so a typo becomes a
+now owns `LayerPaths`; every processor writes through it and every registry reads through it. The writer/reader agreement is asserted by the
+**contract test** in `FxAnnotationsProcessorTest`, which builds a layer from a sample annotated class and
+checks its folders against `LayerPaths`. "Private constant per reader" is rejected: no test can compare two privates, so a typo becomes a
 silent runtime no-op. See [Appendix C](appendix/C-naming-and-rename-table.md) §C.3.
 
 ## 4. API tiers and governance
