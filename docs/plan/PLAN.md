@@ -103,17 +103,15 @@ com.gluonhq.netbeans.nbfx.libs.<library>              bundled external library  
 `Map`-parameters with string keys. The only permitted shared constant class is `LayerPaths` (§3.3).
 The current tree has **4 public `Fx*` types**, all implementation types in non-exported packages
 (`nbfx.progress`/`nbfx.context`, where C.1 allows the prefix — [`figures.md`](figures.md)); the annotations,
-`api.*` and implementation renames have landed and `check-naming` is green. The move of `LayerPaths` to
-`api.layer` and the writer/reader contract test remain slices of
+`api.*` and implementation renames have landed, `LayerPaths` lives in `api.layer`, and `check-naming` is green.
+The writer/reader contract test remains a slice of
 [Appendix C](appendix/C-naming-and-rename-table.md) (`refactor/api-naming`, W1).
 
 ### 3.3 Layer paths
 
 Layer folder names are a **contract**, not an implementation detail: the writer (annotation processor) and
-the reader (the shell) must query the same folder. Today `nbfx.annotations.FxLayer` publishes the folders
-(`NbFx/Views`, `NbFx/Menus`, …) as public constants, and that is the right shape. Decision: **one owner**,
-the module `nbfx.api.layer` (cluster `nbfx-api`, tier T1) with the class `LayerPaths`; every processor
-writes through it and every registry reads through it. The writer/reader agreement is asserted by a
+the reader (the shell) must query the same folder. The module `nbfx.api.layer` (cluster `nbfx-api`, tier T1)
+now owns `LayerPaths`; every processor writes through it and every registry reads through it. The writer/reader agreement is asserted by a
 **contract test** that builds a layer from a sample annotated class and reads it back through the reader
 API. "Private constant per reader" is rejected: no test can compare two privates, so a typo becomes a
 silent runtime no-op. See [Appendix C](appendix/C-naming-and-rename-table.md) §C.3.
@@ -380,7 +378,7 @@ that needs it starts ([Appendix G](appendix/G-licences-and-notices.md) rule 6).
 | `nbfx.structure.java` | `java.structure` (+ `java.model`) |
 
 The table is **total**: every current module and every root-package class has exactly one target. The tree
-has 51 modules / 585 source files (`nbfx.editor` 88, `nbfx.api.actions` 16, `nbfx.api.dialogs` 1, `nbfx.api.editor` 20, `nbfx.api.views` 10, `nbfx.api.project` 4, `nbfx.api.elements` 5, `nbfx.api.file` 3, `nbfx.api.progress` 2, `nbfx.api.search` 2, `nbfx.ui` 40, `nbfx.findinprojects` 39,
+has 52 modules / 585 source files (`nbfx.editor` 88, `nbfx.api.actions` 16, `nbfx.api.dialogs` 1, `nbfx.api.editor` 20, `nbfx.api.layer` 1, `nbfx.api.views` 10, `nbfx.api.project` 4, `nbfx.api.elements` 5, `nbfx.api.file` 3, `nbfx.api.progress` 2, `nbfx.api.search` 2, `nbfx.ui` 40, `nbfx.findinprojects` 39,
 `nbfx.structure.java` 32, `nbfx.findusages` 34). A reverse index (target ← sources) is added when the split
 starts; a target with neither a source nor a "new" note is a bug in the table.
 

@@ -37,6 +37,7 @@ nb.cluster.nbfx-api=\
         c.gluonhq.netbeans.nbfx.api.editor,\
         c.gluonhq.netbeans.nbfx.api.elements,\
         c.gluonhq.netbeans.nbfx.api.file,\
+        c.gluonhq.netbeans.nbfx.api.layer,\
         c.gluonhq.netbeans.nbfx.api.progress,\
         c.gluonhq.netbeans.nbfx.api.project,\
         c.gluonhq.netbeans.nbfx.api.search,\

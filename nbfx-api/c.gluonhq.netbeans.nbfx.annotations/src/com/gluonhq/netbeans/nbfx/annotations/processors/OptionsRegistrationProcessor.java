@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.annotations.processors;
 
-import com.gluonhq.netbeans.nbfx.annotations.LayerPaths;
+import com.gluonhq.netbeans.nbfx.api.layer.LayerPaths;
 import com.gluonhq.netbeans.nbfx.annotations.OptionsContainerRegistration;
 import com.gluonhq.netbeans.nbfx.annotations.OptionsRegistration;
 import com.gluonhq.netbeans.nbfx.annotations.OptionsSubRegistration;

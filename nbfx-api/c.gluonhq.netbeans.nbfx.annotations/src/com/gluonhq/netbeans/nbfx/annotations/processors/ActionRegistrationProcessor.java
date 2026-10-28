@@ -21,7 +21,7 @@ package com.gluonhq.netbeans.nbfx.annotations.processors;
 import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
 import com.gluonhq.netbeans.nbfx.annotations.ActionReferences;
 import com.gluonhq.netbeans.nbfx.annotations.ActionRegistration;
-import com.gluonhq.netbeans.nbfx.annotations.LayerPaths;
+import com.gluonhq.netbeans.nbfx.api.layer.LayerPaths;
 import java.util.Set;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;

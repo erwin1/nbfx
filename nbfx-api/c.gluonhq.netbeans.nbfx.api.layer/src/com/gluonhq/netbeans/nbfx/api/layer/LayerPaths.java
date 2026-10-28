@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.gluonhq.netbeans.nbfx.annotations;
+package com.gluonhq.netbeans.nbfx.api.layer;
 
 /**
  * The layer folders the nbfx annotation processors write to and the JavaFX frontend reads from.

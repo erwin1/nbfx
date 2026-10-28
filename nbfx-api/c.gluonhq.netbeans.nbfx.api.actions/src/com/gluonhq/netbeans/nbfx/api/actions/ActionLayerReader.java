@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.api.actions;
 
-import com.gluonhq.netbeans.nbfx.annotations.LayerPaths;
+import com.gluonhq.netbeans.nbfx.api.layer.LayerPaths;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;

@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.statusbar;
 
-import com.gluonhq.netbeans.nbfx.annotations.LayerPaths;
+import com.gluonhq.netbeans.nbfx.api.layer.LayerPaths;
 import com.gluonhq.netbeans.nbfx.annotations.StatusAlignment;
 import java.util.ArrayList;
 import java.util.Comparator;

@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.windows;
 
-import com.gluonhq.netbeans.nbfx.annotations.LayerPaths;
+import com.gluonhq.netbeans.nbfx.api.layer.LayerPaths;
 import com.gluonhq.netbeans.nbfx.annotations.ViewLocation;
 import com.gluonhq.netbeans.nbfx.annotations.ViewRegistration.PersistenceType;
 import com.gluonhq.netbeans.nbfx.api.view.ViewArea;
