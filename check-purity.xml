@@ -156,13 +156,31 @@
         <echo message="[purity] naming violations: ${naming.violations}"/>
     </target>
 
-    <target name="check-purity" depends="check-sources,check-java-source,check-naming,check-dependencies,check-jars,check-packaging">
-        <fail message="[purity] ${src.violations} forbidden import(s), ${dep.violations} forbidden dependency(ies), ${naming.violations} naming violation(s), ${jar.violations} forbidden bundled-class violation(s) and ${packaging.violations} forbidden window-system jar(s) found under the nbfx clusters;">
+    <target name="check-baseline">
+        <exec executable="${java.home}/bin/java" failonerror="false" dir="${basedir}" resultproperty="baseline.result">
+            <arg value="nbfx-tests/tools/BaselineGuard.java"/><arg value="${basedir}"/>
+        </exec>
+        <condition property="baseline.violations" value="1" else="0"><not><equals arg1="${baseline.result}" arg2="0"/></not></condition>
+        <echo message="[purity] baseline violations: ${baseline.violations}"/>
+    </target>
+
+    <target name="check-logging">
+        <exec executable="${java.home}/bin/java" failonerror="false" dir="${basedir}" resultproperty="logging.result">
+            <arg value="nbfx-tests/tools/LoggingGuard.java"/><arg value="${basedir}"/>
+        </exec>
+        <condition property="logging.violations" value="1" else="0"><not><equals arg1="${logging.result}" arg2="0"/></not></condition>
+        <echo message="[purity] logging violations: ${logging.violations}"/>
+    </target>
+
+    <target name="check-purity" depends="check-sources,check-java-source,check-naming,check-baseline,check-logging,check-dependencies,check-jars,check-packaging">
+        <fail message="[purity] ${src.violations} forbidden import(s), ${dep.violations} forbidden dependency(ies), ${naming.violations} naming, ${baseline.violations} baseline, ${logging.violations} logging violation(s), ${jar.violations} forbidden bundled-class violation(s) and ${packaging.violations} forbidden window-system jar(s) found under the nbfx clusters;">
             <condition>
                 <and>
                     <equals arg1="${nbfx.purity.strict}" arg2="true"/>
                     <or>
                         <not><equals arg1="${src.violations}" arg2="0"/></not>
+                        <not><equals arg1="${baseline.violations}" arg2="0"/></not>
+                        <not><equals arg1="${logging.violations}" arg2="0"/></not>
                         <not><equals arg1="${dep.violations}" arg2="0"/></not>
                         <not><equals arg1="${naming.violations}" arg2="0"/></not>
                         <not><equals arg1="${jar.violations}" arg2="0"/></not>
