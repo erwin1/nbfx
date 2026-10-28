@@ -26,7 +26,7 @@
             <code-name-base>com.gluonhq.netbeans.nbfx.structure.xml</code-name-base>
             <module-dependencies>
                 <dependency>
-                    <code-name-base>com.gluonhq.netbeans.nbfx.lib.javafx</code-name-base>
+                    <code-name-base>com.gluonhq.netbeans.nbfx.libs.javafx</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>

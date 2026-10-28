@@ -228,7 +228,7 @@
         </question>
 -->
  <answer id="dep-non-nb">
-        <p>JavaFX, bundled by nbfx.lib.javafx; no other third-party libraries in this module.</p>
+        <p>JavaFX, bundled by nbfx.libs.javafx; no other third-party libraries in this module.</p>
     </answer>
 
 

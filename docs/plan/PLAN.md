@@ -352,7 +352,7 @@ that needs it starts ([Appendix G](appendix/G-licences-and-notices.md) rule 6).
 | `nbfx.ui` | `platform.shell` |
 | `nbfx.launcher` | `platform.launcher` |
 | `nbfx.macos` | `platform.macos` |
-| `nbfx.lib.javafx` | `libs.javafx` |
+| `nbfx.libs.javafx` | `libs.javafx` |
 | `nbfx.propertysheet` | `platform.nodes` (FX sheet) + `api.property` (editor SPI) + `api.nodes` (model) |
 | `nbfx.project` (wizards) | `ide.project.ui` |
 | `nbfx.project.ui`, `nbfx.project.actions` | `ide.project.ui`, `ide.project.actions` |

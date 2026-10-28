@@ -54,7 +54,7 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
-                    <code-name-base>com.gluonhq.netbeans.nbfx.lib.javafx</code-name-base>
+                    <code-name-base>com.gluonhq.netbeans.nbfx.libs.javafx</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>

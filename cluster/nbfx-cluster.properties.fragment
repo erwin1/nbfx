@@ -23,7 +23,7 @@ clusters.config.nbfx.list=\
 nb.cluster.nbfx-libs.dir=nbfx-libs
 nb.cluster.nbfx-libs.depends=
 nb.cluster.nbfx-libs=\
-        c.gluonhq.netbeans.nbfx.lib.javafx
+        c.gluonhq.netbeans.nbfx.libs.javafx
 
 # --- nbfx-api: published/shared APIs ------------------------------------------
 nb.cluster.nbfx-api.dir=nbfx-api
