@@ -18,8 +18,8 @@
  */
 package com.gluonhq.netbeans.nbfx.debug;
 
-import com.gluonhq.netbeans.nbfx.output.ConsolePanel;
-import com.gluonhq.netbeans.nbfx.output.OutputConsole;
+import com.gluonhq.netbeans.nbfx.platform.output.ConsolePanel;
+import com.gluonhq.netbeans.nbfx.platform.output.OutputConsole;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;

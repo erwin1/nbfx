@@ -14,7 +14,7 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
-                    <code-name-base>com.gluonhq.netbeans.nbfx.wizard</code-name-base>
+                    <code-name-base>com.gluonhq.netbeans.nbfx.platform.wizard</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>

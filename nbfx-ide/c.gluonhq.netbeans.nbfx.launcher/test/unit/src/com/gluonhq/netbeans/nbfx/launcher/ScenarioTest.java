@@ -22,8 +22,8 @@ import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorService;
 import com.gluonhq.netbeans.nbfx.api.project.OpenProject;
 import com.gluonhq.netbeans.nbfx.api.project.ProjectRegistry;
-import com.gluonhq.netbeans.nbfx.output.ConsolePanel;
-import com.gluonhq.netbeans.nbfx.output.OutputConsole;
+import com.gluonhq.netbeans.nbfx.platform.output.ConsolePanel;
+import com.gluonhq.netbeans.nbfx.platform.output.OutputConsole;
 import com.gluonhq.netbeans.nbfx.run.BuildRunner;
 
 import java.io.IOException;

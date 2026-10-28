@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.run;
 
-import com.gluonhq.netbeans.nbfx.output.ConsolePanel;
+import com.gluonhq.netbeans.nbfx.platform.output.ConsolePanel;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;

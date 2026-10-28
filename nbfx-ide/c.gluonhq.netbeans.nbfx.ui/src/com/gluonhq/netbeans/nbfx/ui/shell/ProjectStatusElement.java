@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.ui.shell;
 
-import com.gluonhq.netbeans.nbfx.statusbar.StatusElementHolder;
+import com.gluonhq.netbeans.nbfx.platform.status.StatusElementHolder;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.Label;

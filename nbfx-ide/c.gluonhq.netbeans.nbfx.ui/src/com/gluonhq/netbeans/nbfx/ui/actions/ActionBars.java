@@ -6,7 +6,7 @@ import com.gluonhq.netbeans.nbfx.ui.session.AppState;
 import com.gluonhq.netbeans.nbfx.ui.session.DocumentCloser;
 import com.gluonhq.netbeans.nbfx.ui.shell.TabContextMenu;
 import com.gluonhq.netbeans.nbfx.ui.shell.ToolBarContainer;
-import com.gluonhq.netbeans.nbfx.menus.Menus;
+import com.gluonhq.netbeans.nbfx.platform.menus.Menus;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionIds;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionLayerReader;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionRegistry;

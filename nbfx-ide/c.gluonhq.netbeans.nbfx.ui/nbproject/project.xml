@@ -6,7 +6,7 @@
             <code-name-base>com.gluonhq.netbeans.nbfx.ui</code-name-base>
             <module-dependencies>
                 <dependency>
-                    <code-name-base>com.gluonhq.netbeans.nbfx.menus</code-name-base>
+                    <code-name-base>com.gluonhq.netbeans.nbfx.platform.menus</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
@@ -22,7 +22,7 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
-                    <code-name-base>com.gluonhq.netbeans.nbfx.statusbar</code-name-base>
+                    <code-name-base>com.gluonhq.netbeans.nbfx.platform.status</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>

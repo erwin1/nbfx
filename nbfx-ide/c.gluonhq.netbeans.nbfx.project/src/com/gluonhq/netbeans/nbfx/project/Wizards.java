@@ -18,9 +18,9 @@
  */
 package com.gluonhq.netbeans.nbfx.project;
 
-import com.gluonhq.netbeans.nbfx.wizard.Wizard;
-import com.gluonhq.netbeans.nbfx.wizard.WizardDialog;
-import com.gluonhq.netbeans.nbfx.wizard.WizardRegistry;
+import com.gluonhq.netbeans.nbfx.platform.wizard.Wizard;
+import com.gluonhq.netbeans.nbfx.platform.wizard.WizardDialog;
+import com.gluonhq.netbeans.nbfx.platform.wizard.WizardRegistry;
 
 /**
  * Runs a registered wizard by id, doing nothing when the wizard module is not loaded.

@@ -24,7 +24,7 @@ import com.gluonhq.netbeans.nbfx.api.actions.ActionContext;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
 import com.gluonhq.netbeans.nbfx.api.project.OpenProject;
 import com.gluonhq.netbeans.nbfx.project.context.ProjectContext;
-import com.gluonhq.netbeans.nbfx.statusbar.StatusElementHolder;
+import com.gluonhq.netbeans.nbfx.platform.status.StatusElementHolder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;

@@ -19,7 +19,7 @@
 package com.gluonhq.netbeans.nbfx.ui.shell;
 
 import com.gluonhq.netbeans.nbfx.api.editor.CaretInfo;
-import com.gluonhq.netbeans.nbfx.statusbar.StatusElementHolder;
+import com.gluonhq.netbeans.nbfx.platform.status.StatusElementHolder;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;

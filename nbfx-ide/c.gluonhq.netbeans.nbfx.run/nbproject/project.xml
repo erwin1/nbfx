@@ -6,7 +6,7 @@
             <code-name-base>com.gluonhq.netbeans.nbfx.run</code-name-base>
             <module-dependencies>
                 <dependency>
-                    <code-name-base>com.gluonhq.netbeans.nbfx.output</code-name-base>
+                    <code-name-base>com.gluonhq.netbeans.nbfx.platform.output</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>

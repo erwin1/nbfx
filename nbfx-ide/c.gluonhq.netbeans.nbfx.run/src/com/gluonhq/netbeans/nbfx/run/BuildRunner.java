@@ -19,8 +19,8 @@
 package com.gluonhq.netbeans.nbfx.run;
 
 import com.gluonhq.netbeans.nbfx.api.progress.Progress;
-import com.gluonhq.netbeans.nbfx.output.ConsolePanel;
-import com.gluonhq.netbeans.nbfx.output.OutputConsole;
+import com.gluonhq.netbeans.nbfx.platform.output.ConsolePanel;
+import com.gluonhq.netbeans.nbfx.platform.output.OutputConsole;
 import com.gluonhq.netbeans.nbfx.project.ui.api.BuildActionProvider;
 import com.gluonhq.netbeans.nbfx.project.ui.api.BuildExecution;
 import com.gluonhq.netbeans.nbfx.project.ui.api.BuildOutput;

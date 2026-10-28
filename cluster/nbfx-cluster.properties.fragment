@@ -52,14 +52,14 @@ nb.cluster.nbfx-platform=\
         c.gluonhq.netbeans.nbfx.actions,\
         c.gluonhq.netbeans.nbfx.context,\
         c.gluonhq.netbeans.nbfx.docking,\
-        c.gluonhq.netbeans.nbfx.macos,\
-        c.gluonhq.netbeans.nbfx.menus,\
-        c.gluonhq.netbeans.nbfx.options,\
-        c.gluonhq.netbeans.nbfx.output,\
-        c.gluonhq.netbeans.nbfx.progress,\
-        c.gluonhq.netbeans.nbfx.statusbar,\
-        c.gluonhq.netbeans.nbfx.windows,\
-        c.gluonhq.netbeans.nbfx.wizard
+        c.gluonhq.netbeans.nbfx.platform.macos,\
+        c.gluonhq.netbeans.nbfx.platform.menus,\
+        c.gluonhq.netbeans.nbfx.platform.options,\
+        c.gluonhq.netbeans.nbfx.platform.output,\
+        c.gluonhq.netbeans.nbfx.platform.progress,\
+        c.gluonhq.netbeans.nbfx.platform.status,\
+        c.gluonhq.netbeans.nbfx.platform.wizard,\
+        c.gluonhq.netbeans.nbfx.windows
 
 # --- nbfx-ide: FX replacements for ide/ + the app shell -----------------------
 nb.cluster.nbfx-ide.dir=nbfx-ide

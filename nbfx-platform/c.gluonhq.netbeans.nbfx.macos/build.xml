@@ -1,3 +1,0 @@
-<project basedir="." default="build" name="nbfx-platform/c.gluonhq.netbeans.nbfx.macos">
-    <import file="../../nbbuild/templates/projectized.xml"/>
-</project>
