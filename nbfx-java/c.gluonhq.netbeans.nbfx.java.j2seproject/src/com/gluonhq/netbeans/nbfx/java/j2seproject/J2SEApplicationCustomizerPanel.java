@@ -1,0 +1,37 @@
+package com.gluonhq.netbeans.nbfx.java.j2seproject;
+
+import com.gluonhq.netbeans.nbfx.ide.project.customizer.CustomizerPanel;
+import java.util.List;
+import org.openide.util.NbBundle;
+import org.openide.util.lookup.ServiceProvider;
+
+/** J2SE "Application" category: the application title and vendor. */
+@ServiceProvider(service = CustomizerPanel.class)
+public final class J2SEApplicationCustomizerPanel extends J2SEPropertiesCustomizerPanel {
+
+    @Override
+    public String projectTypeId() {
+        return "ant";
+    }
+
+    @Override
+    public String id() {
+        return "application";
+    }
+
+    @Override
+    public String displayName() {
+        return NbBundle.getMessage(J2SEApplicationCustomizerPanel.class, "Application.displayName");
+    }
+
+    @Override
+    public int position() {
+        return 500;
+    }
+
+    @Override
+    protected List<Field> fields() {
+        return fields(new Field("application.title", "Application.title"),
+                new Field("application.vendor", "Application.vendor"));
+    }
+}

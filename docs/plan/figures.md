@@ -19,7 +19,7 @@ Every number the plan states is derived here from the tree. Regenerate with
 | files mentioning a TreeView/TreeTableView/TableView/ListView | 32 |
 | `.subscribe(` call sites | 134 |
 | files mentioning `dispose()` | 22 |
-| modules importing `org.netbeans.api.java.source` | 4: c.gluonhq.netbeans.nbfx.editor, c.gluonhq.netbeans.nbfx.findusages, c.gluonhq.netbeans.nbfx.project.ui.java, c.gluonhq.netbeans.nbfx.structure.java |
+| modules importing `org.netbeans.api.java.source` | 4: c.gluonhq.netbeans.nbfx.editor, c.gluonhq.netbeans.nbfx.findusages, c.gluonhq.netbeans.nbfx.java.navigation, c.gluonhq.netbeans.nbfx.java.navigation.structure |
 | files importing `org.netbeans.api.java.source` | 43 |
 | files touching the Java semantic surface (`java.source`, `api.java.*`, `com.sun.source`, `libs.javacapi`) | 62 |
 | files using `NbBundle` | 152 |

@@ -98,11 +98,11 @@ nb.cluster.nbfx-java.depends=\
         nb.cluster.extide,\
         nb.cluster.apisupport
 nb.cluster.nbfx-java=\
-        c.gluonhq.netbeans.nbfx.build.ant,\
-        c.gluonhq.netbeans.nbfx.project.ui.ant,\
-        c.gluonhq.netbeans.nbfx.project.ui.gradle,\
-        c.gluonhq.netbeans.nbfx.project.ui.java,\
-        c.gluonhq.netbeans.nbfx.project.ui.maven,\
-        c.gluonhq.netbeans.nbfx.structure.gradle,\
-        c.gluonhq.netbeans.nbfx.structure.java,\
-        c.gluonhq.netbeans.nbfx.structure.maven
+        c.gluonhq.netbeans.nbfx.java.build.ant,\
+        c.gluonhq.netbeans.nbfx.java.gradle,\
+        c.gluonhq.netbeans.nbfx.java.gradle.structure,\
+        c.gluonhq.netbeans.nbfx.java.j2seproject,\
+        c.gluonhq.netbeans.nbfx.java.maven,\
+        c.gluonhq.netbeans.nbfx.java.maven.structure,\
+        c.gluonhq.netbeans.nbfx.java.navigation,\
+        c.gluonhq.netbeans.nbfx.java.navigation.structure

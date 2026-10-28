@@ -6,8 +6,8 @@ index c53f48f76c9..d0c7d9547bd 100644
                  <package>org.sonatype.plexus.components.sec.dispatcher</package>
                  <package>org.apache.maven.wagon.shared.http</package>
                  <package>org.apache.maven.wagon.providers.http.wagon.shared</package>
-+                <friend>com.gluonhq.netbeans.nbfx.project.ui.maven</friend>
-+                <friend>com.gluonhq.netbeans.nbfx.structure.maven</friend>
++                <friend>com.gluonhq.netbeans.nbfx.java.maven</friend>
++                <friend>com.gluonhq.netbeans.nbfx.java.maven.structure</friend>
              </friend-packages>
              <!-- TODO: DROP THIS BEGIN-->
              <class-path-extension>
