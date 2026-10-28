@@ -1,7 +1,7 @@
 # Appendix G — Licences and notices
 
-The tree has **no `LICENSE`/`NOTICE` files for the nbfx distribution** and `lib.javafx` bundles **JavaFX 27**
-into an otherwise Apache-2.0 project. That is a release blocker, not a nicety. This appendix fixes the
+The tree has root `LICENSE`, `NOTICE`, `THIRDPARTY` and `KEYS` files (added for 0.1.0, [RELEASING.md](../../../RELEASING.md)); `lib.javafx` bundles **JavaFX 27**
+into an otherwise Apache-2.0 project, with its licence texts in `lib.javafx/release/legal/javafx/` (unpacked from the pinned SDK, not in git). This appendix fixes the
 policy; the check is mechanical (`check-licences`).
 
 ## G.1 The components
@@ -15,7 +15,7 @@ policy; the check is mechanical (`check-licences`).
 | JLine | per decision | BSD-3-Clause | NOTICE | `libs.jline` | M0 |
 | jgit (Git) | reuse NetBeans' jgit modules | EPL-2.0 | prefer the upstream module over a new bundle | `ide.vcs.git` | M1 |
 | JaCoCo (`org.jacoco.core`) | reuse NetBeans' shipped module | EPL-2.0 | the open question in §14.3 remains: published nbfx feature vs reuse | `java.tests` | M2 |
-| nbfx source | — | Apache-2.0 | same header as upstream | all modules | — |
+| nbfx source | — | Apache-2.0 | the ASF header, the same as Apache NetBeans; checked by `ant rat` | all modules | — |
 
 ## G.2 Rules
 
@@ -23,8 +23,12 @@ policy; the check is mechanical (`check-licences`).
    text is shipped in the distribution (`nbfx/THIRDPARTY` or the cluster `LICENSE`).
 2. **No GPL/LGPL code beyond JavaFX-with-CE.** `javafx.web` and any WebKit components are excluded; a new
    library with a copyleft licence needs an explicit decision here.
-3. **Native artefacts** (async-profiler) are pinned by SHA-256 ([PLAN §4 trust](../PLAN.md)) and listed per
-   OS/arch; only the platforms in the support matrix ship.
+3. **Native artefacts** (JavaFX, async-profiler) are pinned by SHA-256 ([PLAN §4 trust](../PLAN.md)) and listed per
+   OS/arch; only the platforms in the support matrix ship. They are fetched at build time, never committed, so
+   the source release holds no compiled code. The support matrix is macOS aarch64/x64, Windows x64 and Linux
+   x64, all in one binary zip whose THIRDPARTY lists exactly its files. Its `javafx.graphics.jar` is the
+   union of the four SDKs' jars, a repackaging that THIRDPARTY declares and `release-verify` checks
+   against the pinned SDKs ([release-binaries.md](../../release-binaries.md)).
 4. **`libs.*` modules are the only bundling point**; a Copyleft library must never end up inside an `M`
    module's jar (the bytecode guard already forbids foreign packages in M).
 5. **The plugin ecosystem** (`api.plugins`) states the licence of the API (Apache-2.0) and that a plugin's

@@ -18,6 +18,7 @@
 | [`../architecture-rules.md`](../architecture-rules.md) | A one-screen **index** of every rule and its normative source (no rule detail — that lives in the plan/appendices) |
 | [`archive/README.md`](archive/README.md) | Historical research and earlier plan revisions — **evidence only, not maintained** |
 | [`../repo-and-build.md`](../repo-and-build.md) | Build harness, clusters, submodule patches |
+| [`../release-binaries.md`](../release-binaries.md) | The binary release: one zip for macOS aarch64/x64, Windows x64 and Linux x64, JavaFX fetched and pinned instead of committed |
 | [`../MVP.md`](../MVP.md) | Historical MVP draft (superseded by the plan) |
 
 **Where to start**

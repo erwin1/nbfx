@@ -183,7 +183,25 @@ sync from — only the `netbeans` submodule pin is updated over time.
 - `ant check-purity` reports `0/0/0/0` (sources, deps, bundled classes, packaging).
 - Session/Recent Projects survive (preferences paths are unaffected by the layout).
 
-## 8. Known constraints
+## 8. Releases
+
+Releases follow the Apache procedure as far as a non-ASF project can; the full procedure, and where it
+differs from Apache, is in [`RELEASING.md`](../RELEASING.md). The targets live in `release/release.xml`,
+imported by `build.xml`:
+
+```sh
+ant rat                                              # licence headers (Apache Rat, pinned in nbfx.properties)
+ant headers                                          # add the header to new files that lack one (-Ddry.run=true lists them)
+ant release -Dnbfx.rc=rc1 -Dnbfx.gpg.key=<fpr>       # release-src + release-bin + release-sign + release-verify
+```
+
+Pushing a release tag runs the *Release draft* workflow (checks, draft GitHub release, checklist issue);
+*Release verify* checks the files the release manager uploads. Neither builds nor signs a release artefact.
+
+A source release has no `.git`, so `ant bootstrap` fetches the pinned `nbfx.submodule.commit` of
+apache/netbeans directly (shallow) instead of initialising the submodule.
+
+## 9. Known constraints
 
 - **Bundled JavaFX runtime.** `nbfx-platform/c.gluonhq.netbeans.nbfx.lib.javafx` bundles JavaFX, but
   nothing of it is in git. `ant javafx-fetch` (part of `bootstrap`) downloads the OpenJFX SDK pinned in
@@ -191,7 +209,7 @@ sync from — only the `netbeans` submodule pin is updated over time.
   the module's git-ignored `release/`: `modules/ext/*.jar`, the natives flat in `modules/lib/`, the
   licence texts in `legal/javafx/`. The platform is the build machine's (macOS aarch64/x64, Windows x64,
   Linux x64), or `-Dnbfx.javafx.platform=<id>`. The `0012` patch keeps these files out of the
-  external-binaries licence check.
+  external-binaries licence check. The release zip carries all four platforms: [release-binaries.md](release-binaries.md).
 - **`lib.javafx` cluster placement.** Several modules reference
   `../c.gluonhq.netbeans.nbfx.lib.javafx/release/modules/lib` via `test-unit-sys-prop.java.library.path`,
   so `lib.javafx` must stay in `nbfx-platform`.

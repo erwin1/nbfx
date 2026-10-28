@@ -1,0 +1,45 @@
+Third-party components bundled with nbfx @VERSION@
+================================================================================
+
+Every third-party artefact this binary bundles beyond the Apache NetBeans
+libraries is listed here with its version, licence and upstream location. The
+Apache NetBeans libraries are covered by LICENSE, NOTICE and licenses/.
+
+--------------------------------------------------------------------------------
+OpenJFX (JavaFX)
+--------------------------------------------------------------------------------
+Version:   @JAVAFX@, for macOS aarch64, macOS x64, Windows x64 and Linux x64
+Licence:   GNU General Public License, version 2, with the Classpath Exception
+Upstream:  https://openjfx.io/ - source: https://github.com/openjdk/jfx
+SDKs:      @URL@/openjfx-@JAVAFX@_osx-aarch64_bin-sdk.zip
+             SHA-256 @SHA256_MACOS_AARCH64@
+           @URL@/openjfx-@JAVAFX@_osx-x64_bin-sdk.zip
+             SHA-256 @SHA256_MACOS_X64@
+           @URL@/openjfx-@JAVAFX@_windows-x64_bin-sdk.zip
+             SHA-256 @SHA256_WINDOWS_X64@
+           @URL@/openjfx-@JAVAFX@_linux-x64_bin-sdk.zip
+             SHA-256 @SHA256_LINUX_X64@
+
+Bundled files (the licence texts are in nbfx-platform/legal/javafx/):
+@FILES@
+
+The files are those of the SDKs above, unmodified, with one exception:
+javafx.graphics.jar differs per platform, so the one here is the union of the
+four SDKs' javafx.graphics.jar. The entries the platforms share are identical
+in all four; the platform-specific ones (e.g. com/sun/glass/ui/mac, win, gtk)
+are each taken from their SDK. The other jars are those of the Linux x64 SDK.
+The native libraries are in modules/lib (Windows, Linux), modules/lib/aarch64
+and modules/lib/x86_64 (macOS).
+
+javafx.web (WebKit), javafx.media, javafx.swing and javafx-swt are NOT bundled.
+
+The corresponding source code of the OpenJFX modules is available from the
+upstream repository above, at the tag of version @JAVAFX@.
+
+--------------------------------------------------------------------------------
+Microsoft Visual C++ / Universal C runtime (used on Windows)
+--------------------------------------------------------------------------------
+Files:     nbfx-platform/modules/lib/api-ms-win-*.dll, ucrtbase.dll,
+           vcruntime140*.dll, msvcp140*.dll
+Licence:   Microsoft redistributable runtime, shipped as part of the
+           OpenJFX Windows SDK

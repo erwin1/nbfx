@@ -31,6 +31,12 @@ layout differs. Dependency direction is `platform → ide → java`.
 | `nb.cluster.nbfx-ide` | `nbfx-ide/` | FX replacements for ide-level modules + the app shell: `editor`, `editor.actions`, `file.actions`, `findinprojects`, `findusages`, `propertysheet`, `structure`, `structure.xml`, `structure.css`, `project`, `project.ui`, `project.ui.api`, `project.actions`, `project.context`, `project.customizer`, `plugins`, `vcs`, `debug`, `run`, `ui`, `launcher`. |
 | `nb.cluster.nbfx-java` | `nbfx-java/` | FX replacements for java/extide-level modules: `project.ui.java`, `structure.java`, `structure.maven`, `structure.gradle`, `project.ui.maven`, `project.ui.gradle`, `project.ui.ant`, `build.ant`. |
 
+## Releases
+
+Releases are built, signed and verified with the Ant harness and published as GitHub releases, following
+the Apache release procedure as far as a non-ASF project can — see **[`RELEASING.md`](RELEASING.md)**.
+`LICENSE`, `NOTICE` and `THIRDPARTY` describe the licences, `KEYS` holds the signing keys.
+
 ## Build and test
 
 The nbfx clusters are built on top of an **apache/netbeans git submodule**. The Ant harness at the
