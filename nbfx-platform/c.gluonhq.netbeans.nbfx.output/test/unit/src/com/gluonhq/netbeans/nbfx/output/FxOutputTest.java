@@ -31,7 +31,7 @@ public class FxOutputTest {
 
     @Test
     public void sameNameYieldsSameConsole() {
-        FxOutputImpl output = new FxOutputImpl();
+        ConsoleOutput output = new ConsoleOutput();
 
         assertSame(output.console("Build"), output.console("Build"));
         assertEquals(1, output.consoles().size());
@@ -39,7 +39,7 @@ public class FxOutputTest {
 
     @Test
     public void consoleAccumulatesAndClears() {
-        FxOutputImpl output = new FxOutputImpl();
+        ConsoleOutput output = new ConsoleOutput();
         ConsoleModel console = (ConsoleModel) output.console("Run");
         StringBuilder sink = new StringBuilder();
 

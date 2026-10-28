@@ -33,7 +33,7 @@ public final class ProjectPropertiesMenuContributor implements FileContextMenuCo
         }
         MenuItem item = new MenuItem(NbBundle.getMessage(ProjectPropertiesMenuContributor.class,
                 "ProjectPropertiesMenuContributor.Properties"));
-        item.setOnAction(e -> FxProjectCustomizerDialog.show(project));
+        item.setOnAction(e -> CustomizerDialog.show(project));
         return List.of(item);
     }
 

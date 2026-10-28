@@ -53,11 +53,11 @@ import static org.junit.Assert.assertSame;
  */
 public class NbfxGlobalContextProviderTest {
 
-    private ActiveComponentContextImpl components;
+    private ActiveComponentContextService components;
 
     @Before
     public void setUp() {
-        this.components = new ActiveComponentContextImpl();
+        this.components = new ActiveComponentContextService();
         MockLookup.setInstances(components);
     }
 

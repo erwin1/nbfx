@@ -18,8 +18,8 @@
  */
 package com.gluonhq.netbeans.nbfx.project;
 
-import com.gluonhq.netbeans.nbfx.wizard.FxWizard;
-import com.gluonhq.netbeans.nbfx.wizard.FxWizardDialog;
+import com.gluonhq.netbeans.nbfx.wizard.Wizard;
+import com.gluonhq.netbeans.nbfx.wizard.WizardDialog;
 import com.gluonhq.netbeans.nbfx.wizard.WizardRegistry;
 
 /**
@@ -33,9 +33,9 @@ final class Wizards {
     }
 
     static void run(String id) {
-        FxWizard wizard = WizardRegistry.find(id);
+        Wizard wizard = WizardRegistry.find(id);
         if (wizard != null) {
-            FxWizardDialog.show(wizard);
+            WizardDialog.show(wizard);
         }
     }
 }

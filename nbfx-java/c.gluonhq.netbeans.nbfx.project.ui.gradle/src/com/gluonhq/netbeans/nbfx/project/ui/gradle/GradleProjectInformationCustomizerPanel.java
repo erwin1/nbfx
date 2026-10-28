@@ -1,6 +1,6 @@
 package com.gluonhq.netbeans.nbfx.project.ui.gradle;
 
-import com.gluonhq.netbeans.nbfx.project.customizer.FxProjectCustomizerPanel;
+import com.gluonhq.netbeans.nbfx.project.customizer.CustomizerPanel;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -16,8 +16,8 @@ import org.openide.util.lookup.ServiceProvider;
  * The Gradle "Project Information" category: the project's group, version and description, stored in
  * {@code gradle.properties}.
  */
-@ServiceProvider(service = FxProjectCustomizerPanel.class)
-public final class GradleProjectInformationCustomizerPanel implements FxProjectCustomizerPanel {
+@ServiceProvider(service = CustomizerPanel.class)
+public final class GradleProjectInformationCustomizerPanel implements CustomizerPanel {
 
     private TextField group;
     private TextField version;

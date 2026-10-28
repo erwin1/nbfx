@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.structure.java.ui;
 
-import com.gluonhq.netbeans.nbfx.structure.FxStructurePanel;
+import com.gluonhq.netbeans.nbfx.structure.StructurePanel;
 import com.gluonhq.netbeans.nbfx.structure.ScanningPanel;
 import com.gluonhq.netbeans.nbfx.structure.java.model.BeanPatternsScanner;
 import org.openide.util.NbBundle;
@@ -28,7 +28,7 @@ import org.openide.util.lookup.ServiceProvider;
  * The Bean Patterns panel of the Navigator window, after NetBeans' {@code BeanPanel}: the
  * properties, indexed properties and event sets the methods of the edited file's classes form.
  */
-@ServiceProvider(service = FxStructurePanel.class, position = 200)
+@ServiceProvider(service = StructurePanel.class, position = 200)
 public final class BeanPanel extends JavaStructurePanel<BeanPatternsScanner.Result> {
 
     @Override

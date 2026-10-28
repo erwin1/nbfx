@@ -5,8 +5,8 @@ import javafx.scene.control.CheckBox;
 import org.openide.util.lookup.ServiceProvider;
 
 /** The editor for {@link Boolean} values. */
-@ServiceProvider(service = FxPropertyEditor.class)
-public final class BooleanPropertyEditor implements FxPropertyEditor {
+@ServiceProvider(service = PropertyEditor.class)
+public final class BooleanPropertyEditor implements PropertyEditor {
 
     @Override
     public Class<?> valueType() {
@@ -14,7 +14,7 @@ public final class BooleanPropertyEditor implements FxPropertyEditor {
     }
 
     @Override
-    public Node createEditor(FxProperty property) {
+    public Node createEditor(Property property) {
         CheckBox box = new CheckBox();
         box.setSelected(Boolean.TRUE.equals(property.getValue()));
         box.setDisable(!property.isWritable());

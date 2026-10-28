@@ -1,12 +1,12 @@
 package com.gluonhq.netbeans.nbfx.project.ui.ant;
 
-import com.gluonhq.netbeans.nbfx.project.customizer.FxProjectCustomizerPanel;
+import com.gluonhq.netbeans.nbfx.project.customizer.CustomizerPanel;
 import java.util.List;
 import org.openide.util.NbBundle;
 import org.openide.util.lookup.ServiceProvider;
 
 /** J2SE "Run" category: the main class and application arguments. */
-@ServiceProvider(service = FxProjectCustomizerPanel.class)
+@ServiceProvider(service = CustomizerPanel.class)
 public final class J2SERunCustomizerPanel extends J2SEPropertiesCustomizerPanel {
 
     @Override

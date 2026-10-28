@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.structure.xml;
 
-import com.gluonhq.netbeans.nbfx.structure.FxStructurePanel;
+import com.gluonhq.netbeans.nbfx.structure.StructurePanel;
 import com.gluonhq.netbeans.nbfx.structure.ScanningPanel;
 import com.gluonhq.netbeans.nbfx.structure.TrackedStructurePanel;
 import org.openide.filesystems.MIMEResolver;
@@ -33,7 +33,7 @@ import org.openide.util.lookup.ServiceProvider;
  * FXML files are resolved here to {@code text/x-fxml+xml}, the type NetBeans' JavaFX support
  * gives them, as that support is not part of the application.
  */
-@ServiceProvider(service = FxStructurePanel.class, position = 300)
+@ServiceProvider(service = StructurePanel.class, position = 300)
 @MIMEResolver.ExtensionRegistration(displayName = "#FxmlResolver", extension = "fxml", mimeType = XmlStructurePanel.FXML_MIME_TYPE)
 public final class XmlStructurePanel extends TrackedStructurePanel<XmlViewUI.Result> {
 

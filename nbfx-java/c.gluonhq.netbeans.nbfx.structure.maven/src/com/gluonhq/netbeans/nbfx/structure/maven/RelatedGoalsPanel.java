@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.structure.maven;
 
-import com.gluonhq.netbeans.nbfx.structure.FxStructurePanel;
+import com.gluonhq.netbeans.nbfx.structure.StructurePanel;
 import com.gluonhq.netbeans.nbfx.structure.ScanningPanel;
 import com.gluonhq.netbeans.nbfx.structure.TrackedStructurePanel;
 import org.openide.util.NbBundle;
@@ -28,7 +28,7 @@ import org.openide.util.lookup.ServiceProvider;
  * The <em>Related goals</em> panel of the Navigator window for Maven POMs, after NetBeans'
  * {@code GoalsNavigationPanel}.
  */
-@ServiceProvider(service = FxStructurePanel.class, position = 120)
+@ServiceProvider(service = StructurePanel.class, position = 120)
 public final class RelatedGoalsPanel extends TrackedStructurePanel<RelatedGoalsUI.Result> {
 
     @Override

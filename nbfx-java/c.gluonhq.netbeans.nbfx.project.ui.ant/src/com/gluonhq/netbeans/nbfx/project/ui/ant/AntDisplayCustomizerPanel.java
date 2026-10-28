@@ -1,5 +1,5 @@
 package com.gluonhq.netbeans.nbfx.project.ui.ant;
-import com.gluonhq.netbeans.nbfx.project.customizer.FxProjectCustomizerPanel;
+import com.gluonhq.netbeans.nbfx.project.customizer.CustomizerPanel;
 
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -16,7 +16,7 @@ import org.openide.util.lookup.ServiceProvider;
  * The Ant / NetBeans-module "Display" category: the module's name, category and descriptions, stored
  * in {@code manifest.mf}.
  */
-@ServiceProvider(service = FxProjectCustomizerPanel.class)
+@ServiceProvider(service = CustomizerPanel.class)
 public final class AntDisplayCustomizerPanel extends AntModuleCustomizerPanel {
 
     private TextField name;

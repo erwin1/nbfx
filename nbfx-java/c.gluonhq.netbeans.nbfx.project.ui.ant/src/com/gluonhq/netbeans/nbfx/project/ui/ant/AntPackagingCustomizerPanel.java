@@ -1,5 +1,5 @@
 package com.gluonhq.netbeans.nbfx.project.ui.ant;
-import com.gluonhq.netbeans.nbfx.project.customizer.FxProjectCustomizerPanel;
+import com.gluonhq.netbeans.nbfx.project.customizer.CustomizerPanel;
 
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -16,7 +16,7 @@ import org.openide.util.lookup.ServiceProvider;
  * The Ant / NetBeans-module "Build / Packaging" category: the module's specification and
  * implementation versions, stored in {@code manifest.mf}.
  */
-@ServiceProvider(service = FxProjectCustomizerPanel.class)
+@ServiceProvider(service = CustomizerPanel.class)
 public final class AntPackagingCustomizerPanel extends AntModuleCustomizerPanel {
 
     private TextField specificationVersion;

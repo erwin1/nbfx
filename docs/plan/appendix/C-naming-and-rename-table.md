@@ -1,10 +1,10 @@
 # Appendix C — Naming and the rename table
 
-`PLAN.md` §3.2 forbids `Fx*`/`Sw*` names in public API. After slices 1–2 (annotations, `nbfx.api`) the tree has **28
-public `Fx*` types**, 24 of them in modules that export packages ([`../figures.md`](../figures.md)), so they are public API under today's `<subpackages>` exports. §7's
-migration map moves *modules*, not *names*, so every one survives the split. This appendix is the missing
-step: the rename, which is source-compatible and therefore belongs in W1 **before** the API split, so the
-new `api.*` modules are born with their final names.
+`PLAN.md` §3.2 forbids `Fx*`/`Sw*` names in public API. The annotation, `api.*` and implementation renames
+have landed; the tree now has **4 public `Fx*` types**, all in non-exported packages
+([`../figures.md`](../figures.md)), and `check-naming` is green. §7's migration map moves *modules*, not
+*names*; this appendix records the rename and the two remaining slices: `LayerPaths` under `api.layer` and the
+writer/reader contract test.
 
 ## C.1 The rule, precisely
 
@@ -94,14 +94,12 @@ This replaces the "`api.layer`: not planned" note in the old §6.1 and the "priv
 
 ## C.4 The step
 
-`refactor/api-naming` — a mechanical rename with `git mv` + `sed`-style edits, **no behaviour change**,
-landed in W1 **before** `refactor/api-split`:
+`refactor/api-naming` — a mechanical rename with `git mv` + `sed`-style edits, **no behaviour change**:
 
-1. rename the annotation/API types per C.2 and move the processors out of exported packages (C.1);
-2. introduce `api.layer.LayerPaths` and switch all processors/registries to it;
-3. update `arch.xml`, `apichanges.xml`, `Bundle.properties` keys and the module `project.xml` references;
-4. acceptance: `check-naming` (PLAN §9) is green — **no `Fx*`/`Impl` in an exported package** — and the
-   layer contract test passes.
+1. rename the annotation/API types per C.2 and move the processors out of exported packages (C.1) — **landed**;
+2. rename the remaining exported implementation types — **landed**; `check-naming` (PLAN §9) is green;
+3. introduce `api.layer.LayerPaths` and switch all processors/registries to it — **remaining**;
+4. add the writer/reader layer contract test — **remaining**.
 
 **Watch out.** This changes public type names, so it is source-incompatible for *nbfx-internal* consumers
 (the ~20 modules that use the annotations). Pre-1.0 that is allowed; the rule "code-names and API names

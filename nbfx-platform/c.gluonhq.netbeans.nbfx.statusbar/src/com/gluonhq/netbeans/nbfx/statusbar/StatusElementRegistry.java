@@ -30,7 +30,7 @@ import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
 /**
- * Discovers the {@link FxStatusElement}s registered under {@code NbFx/Status} in the module layer.
+ * Discovers the {@link StatusElementHolder}s registered under {@code NbFx/Status} in the module layer.
  * <p>
  * Instances are resolved through the folder's {@link Lookup}; the registered {@code alignment} and
  * {@code position} attributes, read straight from the configuration filesystem, take precedence
@@ -67,7 +67,7 @@ public final class StatusElementRegistry {
         Lookup lookup = Lookups.forPath(LayerPaths.STATUS);
         FileObject folder = FileUtil.getConfigFile(LayerPaths.STATUS);
         List<StatusElement> elements = new ArrayList<>(additional);
-        for (FxStatusElement element : lookup.lookupAll(FxStatusElement.class)) {
+        for (StatusElementHolder element : lookup.lookupAll(StatusElementHolder.class)) {
             FileObject file = folder == null ? null : folder.getFileObject(element.getId(), "instance");
             StatusAlignment alignment = file == null
                     ? element.alignment()

@@ -6,8 +6,8 @@ import javafx.scene.control.ComboBox;
 import org.openide.util.lookup.ServiceProvider;
 
 /** The editor for {@link Enum} values, shown as a choice box. */
-@ServiceProvider(service = FxPropertyEditor.class)
-public final class EnumPropertyEditor implements FxPropertyEditor {
+@ServiceProvider(service = PropertyEditor.class)
+public final class EnumPropertyEditor implements PropertyEditor {
 
     @Override
     public Class<?> valueType() {
@@ -15,7 +15,7 @@ public final class EnumPropertyEditor implements FxPropertyEditor {
     }
 
     @Override
-    public Node createEditor(FxProperty property) {
+    public Node createEditor(Property property) {
         ComboBox<Object> box = new ComboBox<>(FXCollections.observableArrayList(property.getValueType().getEnumConstants()));
         box.setValue(property.getValue());
         box.setDisable(!property.isWritable());

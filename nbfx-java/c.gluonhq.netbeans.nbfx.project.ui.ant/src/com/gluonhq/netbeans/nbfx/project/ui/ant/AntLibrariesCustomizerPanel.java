@@ -1,5 +1,5 @@
 package com.gluonhq.netbeans.nbfx.project.ui.ant;
-import com.gluonhq.netbeans.nbfx.project.customizer.FxProjectCustomizerPanel;
+import com.gluonhq.netbeans.nbfx.project.customizer.CustomizerPanel;
 
 import com.gluonhq.netbeans.nbfx.project.ui.api.ProjectLibrary;
 import java.util.List;
@@ -14,7 +14,7 @@ import org.openide.util.lookup.ServiceProvider;
  * The Ant / NetBeans-module "Libraries" project-properties category: the project's module
  * dependencies. Read-only for now.
  */
-@ServiceProvider(service = FxProjectCustomizerPanel.class)
+@ServiceProvider(service = CustomizerPanel.class)
 public final class AntLibrariesCustomizerPanel extends AntModuleCustomizerPanel {
 
     private final AntProjectKindProvider kind = new AntProjectKindProvider();

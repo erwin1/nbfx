@@ -1,6 +1,6 @@
 package com.gluonhq.netbeans.nbfx.project.ui.maven;
 
-import com.gluonhq.netbeans.nbfx.project.customizer.FxProjectCustomizerPanel;
+import com.gluonhq.netbeans.nbfx.project.customizer.CustomizerPanel;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -13,8 +13,8 @@ import org.openide.util.NbBundle;
 import org.openide.util.lookup.ServiceProvider;
 
 /** Maven "Build / Compile" category: the compiler source/target level (POM properties). */
-@ServiceProvider(service = FxProjectCustomizerPanel.class)
-public final class MavenCompileCustomizerPanel implements FxProjectCustomizerPanel {
+@ServiceProvider(service = CustomizerPanel.class)
+public final class MavenCompileCustomizerPanel implements CustomizerPanel {
 
     private TextField source;
     private TextField target;

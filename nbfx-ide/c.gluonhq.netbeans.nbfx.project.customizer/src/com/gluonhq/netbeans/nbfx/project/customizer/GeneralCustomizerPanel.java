@@ -13,8 +13,8 @@ import org.openide.util.lookup.ServiceProvider;
  * The type-agnostic "General" category: the project's name, type and location. Read-only, so it
  * demonstrates the dialog and gives every project at least one category.
  */
-@ServiceProvider(service = FxProjectCustomizerPanel.class)
-public final class GeneralCustomizerPanel implements FxProjectCustomizerPanel {
+@ServiceProvider(service = CustomizerPanel.class)
+public final class GeneralCustomizerPanel implements CustomizerPanel {
 
     @Override
     public String id() {

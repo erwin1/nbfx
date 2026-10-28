@@ -22,8 +22,8 @@ import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorService;
 import com.gluonhq.netbeans.nbfx.api.project.OpenProject;
 import com.gluonhq.netbeans.nbfx.api.project.ProjectRegistry;
-import com.gluonhq.netbeans.nbfx.output.FxConsole;
-import com.gluonhq.netbeans.nbfx.output.FxOutput;
+import com.gluonhq.netbeans.nbfx.output.ConsolePanel;
+import com.gluonhq.netbeans.nbfx.output.OutputConsole;
 import com.gluonhq.netbeans.nbfx.run.BuildRunner;
 
 import java.io.IOException;
@@ -131,9 +131,9 @@ public class ScenarioTest extends NbTestCase {
         long tEdit = System.nanoTime();
         budget.put("openToEditMs", ms(tOpen, tEdit));
 
-        FxOutput output = Lookup.getDefault().lookup(FxOutput.class);
-        assertNotNull("no FxOutput", output);
-        FxConsole console = output.console("w0-scenario");
+        OutputConsole output = Lookup.getDefault().lookup(OutputConsole.class);
+        assertNotNull("no OutputConsole", output);
+        ConsolePanel console = output.console("w0-scenario");
         console.clear();
         BuildRunner.run(work, "build", "w0-scenario");
         ScenarioSupport.await("build (console: " + console.text() + ")", 180,

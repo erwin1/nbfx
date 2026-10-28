@@ -8,15 +8,15 @@ import org.openide.util.lookup.ServiceProvider;
 /**
  * Contributes a read-only "General" property set for a {@link FileObject}: name, path, kind and size.
  */
-@ServiceProvider(service = FxPropertiesProvider.class)
-public final class FilePropertiesProvider implements FxPropertiesProvider {
+@ServiceProvider(service = PropertiesProvider.class)
+public final class FilePropertiesProvider implements PropertiesProvider {
 
     @Override
-    public List<FxPropertySet> getPropertySets(Object context) {
+    public List<PropertySet> getPropertySets(Object context) {
         if (!(context instanceof FileObject file)) {
             return List.of();
         }
-        List<FxProperty> properties = List.of(
+        List<Property> properties = List.of(
                 readOnly("name", message("FilePropertiesProvider.name"), file.getNameExt()),
                 readOnly("path", message("FilePropertiesProvider.path"), file.getPath()),
                 readOnly("kind", message("FilePropertiesProvider.kind"),
@@ -33,7 +33,7 @@ public final class FilePropertiesProvider implements FxPropertiesProvider {
         return size < 0 ? "?" : String.valueOf(size);
     }
 
-    private static FxProperty readOnly(String name, String displayName, Object value) {
+    private static Property readOnly(String name, String displayName, Object value) {
         return new SimpleFxProperty(name, displayName, null, String.class, value, false, false, value);
     }
 

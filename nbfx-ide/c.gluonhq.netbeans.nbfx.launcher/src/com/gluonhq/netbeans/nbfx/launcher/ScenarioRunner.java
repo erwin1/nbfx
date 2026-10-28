@@ -23,8 +23,8 @@ import com.gluonhq.netbeans.nbfx.api.editor.EditorService;
 import com.gluonhq.netbeans.nbfx.api.project.OpenProject;
 import com.gluonhq.netbeans.nbfx.api.project.ProjectOpener;
 import com.gluonhq.netbeans.nbfx.api.project.ProjectRegistry;
-import com.gluonhq.netbeans.nbfx.output.FxConsole;
-import com.gluonhq.netbeans.nbfx.output.FxOutput;
+import com.gluonhq.netbeans.nbfx.output.ConsolePanel;
+import com.gluonhq.netbeans.nbfx.output.OutputConsole;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -41,12 +41,12 @@ import org.openide.util.Lookup;
 /**
  * The W0 full-application smoke: drives the running shell through the same services a user would
  * exercise - open a project, edit/save a file, build, run, assert the output and commit - then writes
- * a JSON report. It is started by {@link FxGuiRunLevel} when {@code NBFX_SCENARIO} points at the
+ * a JSON report. It is started by {@link GuiRunLevel} when {@code NBFX_SCENARIO} points at the
  * fixture, and it exits the application with the report status.
  * <p>
  * This is the in-application counterpart of {@code ScenarioTest}, not a unit test: it must live in
  * {@code src} to run inside the assembled application, and it deliberately drives the real services
- * (including {@code FxOutput}) instead of test doubles.
+ * (including {@code OutputConsole}) instead of test doubles.
  */
 final class ScenarioRunner {
 
@@ -94,11 +94,11 @@ final class ScenarioRunner {
                 return null;
             });
 
-            FxOutput output = Lookup.getDefault().lookup(FxOutput.class);
+            OutputConsole output = Lookup.getDefault().lookup(OutputConsole.class);
             if (output == null) {
-                throw new IllegalStateException("FxOutput is not available");
+                throw new IllegalStateException("OutputConsole is not available");
             }
-            FxConsole console = output.console("nbfx-scenario");
+            ConsolePanel console = output.console("nbfx-scenario");
             console.clear();
             runProcess(work, List.of("ant", "build"), console);
             ScenarioSupport.await("build", 120, () -> console.text().contains("BUILD SUCCESSFUL"));
@@ -154,7 +154,7 @@ final class ScenarioRunner {
         return value == null ? "null" : '"' + value.toString().replace("\\", "\\\\").replace("\"", "\\\"") + '"';
     }
 
-    private static void runProcess(Path dir, List<String> command, FxConsole console) throws Exception {
+    private static void runProcess(Path dir, List<String> command, ConsolePanel console) throws Exception {
         Process process = new ProcessBuilder(command).directory(dir.toFile()).redirectErrorStream(true).start();
         console.append("$ " + String.join(" ", command) + "\n");
         try (BufferedReader reader = new BufferedReader(

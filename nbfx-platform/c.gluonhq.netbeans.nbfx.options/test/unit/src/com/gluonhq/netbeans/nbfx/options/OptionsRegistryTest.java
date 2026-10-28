@@ -68,8 +68,8 @@ public class OptionsRegistryTest {
         return FileUtil.createFolder(fs.getRoot(), "NbFx/Options");
     }
 
-    private static FxOptionsPanel panel(String id) {
-        return new FxOptionsPanel() {
+    private static OptionsPanelHost panel(String id) {
+        return new OptionsPanelHost() {
             @Override
             public String getId() {
                 return id;

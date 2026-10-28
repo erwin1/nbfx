@@ -10,16 +10,16 @@ import org.openide.util.lookup.ServiceProvider;
 /**
  * Contributes a read-only "General" property set for a {@link Project}: name, type and location.
  */
-@ServiceProvider(service = FxPropertiesProvider.class)
-public final class ProjectPropertiesProvider implements FxPropertiesProvider {
+@ServiceProvider(service = PropertiesProvider.class)
+public final class ProjectPropertiesProvider implements PropertiesProvider {
 
     @Override
-    public List<FxPropertySet> getPropertySets(Object context) {
+    public List<PropertySet> getPropertySets(Object context) {
         if (!(context instanceof Project project)) {
             return List.of();
         }
         ProjectKindProvider kind = ProjectKinds.providerOf(project);
-        List<FxProperty> properties = List.of(
+        List<Property> properties = List.of(
                 readOnly("name", message("ProjectPropertiesProvider.name"),
                         ProjectKinds.getProjectName(project, kind)),
                 readOnly("type", message("ProjectPropertiesProvider.type"), kind.id()),
@@ -29,7 +29,7 @@ public final class ProjectPropertiesProvider implements FxPropertiesProvider {
                 message("ProjectPropertiesProvider.general"), properties));
     }
 
-    private static FxProperty readOnly(String name, String displayName, Object value) {
+    private static Property readOnly(String name, String displayName, Object value) {
         return new SimpleFxProperty(name, displayName, null, String.class, value, false, false, value);
     }
 

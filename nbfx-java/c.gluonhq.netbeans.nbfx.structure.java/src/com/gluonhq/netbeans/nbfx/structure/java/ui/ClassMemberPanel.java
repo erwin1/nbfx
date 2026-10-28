@@ -22,7 +22,7 @@ import com.gluonhq.netbeans.nbfx.api.dialogs.ErrorReporter;
 import com.gluonhq.netbeans.nbfx.api.editor.OpenSources;
 import com.gluonhq.netbeans.nbfx.structure.BackgroundScans;
 import com.gluonhq.netbeans.nbfx.structure.DocumentTracker;
-import com.gluonhq.netbeans.nbfx.structure.FxStructurePanel;
+import com.gluonhq.netbeans.nbfx.structure.StructurePanel;
 import com.gluonhq.netbeans.nbfx.structure.ScanningPanel;
 import com.gluonhq.netbeans.nbfx.structure.StructureView;
 import com.gluonhq.netbeans.nbfx.structure.java.model.InspectedType;
@@ -56,7 +56,7 @@ import static com.gluonhq.netbeans.nbfx.structure.java.ui.ClassMemberPanelUI.mes
  * Members and Inspect File Members show a type here aside from the context ({@link #inspectAt},
  * {@link #inspectFile}), recording it in the history.
  */
-@ServiceProvider(service = FxStructurePanel.class, position = 100)
+@ServiceProvider(service = StructurePanel.class, position = 100)
 public final class ClassMemberPanel extends JavaStructurePanel<MembersScanner.Result> {
 
     private static final Logger LOG = Logger.getLogger(ClassMemberPanel.class.getName());
@@ -220,7 +220,7 @@ public final class ClassMemberPanel extends JavaStructurePanel<MembersScanner.Re
 
     /** The registered instance, or {@code null} when the module is not loaded. */
     public static ClassMemberPanel instance() {
-        return Lookup.getDefault().lookupAll(FxStructurePanel.class).stream()
+        return Lookup.getDefault().lookupAll(StructurePanel.class).stream()
                 .filter(ClassMemberPanel.class::isInstance)
                 .map(ClassMemberPanel.class::cast)
                 .findFirst()

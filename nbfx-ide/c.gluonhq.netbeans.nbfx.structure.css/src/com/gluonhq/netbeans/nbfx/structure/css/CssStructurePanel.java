@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.structure.css;
 
-import com.gluonhq.netbeans.nbfx.structure.FxStructurePanel;
+import com.gluonhq.netbeans.nbfx.structure.StructurePanel;
 import com.gluonhq.netbeans.nbfx.structure.ScanningPanel;
 import com.gluonhq.netbeans.nbfx.structure.TrackedStructurePanel;
 import org.openide.filesystems.FileObject;
@@ -30,7 +30,7 @@ import org.openide.util.lookup.ServiceProvider;
  * the sheet, after NetBeans' CSS navigator (the CSL <em>Members</em> panel fed by
  * {@code CssStructureScanner}).
  */
-@ServiceProvider(service = FxStructurePanel.class, position = 100)
+@ServiceProvider(service = StructurePanel.class, position = 100)
 public final class CssStructurePanel extends TrackedStructurePanel<CssStructureUI.Result> {
 
     @Override

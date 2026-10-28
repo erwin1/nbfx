@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.run;
 
-import com.gluonhq.netbeans.nbfx.output.FxConsole;
+import com.gluonhq.netbeans.nbfx.output.ConsolePanel;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -44,14 +44,14 @@ final class ProcessRunner {
      * @param onStart  invoked with the started process, so the caller can cancel it; may be {@code null}
      * @param onFinish invoked once the process has finished (or failed to start); may be {@code null}
      */
-    static void run(List<String> command, Path dir, FxConsole console,
+    static void run(List<String> command, Path dir, ConsolePanel console,
             Consumer<Process> onStart, Runnable onFinish) {
         Thread thread = new Thread(() -> execute(command, dir, console, onStart, onFinish), "nbfx-run");
         thread.setDaemon(true);
         thread.start();
     }
 
-    private static void execute(List<String> command, Path dir, FxConsole console,
+    private static void execute(List<String> command, Path dir, ConsolePanel console,
             Consumer<Process> onStart, Runnable onFinish) {
         console.append("$ " + String.join(" ", command) + "\n");
         Process process = null;

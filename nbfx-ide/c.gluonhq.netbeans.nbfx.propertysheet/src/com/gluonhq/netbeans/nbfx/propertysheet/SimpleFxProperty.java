@@ -6,9 +6,9 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 
 /**
- * A simple {@link FxProperty} backed by a JavaFX property. Convenience for providers and tests.
+ * A simple {@link Property} backed by a JavaFX property. Convenience for providers and tests.
  */
-public final class SimpleFxProperty implements FxProperty {
+public final class SimpleFxProperty implements Property {
 
     private final String name;
     private final String displayName;

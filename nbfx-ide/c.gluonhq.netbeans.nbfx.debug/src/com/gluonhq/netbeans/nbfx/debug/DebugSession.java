@@ -18,8 +18,8 @@
  */
 package com.gluonhq.netbeans.nbfx.debug;
 
-import com.gluonhq.netbeans.nbfx.output.FxConsole;
-import com.gluonhq.netbeans.nbfx.output.FxOutput;
+import com.gluonhq.netbeans.nbfx.output.ConsolePanel;
+import com.gluonhq.netbeans.nbfx.output.OutputConsole;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -111,7 +111,7 @@ public final class DebugSession {
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));
         int port = readPort(reader, request);
-        FxConsole console = console(request);
+        ConsolePanel console = console(request);
         startPump(reader, console);
 
         Map<String, Object> services = new HashMap<>();
@@ -329,7 +329,7 @@ public final class DebugSession {
         throw new IOException("The debuggee did not start: " + seen);
     }
 
-    private static void startPump(BufferedReader reader, FxConsole console) {
+    private static void startPump(BufferedReader reader, ConsolePanel console) {
         Thread thread = new Thread(() -> {
             try {
                 String line;
@@ -346,8 +346,8 @@ public final class DebugSession {
         thread.start();
     }
 
-    private static FxConsole console(LaunchRequest request) {
-        FxOutput output = Lookup.getDefault().lookup(FxOutput.class);
+    private static ConsolePanel console(LaunchRequest request) {
+        OutputConsole output = Lookup.getDefault().lookup(OutputConsole.class);
         return output == null ? null : output.console(CONSOLE_PREFIX + request.mainClass());
     }
 

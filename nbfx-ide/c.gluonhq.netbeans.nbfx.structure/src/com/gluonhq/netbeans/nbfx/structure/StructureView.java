@@ -32,7 +32,7 @@ import org.openide.util.lookup.ServiceProvider;
 
 /**
  * The Navigator window: shows the structure of the object in the global action context (for example
- * the members of the active Java document), contributed by {@link FxStructurePanel}s.
+ * the members of the active Java document), contributed by {@link StructurePanel}s.
  * <p>
  * This is the FX counterpart of the Swing Navigator window ({@code NavigatorTC}); it keeps that name,
  * matching Swing. It is docked below the project views (the {@code navigator} area) and, as in
@@ -48,7 +48,7 @@ public final class StructureView implements ViewProvider {
     /** The stable id of the view. */
     public static final String ID = "structure";
 
-    private StructurePanel panel;
+    private StructurePanelHost panel;
 
     @Override
     public String getId() {
@@ -68,7 +68,7 @@ public final class StructureView implements ViewProvider {
     @Override
     public Node getView() {
         if (panel == null) {
-            panel = new StructurePanel();
+            panel = new StructurePanelHost();
         }
         return panel;
     }
@@ -93,9 +93,9 @@ public final class StructureView implements ViewProvider {
      *
      * @param panel the panel to select
      */
-    public void select(FxStructurePanel panel) {
+    public void select(StructurePanel panel) {
         if (panel != null) {
-            ((StructurePanel) getView()).select(panel);
+            ((StructurePanelHost) getView()).select(panel);
         }
     }
 

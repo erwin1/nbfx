@@ -25,7 +25,7 @@ import java.util.function.Consumer;
  * Appends may come from a background thread, so they are marshalled to the JavaFX Application
  * Thread; the text is kept even before the view exists, and flushed to it when it attaches.
  */
-final class ConsoleModel implements FxConsole {
+final class ConsoleModel implements ConsolePanel {
 
     private final String name;
     private final StringBuilder text = new StringBuilder();

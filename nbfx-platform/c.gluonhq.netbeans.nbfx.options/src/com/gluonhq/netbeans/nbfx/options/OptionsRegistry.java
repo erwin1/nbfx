@@ -28,7 +28,7 @@ import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
 /**
- * Discovers the {@link FxOptionsPanel}s registered under {@code NbFx/Options} in the module layer.
+ * Discovers the {@link OptionsPanelHost}s registered under {@code NbFx/Options} in the module layer.
  *
  * @since 1.0
  */
@@ -46,13 +46,13 @@ public final class OptionsRegistry {
     public static List<OptionsPanelEntry> discover() {
         Lookup lookup = Lookups.forPath(LayerPaths.OPTIONS);
         FileObject folder = FileUtil.getConfigFile(LayerPaths.OPTIONS);
-        return read(folder, lookup.lookupAll(FxOptionsPanel.class));
+        return read(folder, lookup.lookupAll(OptionsPanelHost.class));
     }
 
     /** Reads the registrations of {@code panels}, taking metadata from {@code folder}'s attributes. */
-    static List<OptionsPanelEntry> read(FileObject folder, Iterable<? extends FxOptionsPanel> panels) {
+    static List<OptionsPanelEntry> read(FileObject folder, Iterable<? extends OptionsPanelHost> panels) {
         List<OptionsPanelEntry> registrations = new ArrayList<>();
-        for (FxOptionsPanel panel : panels) {
+        for (OptionsPanelHost panel : panels) {
             String id = panel.getId();
             FileObject file = folder == null ? null : folder.getFileObject(id, "instance");
             String displayName = stringAttribute(file, "displayName", panel.getDisplayName());

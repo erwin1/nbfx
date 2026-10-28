@@ -36,6 +36,6 @@ final class SelectOptionsCommand extends AbstractCommand {
 
     @Override
     public void run() {
-        FxOptionsDialog.show();
+        OptionsWindow.show();
     }
 }

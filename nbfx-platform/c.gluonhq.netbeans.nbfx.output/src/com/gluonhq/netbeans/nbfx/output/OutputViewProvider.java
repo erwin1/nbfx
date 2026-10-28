@@ -35,7 +35,7 @@ import org.openide.util.lookup.ServiceProvider;
 
 /**
  * The Output view: a dockable tab, opening along the bottom of the main area by default, that shows
- * every {@link FxConsole} as an inner tab.
+ * every {@link ConsolePanel} as an inner tab.
  *
  * @since 1.0
  */
@@ -70,7 +70,7 @@ public final class OutputViewProvider implements ViewProvider {
         if (pane == null) {
             pane = new TabPane();
             pane.getStyleClass().add("output-view");
-            if (Lookup.getDefault().lookup(FxOutput.class) instanceof FxOutputImpl output) {
+            if (Lookup.getDefault().lookup(OutputConsole.class) instanceof ConsoleOutput output) {
                 for (ConsoleModel console : List.copyOf(output.consoles())) {
                     addConsoleTab(console);
                 }

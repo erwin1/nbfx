@@ -101,11 +101,11 @@ com.gluonhq.netbeans.nbfx.libs.<library>              bundled external library  
 
 **Forbidden in public API:** `Fx*`/`Sw*` names, `*Impl` names, `Object`-typed factories,
 `Map`-parameters with string keys. The only permitted shared constant class is `LayerPaths` (§3.3).
-The current tree has **28 public `Fx*` types** (24 in exported packages; the other 4 are implementation in
-`nbfx.progress`/`nbfx.context`, where C.1 allows the prefix — [`figures.md`](figures.md)); the annotations and
-the `api.*` split slices of the rename are landed; the remaining exported ones are implementation classes that
-`refactor/api-split` moves out of exported packages; the rename is
-[Appendix C](appendix/C-naming-and-rename-table.md) and the step is `refactor/api-naming` (W1).
+The current tree has **4 public `Fx*` types**, all implementation types in non-exported packages
+(`nbfx.progress`/`nbfx.context`, where C.1 allows the prefix — [`figures.md`](figures.md)); the annotations,
+`api.*` and implementation renames have landed and `check-naming` is green. The move of `LayerPaths` to
+`api.layer` and the writer/reader contract test remain slices of
+[Appendix C](appendix/C-naming-and-rename-table.md) (`refactor/api-naming`, W1).
 
 ### 3.3 Layer paths
 
@@ -427,9 +427,9 @@ launcher's `--add-exports` list is empty today and lives in one file.
 
 ## 9. Guardrails (structural, in the build)
 
-The rule is [Appendix A](appendix/A-toolkit-policy.md); this is the implementation. **Status is honest**: five
-checks exist today (`check-purity.xml` has `check-sources`, `check-dependencies`, `check-jars`,
-`check-packaging`, `check-figures`), the rest are `pending` with the step that lands them — a pending check is
+The rule is [Appendix A](appendix/A-toolkit-policy.md); this is the implementation. **Status is honest**: eight
+checks exist today (`check-purity.xml` has `check-sources`, `check-java-source`, `check-naming`,
+`check-dependencies`, `check-jars`, `check-packaging`, `check-figures`, `check-budget`), the rest are `pending` with the step that lands them — a pending check is
 not a guardrail until `feature/ci` runs it (§11 W0/W12).
 
 | Target | Status | Mechanism | Fails when |
@@ -439,17 +439,17 @@ not a guardrail until `feature/ci` runs it (§11 W0/W12).
 | `check-jars` | **exists** (extend to 6 clusters + `jdeps`) | `jdeps` (references) **and** jar listing (bundled classes), on **all** clusters (`nbfx-libs`, `nbfx-api`, `nbfx-platform`, `nbfx-ide`, `nbfx-java`, `nbfx-javafx`) | a reference/bundle of a forbidden package outside an allowed tier or exemption |
 | `check-packaging` | **exists** (extend to the retirement matrix) | the retirement matrix (absent modules per milestone) | a retired module reappears in the distribution |
 | `check-figures` | **exists** | `ant -f check-purity.xml check-figures` → `java docs/plan/tools/Counts.java --check` | stale figures, a hand-typed count ([`figures.md`](figures.md)) |
-| `check-java-source` | pending (W1) | `org.netbeans.api.java.source`/`libs.javacapi` only in the `java.*` semantic modules | imported anywhere else (Appendix B.5) |
+| `check-java-source` | **exists** (W1) | `org.netbeans.api.java.source`/`libs.javacapi` only in the `java.*` semantic modules | imported anywhere else (Appendix B.5) |
 | `check-languages` | pending (W1/W11) | core has no `LanguageId`/content-type branch; an unregistered MIME resolves to **plain text**; providers are language-scoped (Appendix I.3/I.4) | an `if (java)` in the core, or an unknown language falling back to Java |
 | `check-api` | pending (W2) | exported set ⊆ `arch.xml` set; dependant spec versions exist | a subtree export, a missing `arch.xml` `<api>` entry |
-| `check-naming` | pending (W1) | no `Fx*`/`Impl`/`Object`-factory in public API; `LayerPaths` is the only shared constants class | a forbidden public name |
+| `check-naming` | **exists** (W1) | no `Fx*`/`Impl`/`Object`-factory in public API; `LayerPaths` is the only shared constants class | a forbidden public name |
 | `check-baseline` | pending (W1) | one `javac.release`; no `javafx.web`; one `--add-exports` file (§8.1) | a drifting JDK/FX/class-file baseline |
 | `check-i18n` | pending (W4) | every user-visible string is an `NbBundle` key in `Bundle.properties` | a missing key, a hardcoded string |
 | `check-logging` | pending (W1) | no `System.out`/`printStackTrace`; `Logger` named after the module | a stray print |
 | `check-lookup` | pending (W3) | the `Lookups.forPath` invocation count is constant across N user actions (Appendix E.5) | a per-action layer lookup |
 | leak test | pending (W3) | open/close a view N times; listener count returns to baseline and the view is weakly reachable (Appendix E.2) | a leaked subscription |
 | `check-licences` | pending (W10) | every bundled jar/native has a `NOTICE` entry; `javafx.web` absent (`LICENSE`/`THIRDPARTY` present) ([Appendix G](appendix/G-licences-and-notices.md)) | an unnotified bundle |
-| `check-budget` | pending (W0) | startup, "usable", first completion, module count, memory | >20 % regression vs the milestone baseline |
+| `check-budget` | **exists** (W0) | startup, "usable", first completion, module count, memory | >20 % regression vs the milestone baseline |
 
 The old, grep-only `check-jars` greps the *file list* of three cluster directories for `javax/swing/`, so a
 class that imports a JDK `javax.swing` type passes and the two new clusters are unscanned; that is the gap

@@ -57,7 +57,7 @@ public class StatusElementRegistryTest {
     }
 
     private static StatusElement element(String id, StatusAlignment alignment, int position) {
-        return new StatusElement(id, alignment, position, new FxStatusElement() {
+        return new StatusElement(id, alignment, position, new StatusElementHolder() {
             @Override
             public String getId() {
                 return id;

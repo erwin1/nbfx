@@ -21,8 +21,8 @@ package com.gluonhq.netbeans.nbfx.project;
 import com.gluonhq.netbeans.nbfx.annotations.WizardRegistration;
 import com.gluonhq.netbeans.nbfx.api.dialogs.ErrorReporter;
 import com.gluonhq.netbeans.nbfx.api.project.ProjectRegistry;
-import com.gluonhq.netbeans.nbfx.wizard.FxWizard;
-import com.gluonhq.netbeans.nbfx.wizard.FxWizardPanel;
+import com.gluonhq.netbeans.nbfx.wizard.Wizard;
+import com.gluonhq.netbeans.nbfx.wizard.WizardPanelHost;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -51,7 +51,7 @@ import org.openide.util.NbBundle;
  */
 @WizardRegistration(id = NewProjectWizard.ID, displayName = "Java with Maven",
         category = "Project", position = 10)
-public final class NewProjectWizard implements FxWizard {
+public final class NewProjectWizard implements Wizard {
 
     /** The wizard id, referenced by the New Project command. */
     public static final String ID = "newProject";
@@ -62,7 +62,7 @@ public final class NewProjectWizard implements FxWizard {
     private final TextField packageName = new TextField();
     private boolean packageEdited;
     private final GridPane grid = new GridPane();
-    private final FxWizardPanel page;
+    private final WizardPanelHost page;
 
     /** Creates the wizard. Must run on the JavaFX Application Thread. */
     public NewProjectWizard() {
@@ -71,7 +71,7 @@ public final class NewProjectWizard implements FxWizard {
         packageName.textProperty().addListener((observable, old, now) -> packageEdited = true);
         buildGrid();
         updatePackage();
-        page = new FxWizardPanel() {
+        page = new WizardPanelHost() {
             @Override
             public String getTitle() {
                 return message("NewProjectWizard.page.title");
@@ -105,7 +105,7 @@ public final class NewProjectWizard implements FxWizard {
     }
 
     @Override
-    public List<FxWizardPanel> getPages() {
+    public List<WizardPanelHost> getPages() {
         return List.of(page);
     }
 

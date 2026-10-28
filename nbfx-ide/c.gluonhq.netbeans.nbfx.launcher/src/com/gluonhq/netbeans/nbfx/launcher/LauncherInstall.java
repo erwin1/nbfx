@@ -29,7 +29,7 @@ import org.openide.modules.Modules;
 /**
  * Install-time bootstrap that must run before the modules are restored.
  * <p>
- * The JavaFX application itself is launched by {@link FxGuiRunLevel}, after the modules have been
+ * The JavaFX application itself is launched by {@link GuiRunLevel}, after the modules have been
  * enabled, so the lookups it needs are present. This installer exists only for steps that the run
  * level would do too late.
  */

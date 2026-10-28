@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.structure.maven;
 
-import com.gluonhq.netbeans.nbfx.structure.FxStructurePanel;
+import com.gluonhq.netbeans.nbfx.structure.StructurePanel;
 import com.gluonhq.netbeans.nbfx.structure.ScanningPanel;
 import com.gluonhq.netbeans.nbfx.structure.TrackedStructurePanel;
 import org.openide.util.NbBundle;
@@ -29,7 +29,7 @@ import org.openide.util.lookup.ServiceProvider;
  * after NetBeans' {@code POMModelNavigator}: the first of the POM panels, before
  * <em>POM inheritance</em>, <em>Related goals</em> and the <em>XML View</em>.
  */
-@ServiceProvider(service = FxStructurePanel.class, position = 100)
+@ServiceProvider(service = StructurePanel.class, position = 100)
 public final class PomModelPanel extends TrackedStructurePanel<PomModelUI.Result> {
 
     /** The content type of Maven POMs, as the Maven support resolves them. */

@@ -19,13 +19,13 @@
 package com.gluonhq.netbeans.nbfx.windows;
 
 /**
- * The seam between the pure window-system orchestration ({@link FxWindowSystem}) and the JavaFX
+ * The seam between the pure window-system orchestration ({@link WindowSystem}) and the JavaFX
  * shell. The shell - {@code JavaFXLaunchApp} and its dock panes, or a dedicated shell class once
  * the window chapter lands - implements this interface and registers it in the global {@code Lookup};
- * {@link FxWindowSystem} then never talks to JavaFX directly (purity), all JavaFX lives here.
+ * {@link WindowSystem} then never talks to JavaFX directly (purity), all JavaFX lives here.
  *
  * <p>Implementations must run on the JavaFX Application Thread. The window-system lifecycle methods
- * ({@link FxWindowSystem#load()}, {@link FxWindowSystem#save()}...) are invoked from the FX thread by
+ * ({@link WindowSystem#load()}, {@link WindowSystem#save()}...) are invoked from the FX thread by
  * the nbfx boot layer, mirroring how the Swing window system runs on the AWT event dispatch thread.
  *
  * @since 1.0

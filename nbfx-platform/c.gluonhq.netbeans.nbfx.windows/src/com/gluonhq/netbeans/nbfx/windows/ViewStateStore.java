@@ -37,7 +37,7 @@ import org.openide.util.NbPreferences;
  * changed; on load the local (persisted) state overrides the module state, and stale modes/components
  * whose declaring module disappeared are pruned ({@code WindowManagerParser.acceptMode}...). This
  * store is the local folder for nbfx, overlaid on the layer-derived defaults computed by
- * {@link FxWindowSystem} from the view registrations.
+ * {@link WindowSystem} from the view registrations.
  *
  * <p>The state is kept under the {@code com/gluonhq/netbeans/nbfx/window} preferences node: the window
  * geometry at the node itself, each area under the {@code areas/<areaId>} child node (view order,
@@ -178,7 +178,7 @@ public final class ViewStateStore {
         }
     }
 
-    /** Drops all persisted state, so the next {@link FxWindowSystem#load()} rebuilds the layer defaults. */
+    /** Drops all persisted state, so the next {@link WindowSystem#load()} rebuilds the layer defaults. */
     public void clear() {
         try {
             prefs.node(NODE_AREAS).removeNode();

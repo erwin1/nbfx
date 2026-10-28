@@ -33,7 +33,7 @@ import java.util.Objects;
  * @since 1.0
  */
 public record WizardEntry(String id, String displayName, String iconName, String category,
-        int position, FxWizard wizard) {
+        int position, Wizard wizard) {
 
     public WizardEntry {
         Objects.requireNonNull(id, "id");

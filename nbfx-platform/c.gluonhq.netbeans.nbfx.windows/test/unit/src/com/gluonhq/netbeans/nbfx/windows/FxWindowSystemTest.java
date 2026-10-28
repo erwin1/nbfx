@@ -71,7 +71,7 @@ public class FxWindowSystemTest {
         }
     }
 
-    private static final class RecordingListener implements FxWindowSystemListener {
+    private static final class RecordingListener implements WindowSystemListener {
         final List<String> events = new CopyOnWriteArrayList<>();
         final Runnable onLoadStart;
 
@@ -108,7 +108,7 @@ public class FxWindowSystemTest {
                 reg("beta", ViewLocation.LEFT, 20, false, false, ViewArea.EXPLORER),
                 reg("zeta", ViewLocation.CENTER, 5, true, true, ViewArea.EDITOR));
         RecordingSink sink = new RecordingSink();
-        FxWindowSystem windowSystem = new FxWindowSystem(regs, newStore("firstLoad"), sink);
+        WindowSystem windowSystem = new WindowSystem(regs, newStore("firstLoad"), sink);
 
         windowSystem.init();
         windowSystem.load();
@@ -131,7 +131,7 @@ public class FxWindowSystemTest {
         store.save(new WindowState(List.of(AreaState.docked("explorer", List.of("beta", "alpha"), "beta")),
                 5, 6, 1200, 800, true, Map.of()));
 
-        initAndLoad(new FxWindowSystem(regs, store, sink));
+        initAndLoad(new WindowSystem(regs, store, sink));
 
         WindowState applied = sink.applied.get(0);
         assertEquals(List.of("beta", "alpha"), viewsOf(applied, "explorer"));
@@ -151,7 +151,7 @@ public class FxWindowSystemTest {
                 reg("alpha", ViewLocation.LEFT, 10, true, true, ViewArea.EXPLORER),
                 reg("beta", ViewLocation.LEFT, 20, false, false, ViewArea.EXPLORER));
 
-        initAndLoad(new FxWindowSystem(regs, store, sink));
+        initAndLoad(new WindowSystem(regs, store, sink));
 
         WindowState applied = sink.applied.get(0);
         assertEquals(List.of("beta"), viewsOf(applied, "explorer"));
@@ -167,7 +167,7 @@ public class FxWindowSystemTest {
         Supplier<List<ViewSpec>> regs = () -> List.of(
                 reg("alpha", ViewLocation.LEFT, 10, true, true, ViewArea.EXPLORER));
 
-        initAndLoad(new FxWindowSystem(regs, store, sink));
+        initAndLoad(new WindowSystem(regs, store, sink));
 
         WindowState applied = sink.applied.get(0);
         assertEquals(ViewArea.defaults().size(), applied.areas().size());
@@ -185,7 +185,7 @@ public class FxWindowSystemTest {
                 reg("hidden", ViewLocation.LEFT, 5, true, false, ViewArea.EXPLORER, PersistenceType.NEVER),
                 reg("alpha", ViewLocation.LEFT, 10, true, true, ViewArea.EXPLORER));
 
-        initAndLoad(new FxWindowSystem(regs, store, sink));
+        initAndLoad(new WindowSystem(regs, store, sink));
 
         WindowState applied = sink.applied.get(0);
         assertEquals(List.of("alpha"), viewsOf(applied, "explorer"));
@@ -198,7 +198,7 @@ public class FxWindowSystemTest {
         RecordingSink sink = new RecordingSink();
         Supplier<List<ViewSpec>> regs = () -> List.of(
                 reg("alpha", ViewLocation.LEFT, 10, true, true, ViewArea.EXPLORER));
-        FxWindowSystem first = new FxWindowSystem(regs, store, sink);
+        WindowSystem first = new WindowSystem(regs, store, sink);
         first.init();
         first.load();
         sink.snapshotState = new WindowState(
@@ -207,7 +207,7 @@ public class FxWindowSystemTest {
         first.save();
 
         RecordingSink secondSink = new RecordingSink();
-        initAndLoad(new FxWindowSystem(regs, store, secondSink));
+        initAndLoad(new WindowSystem(regs, store, secondSink));
 
         WindowState restored = secondSink.applied.get(0);
         assertEquals(List.of("alpha"), viewsOf(restored, "explorer"));
@@ -224,7 +224,7 @@ public class FxWindowSystemTest {
         Supplier<List<ViewSpec>> regs = () -> List.of(
                 reg("alpha", ViewLocation.LEFT, 10, true, true, ViewArea.EXPLORER));
 
-        initAndLoad(new FxWindowSystem(regs, store, sink));
+        initAndLoad(new WindowSystem(regs, store, sink));
 
         WindowState applied = sink.applied.get(0);
         assertEquals(List.of("alpha"), viewsOf(applied, "explorer"));
@@ -241,7 +241,7 @@ public class FxWindowSystemTest {
         Supplier<List<ViewSpec>> regs = () -> List.of(
                 reg("alpha", ViewLocation.LEFT, 10, true, true, ViewArea.EXPLORER),
                 reg("beta", ViewLocation.LEFT, 20, false, false, ViewArea.EXPLORER));
-        FxWindowSystem windowSystem = new FxWindowSystem(regs, store, sink);
+        WindowSystem windowSystem = new WindowSystem(regs, store, sink);
         initAndLoad(windowSystem);
         assertEquals(List.of("beta"), viewsOf(sink.applied.get(0), "explorer"));
 
@@ -254,7 +254,7 @@ public class FxWindowSystemTest {
     @Test
     public void lifecycleGuards() {
         ViewStateStore store = newStore("guards");
-        FxWindowSystem windowSystem = new FxWindowSystem(() -> List.of(), store, new RecordingSink());
+        WindowSystem windowSystem = new WindowSystem(() -> List.of(), store, new RecordingSink());
 
         assertThrows(IllegalStateException.class, windowSystem::load);
         windowSystem.init();
@@ -273,7 +273,7 @@ public class FxWindowSystemTest {
         ViewStateStore store = newStore("listener");
         RecordingSink sink = new RecordingSink();
         Supplier<List<ViewSpec>> regs = () -> List.of();
-        FxWindowSystem windowSystem = new FxWindowSystem(regs, store, sink);
+        WindowSystem windowSystem = new WindowSystem(regs, store, sink);
         RecordingListener listener = new RecordingListener(() -> assertEquals(0, sink.applied.size()));
         windowSystem.addWindowSystemListener(listener);
         windowSystem.init();
@@ -287,7 +287,7 @@ public class FxWindowSystemTest {
         return new ViewStateStore(MemoryPreferences.root().node("test").node(test));
     }
 
-    private static void initAndLoad(FxWindowSystem windowSystem) {
+    private static void initAndLoad(WindowSystem windowSystem) {
         windowSystem.init();
         windowSystem.load();
     }

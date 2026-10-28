@@ -35,7 +35,7 @@ import org.openide.util.NbBundle;
  * @since 1.0
  */
 @OptionsRegistration(id = EditorOptionsPanel.ID, categoryName = "Editor", position = 10)
-public final class EditorOptionsPanel implements FxOptionsPanel {
+public final class EditorOptionsPanel implements OptionsPanelHost {
 
     /** The panel id, referenced by {@code @OptionsRegistration}. */
     public static final String ID = "editor";

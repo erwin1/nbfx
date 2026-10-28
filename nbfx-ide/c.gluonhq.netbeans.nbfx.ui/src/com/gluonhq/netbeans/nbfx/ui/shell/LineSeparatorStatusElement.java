@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.ui.shell;
 
-import com.gluonhq.netbeans.nbfx.statusbar.FxStatusElement;
+import com.gluonhq.netbeans.nbfx.statusbar.StatusElementHolder;
 import java.util.function.Consumer;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -37,7 +37,7 @@ import org.openide.util.NbBundle;
  * Names the line separator of the document being edited and changes it from a popup. Created and
  * driven by the main window; not an exported API.
  */
-public final class LineSeparatorStatusElement implements FxStatusElement {
+public final class LineSeparatorStatusElement implements StatusElementHolder {
 
     private final Label lineSeparator = new Label();
     private final HBox group;

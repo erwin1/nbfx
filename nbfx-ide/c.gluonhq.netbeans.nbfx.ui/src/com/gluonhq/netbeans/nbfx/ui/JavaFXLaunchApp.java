@@ -1,13 +1,13 @@
 package com.gluonhq.netbeans.nbfx.ui;
 
 import com.gluonhq.netbeans.nbfx.ui.actions.ActionBars;
-import com.gluonhq.netbeans.nbfx.ui.context.ContentManagerImpl;
+import com.gluonhq.netbeans.nbfx.ui.context.ContentManagerService;
 import com.gluonhq.netbeans.nbfx.ui.context.EditorContexts;
-import com.gluonhq.netbeans.nbfx.ui.context.FileSelectionContextImpl;
-import com.gluonhq.netbeans.nbfx.ui.context.ActiveComponentContextImpl;
+import com.gluonhq.netbeans.nbfx.ui.context.FileSelectionContextService;
+import com.gluonhq.netbeans.nbfx.ui.context.ActiveComponentContextService;
 import com.gluonhq.netbeans.nbfx.ui.project.FileSystemRefresher;
 import com.gluonhq.netbeans.nbfx.ui.project.ProjectLoads;
-import com.gluonhq.netbeans.nbfx.ui.project.ProjectRegistryImpl;
+import com.gluonhq.netbeans.nbfx.ui.project.ProjectRegistryService;
 import com.gluonhq.netbeans.nbfx.ui.project.ProjectRootWatcher;
 import com.gluonhq.netbeans.nbfx.ui.project.ProjectSwitcher;
 import com.gluonhq.netbeans.nbfx.ui.session.AppState;
@@ -25,10 +25,10 @@ import com.gluonhq.netbeans.nbfx.ui.shell.ProjectStatusElement;
 import com.gluonhq.netbeans.nbfx.ui.shell.ToolBarContainer;
 import com.gluonhq.netbeans.nbfx.ui.shell.ViewTabs;
 import com.gluonhq.netbeans.nbfx.ui.shell.WindowTitles;
-import com.gluonhq.netbeans.nbfx.statusbar.FxStatusBar;
+import com.gluonhq.netbeans.nbfx.statusbar.StatusBar;
 import com.gluonhq.netbeans.nbfx.statusbar.StatusElement;
 import com.gluonhq.netbeans.nbfx.statusbar.StatusElementRegistry;
-import com.gluonhq.netbeans.nbfx.windows.FxWindowSystem;
+import com.gluonhq.netbeans.nbfx.windows.WindowSystem;
 import com.gluonhq.netbeans.nbfx.windows.WindowEnvironment;
 import com.gluonhq.netbeans.nbfx.windows.WindowSink;
 import com.gluonhq.netbeans.nbfx.windows.WindowState;
@@ -98,8 +98,8 @@ public class JavaFXLaunchApp extends Application implements WindowSink {
 
     private Stage stage;
     /** The window system driving the main-window lifecycle; {@code null} when none is registered. */
-    private FxWindowSystem windowSystem;
-    /** Whether the window system reached the SHOWN phase, so {@link FxWindowSystem#save()} is legal. */
+    private WindowSystem windowSystem;
+    /** Whether the window system reached the SHOWN phase, so {@link WindowSystem#save()} is legal. */
     private boolean windowSystemShown;
     /** Last non-maximized geometry, so a maximized window still persists a restore-size. */
     private double restoreX = Double.NaN, restoreY = Double.NaN;
@@ -113,7 +113,7 @@ public class JavaFXLaunchApp extends Application implements WindowSink {
     /** The dock area with the sliding sides minimized panes go to; what the window shows. */
     private SlidingArea slidingArea;
     private ActionBars actionBars;
-    private FxStatusBar statusBar;
+    private StatusBar statusBar;
     private ProjectStatusElement projectElement;
     private CaretStatusElement caretElement;
     private LineSeparatorStatusElement lineSeparatorElement;
@@ -197,14 +197,14 @@ public class JavaFXLaunchApp extends Application implements WindowSink {
         // Give the window system the host services it needs: the bars for detached windows, the
         // navigator revealer, and where a tab docks back (editors to the editor pane or wherever the
         // editors are while it is hidden, views to their default location).
-        WindowEnvironmentImpl windowEnvironment = windowEnvironment();
+        WindowEnvironmentService windowEnvironment = windowEnvironment();
         if (windowEnvironment != null) {
             windowEnvironment.setActionBars(actionBars);
             windowEnvironment.setNavigatorRevealer(this::revealFileInNavigator);
             windowEnvironment.setNavigatorFileRevealer(this::revealFileInOwningNavigator);
             windowEnvironment.setHomeResolver(tab -> {
                 if (NbfxTabPane.documentOf(tab) != null) {
-                    TabPane mainPane = contentManager() instanceof ContentManagerImpl cmi ? (TabPane) cmi.getMainPane() : null;
+                    TabPane mainPane = contentManager() instanceof ContentManagerService cmi ? (TabPane) cmi.getMainPane() : null;
                     return mainPane == null ? null : NbfxTabPane.editorDockHome(mainPane, Lookup.getDefault().lookup(EditorContext.class));
                 }
                 return homeOfView(tab);
@@ -214,7 +214,7 @@ public class JavaFXLaunchApp extends Application implements WindowSink {
         projectElement = new ProjectStatusElement();
         caretElement = new CaretStatusElement();
         lineSeparatorElement = new LineSeparatorStatusElement();
-        statusBar = new FxStatusBar(StatusElementRegistry.discover(List.of(
+        statusBar = new StatusBar(StatusElementRegistry.discover(List.of(
                 new StatusElement("project", StatusAlignment.LEFT, 0, projectElement),
                 new StatusElement("caret", StatusAlignment.RIGHT, 10, caretElement),
                 new StatusElement("line-separator", StatusAlignment.RIGHT, 20, lineSeparatorElement))));
@@ -308,7 +308,7 @@ public class JavaFXLaunchApp extends Application implements WindowSink {
 
         // Drive the window lifecycle through the window system: it restores the persisted geometry
         // (through this shell) and shows the stage. Without one, show directly with the defaults.
-        windowSystem = Lookup.getDefault().lookup(FxWindowSystem.class);
+        windowSystem = Lookup.getDefault().lookup(WindowSystem.class);
         if (windowSystem != null) {
             windowSystem.setSink(this);
             windowSystem.init();
@@ -706,7 +706,7 @@ public class JavaFXLaunchApp extends Application implements WindowSink {
             LOG.severe("We have no content manager!!");
             return Docking.create(navigator);
         }
-        if (contentManager instanceof ContentManagerImpl cmi && cmi.getMainPane() instanceof NbfxTabPane mainPane) {
+        if (contentManager instanceof ContentManagerService cmi && cmi.getMainPane() instanceof NbfxTabPane mainPane) {
             return Docking.create(navigator, mainPane);
         }
         LOG.severe("We have competing content managers!");
@@ -884,7 +884,7 @@ public class JavaFXLaunchApp extends Application implements WindowSink {
      */
     private void resetWindows() {
         ContentManager cm = contentManager();
-        TabPane mainPane = cm instanceof ContentManagerImpl cmi ? (TabPane) cmi.getMainPane() : null;
+        TabPane mainPane = cm instanceof ContentManagerService cmi ? (TabPane) cmi.getMainPane() : null;
         if (mainPane == null) {
             return;
         }
@@ -944,7 +944,7 @@ public class JavaFXLaunchApp extends Application implements WindowSink {
      * an update that brings a new one, that one - and records them as introduced, so a view the user
      * closes afterwards stays closed. Called once the session's layout is in place, as applying a
      * layout removes the view tabs it does not mention. This is the shell-side counterpart of the
-     * window system's start-up tabs ({@code FxWindowSystem.defaultState()}) while the layout itself
+     * window system's start-up tabs ({@code WindowSystem.defaultState()}) while the layout itself
      * still lives in {@link AppState}/{@link SessionRestorer}.
      */
     private void introduceDefaultViews() {
@@ -1094,12 +1094,12 @@ public class JavaFXLaunchApp extends Application implements WindowSink {
     }
 
     /** The application host services for the window system, or {@code null} if not registered. */
-    private static WindowEnvironmentImpl windowEnvironment() {
+    private static WindowEnvironmentService windowEnvironment() {
         WindowEnvironment environment = Lookup.getDefault().lookup(WindowEnvironment.class);
-        if (environment instanceof WindowEnvironmentImpl impl) {
+        if (environment instanceof WindowEnvironmentService impl) {
             return impl;
         }
-        LOG.warning("No WindowEnvironmentImpl found in the Lookup");
+        LOG.warning("No WindowEnvironmentService found in the Lookup");
         return null;
     }
 
@@ -1110,7 +1110,7 @@ public class JavaFXLaunchApp extends Application implements WindowSink {
 
     /** Marks a navigator reveal as in progress (or finished), so panes do not steal focus back. */
     private void setNavigatorRevealInProgress(boolean inProgress) {
-        WindowEnvironmentImpl environment = windowEnvironment();
+        WindowEnvironmentService environment = windowEnvironment();
         if (environment != null) {
             environment.setNavigatorRevealInProgress(inProgress);
         }
@@ -1121,7 +1121,7 @@ public class JavaFXLaunchApp extends Application implements WindowSink {
         ProjectRegistry registry = Lookup.getDefault().lookup(ProjectRegistry.class);
         if (registry == null) {
             LOG.warning("No ProjectRegistry found in the Lookup; using a local instance");
-            registry = new ProjectRegistryImpl();
+            registry = new ProjectRegistryService();
         }
         return registry;
     }
@@ -1130,7 +1130,7 @@ public class JavaFXLaunchApp extends Application implements WindowSink {
         FileSelectionContext context = Lookup.getDefault().lookup(FileSelectionContext.class);
         if (context == null) {
             LOG.warning("No FileSelectionContext found in the Lookup; using a local instance");
-            context = new FileSelectionContextImpl();
+            context = new FileSelectionContextService();
         }
         return context;
     }
@@ -1139,7 +1139,7 @@ public class JavaFXLaunchApp extends Application implements WindowSink {
         ActiveComponentContext context = Lookup.getDefault().lookup(ActiveComponentContext.class);
         if (context == null) {
             LOG.warning("No ActiveComponentContext found in the Lookup; using a local instance");
-            context = new ActiveComponentContextImpl();
+            context = new ActiveComponentContextService();
         }
         return context;
     }

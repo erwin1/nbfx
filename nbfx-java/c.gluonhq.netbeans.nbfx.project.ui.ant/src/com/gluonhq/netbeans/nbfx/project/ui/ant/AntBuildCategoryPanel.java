@@ -1,5 +1,5 @@
 package com.gluonhq.netbeans.nbfx.project.ui.ant;
-import com.gluonhq.netbeans.nbfx.project.customizer.FxProjectCustomizerPanel;
+import com.gluonhq.netbeans.nbfx.project.customizer.CustomizerPanel;
 
 import javafx.scene.Node;
 import org.netbeans.api.project.Project;
@@ -10,7 +10,7 @@ import org.openide.util.lookup.ServiceProvider;
  * The Ant / NetBeans-module "Build" folder, holding the {@code Compiling} and {@code Packaging}
  * sub-categories.
  */
-@ServiceProvider(service = FxProjectCustomizerPanel.class)
+@ServiceProvider(service = CustomizerPanel.class)
 public final class AntBuildCategoryPanel extends AntModuleCustomizerPanel {
 
     @Override

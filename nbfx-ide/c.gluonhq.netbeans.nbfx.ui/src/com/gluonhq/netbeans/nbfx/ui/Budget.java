@@ -28,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Startup budget marks for the W0 baseline, relative to the JVM start. It is an internal measurement
- * aid, not part of the supported API: the shell marks the phases and {@code FxGuiRunLevel} writes the
+ * aid, not part of the supported API: the shell marks the phases and {@code GuiRunLevel} writes the
  * JSON when {@code NBFX_BUDGET} points at a file.
  *
  * @since 1.0

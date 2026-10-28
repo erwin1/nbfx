@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.ui.shell;
 
-import com.gluonhq.netbeans.nbfx.statusbar.FxStatusElement;
+import com.gluonhq.netbeans.nbfx.statusbar.StatusElementHolder;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -29,7 +29,7 @@ import javafx.scene.layout.HBox;
  * Names the selected project - the one the project-scoped actions apply to. Created and driven by
  * the main window; not an exported API.
  */
-public final class ProjectStatusElement implements FxStatusElement {
+public final class ProjectStatusElement implements StatusElementHolder {
 
     private final HBox group;
     private final Label label = new Label();

@@ -18,7 +18,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
- * The Properties window: a dockable tab on the right showing the {@link FxPropertySheet} for the
+ * The Properties window: a dockable tab on the right showing the {@link PropertySheet} for the
  * current global action context ({@link ActionContext}) - the file selected in a navigator view,
  * the active editor document, or the selected project.
  * <p>
@@ -35,7 +35,7 @@ public final class PropertiesView implements ViewProvider {
     /** The stable id of the view. */
     public static final String ID = "properties";
 
-    private final FxPropertySheet sheet = new FxPropertySheet();
+    private final PropertySheet sheet = new PropertySheet();
 
     /** Creates the view. Must be called on the JavaFX Application Thread. */
     public PropertiesView() {

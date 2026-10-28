@@ -21,8 +21,8 @@ package com.gluonhq.netbeans.nbfx.project;
 import com.gluonhq.netbeans.nbfx.annotations.WizardRegistration;
 import com.gluonhq.netbeans.nbfx.api.dialogs.ErrorReporter;
 import com.gluonhq.netbeans.nbfx.api.project.ProjectRegistry;
-import com.gluonhq.netbeans.nbfx.wizard.FxWizard;
-import com.gluonhq.netbeans.nbfx.wizard.FxWizardPanel;
+import com.gluonhq.netbeans.nbfx.wizard.Wizard;
+import com.gluonhq.netbeans.nbfx.wizard.WizardPanelHost;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -51,7 +51,7 @@ import org.openide.util.NbBundle;
  */
 @WizardRegistration(id = NewGradleProjectWizard.ID, displayName = "Java with Gradle",
         category = "Project", position = 20)
-public final class NewGradleProjectWizard implements FxWizard {
+public final class NewGradleProjectWizard implements Wizard {
 
     /** The wizard id. */
     public static final String ID = "newGradleProject";
@@ -61,7 +61,7 @@ public final class NewGradleProjectWizard implements FxWizard {
     private final TextField packageName = new TextField();
     private boolean packageEdited;
     private final GridPane grid = new GridPane();
-    private final FxWizardPanel page;
+    private final WizardPanelHost page;
 
     /** Creates the wizard. Must run on the JavaFX Application Thread. */
     public NewGradleProjectWizard() {
@@ -69,7 +69,7 @@ public final class NewGradleProjectWizard implements FxWizard {
         packageName.textProperty().addListener((observable, old, now) -> packageEdited = true);
         buildGrid();
         updatePackage();
-        page = new FxWizardPanel() {
+        page = new WizardPanelHost() {
             @Override
             public String getTitle() {
                 return message("NewGradleProjectWizard.page.title");
@@ -103,7 +103,7 @@ public final class NewGradleProjectWizard implements FxWizard {
     }
 
     @Override
-    public List<FxWizardPanel> getPages() {
+    public List<WizardPanelHost> getPages() {
         return List.of(page);
     }
 

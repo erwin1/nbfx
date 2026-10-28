@@ -40,7 +40,7 @@ import org.openide.util.NbBundle;
  * @since 1.0
  */
 @OptionsRegistration(id = KeyMapOptionsPanel.ID, categoryName = "Keymap", position = 20)
-public final class KeyMapOptionsPanel implements FxOptionsPanel {
+public final class KeyMapOptionsPanel implements OptionsPanelHost {
 
     /** The panel id, referenced by {@code @OptionsRegistration}. */
     public static final String ID = "keymap";

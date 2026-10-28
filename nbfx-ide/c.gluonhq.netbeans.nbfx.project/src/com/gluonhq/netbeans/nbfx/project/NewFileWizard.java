@@ -24,8 +24,8 @@ import com.gluonhq.netbeans.nbfx.api.dialogs.ErrorReporter;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionContext;
 import com.gluonhq.netbeans.nbfx.api.project.OpenProject;
 import com.gluonhq.netbeans.nbfx.api.project.ProjectRegistry;
-import com.gluonhq.netbeans.nbfx.wizard.FxWizard;
-import com.gluonhq.netbeans.nbfx.wizard.FxWizardPanel;
+import com.gluonhq.netbeans.nbfx.wizard.Wizard;
+import com.gluonhq.netbeans.nbfx.wizard.WizardPanelHost;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -53,7 +53,7 @@ import org.openide.util.NbBundle;
  */
 @WizardRegistration(id = NewFileWizard.ID, displayName = "Java Class",
         category = "File", position = 10)
-public final class NewFileWizard implements FxWizard {
+public final class NewFileWizard implements Wizard {
 
     /** The wizard id, referenced by the New File command. */
     public static final String ID = "newFile";
@@ -61,12 +61,12 @@ public final class NewFileWizard implements FxWizard {
     private final TextField folder = new TextField(defaultFolder());
     private final TextField name = new TextField("NewClass");
     private final GridPane grid = new GridPane();
-    private final FxWizardPanel page;
+    private final WizardPanelHost page;
 
     /** Creates the wizard. Must run on the JavaFX Application Thread. */
     public NewFileWizard() {
         buildGrid();
-        page = new FxWizardPanel() {
+        page = new WizardPanelHost() {
             @Override
             public String getTitle() {
                 return message("NewFileWizard.page.title");
@@ -100,7 +100,7 @@ public final class NewFileWizard implements FxWizard {
     }
 
     @Override
-    public List<FxWizardPanel> getPages() {
+    public List<WizardPanelHost> getPages() {
         return List.of(page);
     }
 

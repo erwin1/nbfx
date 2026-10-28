@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.structure.maven;
 
-import com.gluonhq.netbeans.nbfx.structure.FxStructurePanel;
+import com.gluonhq.netbeans.nbfx.structure.StructurePanel;
 import com.gluonhq.netbeans.nbfx.structure.ScanningPanel;
 import com.gluonhq.netbeans.nbfx.structure.TrackedStructurePanel;
 import org.openide.util.NbBundle;
@@ -28,7 +28,7 @@ import org.openide.util.lookup.ServiceProvider;
  * The <em>POM inheritance</em> panel of the Navigator window for Maven POMs, after NetBeans'
  * {@code POMInheritanceNavigator}.
  */
-@ServiceProvider(service = FxStructurePanel.class, position = 110)
+@ServiceProvider(service = StructurePanel.class, position = 110)
 public final class PomInheritancePanel extends TrackedStructurePanel<PomInheritanceUI.Result> {
 
     @Override

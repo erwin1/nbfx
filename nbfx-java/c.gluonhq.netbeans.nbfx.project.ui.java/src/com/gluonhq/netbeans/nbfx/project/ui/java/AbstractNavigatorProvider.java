@@ -36,7 +36,7 @@ import org.openide.util.lookup.Lookups;
 
 /**
  * Shared base for the two navigator {@link ViewProvider} implementations: the logical Project view
- * ({@link ProjectNavigatorImpl}) and the physical Files view ({@link FileNavigatorImpl}). It pulls
+ * ({@link ProjectNavigator}) and the physical Files view ({@link FileNavigator}). It pulls
  * up the algorithms that are genuinely common to both trees — the per-project bookkeeping
  * ({@link RootState}), the retry/selection machinery used after a drag-and-drop move,
  * {@link #revealFile(FileObject)}, the {@link #selectAndScroll} helper, the symmetric

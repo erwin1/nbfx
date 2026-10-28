@@ -1,14 +1,14 @@
 package com.gluonhq.netbeans.nbfx.project.ui.maven;
 
-import com.gluonhq.netbeans.nbfx.project.customizer.FxProjectCustomizerPanel;
+import com.gluonhq.netbeans.nbfx.project.customizer.CustomizerPanel;
 import javafx.scene.Node;
 import org.netbeans.api.project.Project;
 import org.openide.util.NbBundle;
 import org.openide.util.lookup.ServiceProvider;
 
 /** Maven "Build" folder, holding the Compile sub-category. */
-@ServiceProvider(service = FxProjectCustomizerPanel.class)
-public final class MavenBuildCategoryPanel implements FxProjectCustomizerPanel {
+@ServiceProvider(service = CustomizerPanel.class)
+public final class MavenBuildCategoryPanel implements CustomizerPanel {
 
     @Override
     public String projectTypeId() {

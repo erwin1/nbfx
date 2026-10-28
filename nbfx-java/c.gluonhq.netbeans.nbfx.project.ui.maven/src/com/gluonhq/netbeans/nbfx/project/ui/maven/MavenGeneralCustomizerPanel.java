@@ -1,6 +1,6 @@
 package com.gluonhq.netbeans.nbfx.project.ui.maven;
 
-import com.gluonhq.netbeans.nbfx.project.customizer.FxProjectCustomizerPanel;
+import com.gluonhq.netbeans.nbfx.project.customizer.CustomizerPanel;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -16,8 +16,8 @@ import org.openide.util.lookup.ServiceProvider;
  * The Maven "General" category: the POM's groupId, artifactId, version, name and packaging, stored
  * in {@code pom.xml}.
  */
-@ServiceProvider(service = FxProjectCustomizerPanel.class)
-public final class MavenGeneralCustomizerPanel implements FxProjectCustomizerPanel {
+@ServiceProvider(service = CustomizerPanel.class)
+public final class MavenGeneralCustomizerPanel implements CustomizerPanel {
 
     private TextField groupId;
     private TextField artifactId;

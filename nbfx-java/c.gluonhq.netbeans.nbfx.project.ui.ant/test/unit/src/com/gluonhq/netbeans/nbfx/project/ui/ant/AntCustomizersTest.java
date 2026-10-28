@@ -18,8 +18,8 @@
  */
 package com.gluonhq.netbeans.nbfx.project.ui.ant;
 
-import com.gluonhq.netbeans.nbfx.project.customizer.FxProjectCustomizerPanel;
-import com.gluonhq.netbeans.nbfx.project.customizer.FxProjectCustomizers;
+import com.gluonhq.netbeans.nbfx.project.customizer.CustomizerPanel;
+import com.gluonhq.netbeans.nbfx.project.customizer.Customizers;
 import java.io.File;
 import java.util.List;
 import java.util.Set;
@@ -57,8 +57,8 @@ public class AntCustomizersTest extends NbTestCase {
         Project project = ProjectManager.getDefault().findProject(root);
         assertNotNull("no project for " + dir, project);
 
-        List<FxProjectCustomizerPanel> panels = FxProjectCustomizers.panelsFor(project);
-        Set<String> ids = panels.stream().map(FxProjectCustomizerPanel::id).collect(Collectors.toSet());
+        List<CustomizerPanel> panels = Customizers.panelsFor(project);
+        Set<String> ids = panels.stream().map(CustomizerPanel::id).collect(Collectors.toSet());
         assertTrue("missing general; found " + ids, ids.contains("general"));
         assertTrue("missing sources; found " + ids, ids.contains("sources"));
         assertTrue("missing display; found " + ids, ids.contains("display"));

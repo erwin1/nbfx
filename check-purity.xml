@@ -139,14 +139,26 @@
         <echo message="[purity] forbidden Swing window-system jar(s) in the distribution: ${packaging.violations}"/>
     </target>
 
-    <target name="check-purity" depends="check-sources,check-java-source,check-dependencies,check-jars,check-packaging">
-        <fail message="[purity] ${src.violations} forbidden import(s), ${dep.violations} forbidden dependency(ies), ${jar.violations} forbidden bundled-class violation(s) and ${packaging.violations} forbidden window-system jar(s) found under the nbfx clusters;">
+    <target name="check-naming">
+        <exec executable="${java.home}/bin/java" failonerror="false" dir="${basedir}" resultproperty="naming.result">
+            <arg value="nbfx-tests/tools/NamingGuard.java"/>
+            <arg value="${basedir}"/>
+        </exec>
+        <condition property="naming.violations" value="1" else="0">
+            <not><equals arg1="${naming.result}" arg2="0"/></not>
+        </condition>
+        <echo message="[purity] naming violations: ${naming.violations}"/>
+    </target>
+
+    <target name="check-purity" depends="check-sources,check-java-source,check-naming,check-dependencies,check-jars,check-packaging">
+        <fail message="[purity] ${src.violations} forbidden import(s), ${dep.violations} forbidden dependency(ies), ${naming.violations} naming violation(s), ${jar.violations} forbidden bundled-class violation(s) and ${packaging.violations} forbidden window-system jar(s) found under the nbfx clusters;">
             <condition>
                 <and>
                     <equals arg1="${nbfx.purity.strict}" arg2="true"/>
                     <or>
                         <not><equals arg1="${src.violations}" arg2="0"/></not>
                         <not><equals arg1="${dep.violations}" arg2="0"/></not>
+                        <not><equals arg1="${naming.violations}" arg2="0"/></not>
                         <not><equals arg1="${jar.violations}" arg2="0"/></not>
                         <not><equals arg1="${packaging.violations}" arg2="0"/></not>
                     </or>

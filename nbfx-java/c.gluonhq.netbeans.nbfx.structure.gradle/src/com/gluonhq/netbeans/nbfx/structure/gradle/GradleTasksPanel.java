@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.structure.gradle;
 
-import com.gluonhq.netbeans.nbfx.structure.FxStructurePanel;
+import com.gluonhq.netbeans.nbfx.structure.StructurePanel;
 import com.gluonhq.netbeans.nbfx.structure.ScanningPanel;
 import com.gluonhq.netbeans.nbfx.structure.TrackedStructurePanel;
 import org.openide.util.NbBundle;
@@ -28,7 +28,7 @@ import org.openide.util.lookup.ServiceProvider;
  * The <em>Related tasks</em> panel of the Navigator window for Gradle build scripts, after
  * NetBeans' {@code TasksNavigatorPanel}: the tasks of the script's project, by group.
  */
-@ServiceProvider(service = FxStructurePanel.class, position = 100)
+@ServiceProvider(service = StructurePanel.class, position = 100)
 public final class GradleTasksPanel extends TrackedStructurePanel<GradleTasksUI.Result> {
 
     /** The MIME type NetBeans gives a Groovy build script ({@code build.gradle}). */

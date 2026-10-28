@@ -13,8 +13,8 @@ Every number the plan states is derived here from the tree. Regenerate with
 | modules with `arch.xml` | 18 |
 | modules with `apichanges.xml` | 9 |
 | distinct `OpenIDE-Module-Specification-Version` values | 1: 1.0 |
-| public `Fx*` types (total) | 28 |
-| public `Fx*` types in exporting modules | 24 |
+| public `Fx*` types (total) | 4 |
+| public `Fx*` types in exporting modules | 0 |
 | files constructing TreeView/TreeTableView/TableView/ListView | 24 |
 | files mentioning a TreeView/TreeTableView/TableView/ListView | 32 |
 | `.subscribe(` call sites | 134 |

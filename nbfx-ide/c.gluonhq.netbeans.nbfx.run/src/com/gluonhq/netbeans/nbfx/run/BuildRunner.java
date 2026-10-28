@@ -19,8 +19,8 @@
 package com.gluonhq.netbeans.nbfx.run;
 
 import com.gluonhq.netbeans.nbfx.api.progress.Progress;
-import com.gluonhq.netbeans.nbfx.output.FxConsole;
-import com.gluonhq.netbeans.nbfx.output.FxOutput;
+import com.gluonhq.netbeans.nbfx.output.ConsolePanel;
+import com.gluonhq.netbeans.nbfx.output.OutputConsole;
 import com.gluonhq.netbeans.nbfx.project.ui.api.BuildActionProvider;
 import com.gluonhq.netbeans.nbfx.project.ui.api.BuildExecution;
 import com.gluonhq.netbeans.nbfx.project.ui.api.BuildOutput;
@@ -73,12 +73,12 @@ public final class BuildRunner {
         if (dir == null) {
             return;
         }
-        FxOutput output = Lookup.getDefault().lookup(FxOutput.class);
+        OutputConsole output = Lookup.getDefault().lookup(OutputConsole.class);
         if (output == null) {
-            LOG.warning("No FxOutput service; build output cannot be shown");
+            LOG.warning("No OutputConsole service; build output cannot be shown");
             return;
         }
-        FxConsole console = output.console(consoleName);
+        ConsolePanel console = output.console(consoleName);
         console.clear();
         console.show();
         Progress progress = Lookup.getDefault().lookup(Progress.class);
@@ -96,12 +96,12 @@ public final class BuildRunner {
         if (dir == null) {
             return;
         }
-        FxOutput output = Lookup.getDefault().lookup(FxOutput.class);
+        OutputConsole output = Lookup.getDefault().lookup(OutputConsole.class);
         if (output == null) {
-            LOG.warning("No FxOutput service; build output cannot be shown");
+            LOG.warning("No OutputConsole service; build output cannot be shown");
             return;
         }
-        FxConsole console = output.console(consoleName);
+        ConsolePanel console = output.console(consoleName);
         console.clear();
         console.show();
 
@@ -126,7 +126,7 @@ public final class BuildRunner {
     }
 
     /** The CLI fallback: detect the tool from marker files and run it as a process. */
-    private static void runCli(Path dir, String command, String consoleName, FxConsole console, Progress progress) {
+    private static void runCli(Path dir, String command, String consoleName, ConsolePanel console, Progress progress) {
         List<String> commandLine = BuildTool.detect(dir).commandLine(dir, command);
         if (commandLine == null) {
             BuildActionProvider provider = BuildActions.providerFor(dir);
@@ -153,7 +153,7 @@ public final class BuildRunner {
         });
     }
 
-    private static BuildOutput output(FxConsole console) {
+    private static BuildOutput output(ConsolePanel console) {
         return new BuildOutput() {
             @Override
             public void clear() {

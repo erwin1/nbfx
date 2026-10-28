@@ -32,7 +32,7 @@ import java.util.Objects;
  * @since 1.0
  */
 public record OptionsPanelEntry(String id, String displayName, String category, int position,
-        FxOptionsPanel panel) {
+        OptionsPanelHost panel) {
 
     public OptionsPanelEntry {
         Objects.requireNonNull(id, "id");

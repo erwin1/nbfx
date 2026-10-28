@@ -10,16 +10,16 @@ import org.openide.util.lookup.ServiceProvider;
  * Contributes a read-only "General" property set for an {@link EditorDocument}: its title, backing
  * file, modified state and owning project.
  */
-@ServiceProvider(service = FxPropertiesProvider.class)
-public final class EditorDocumentPropertiesProvider implements FxPropertiesProvider {
+@ServiceProvider(service = PropertiesProvider.class)
+public final class EditorDocumentPropertiesProvider implements PropertiesProvider {
 
     @Override
-    public List<FxPropertySet> getPropertySets(Object context) {
+    public List<PropertySet> getPropertySets(Object context) {
         if (!(context instanceof EditorDocument document)) {
             return List.of();
         }
         String project = document.getProjectPath();
-        List<FxProperty> properties = new ArrayList<>();
+        List<Property> properties = new ArrayList<>();
         properties.add(readOnly("title", message("EditorDocumentPropertiesProvider.title"),
                 document.getTitle()));
         properties.add(readOnly("file", message("EditorDocumentPropertiesProvider.file"),
@@ -34,7 +34,7 @@ public final class EditorDocumentPropertiesProvider implements FxPropertiesProvi
                 message("EditorDocumentPropertiesProvider.general"), properties));
     }
 
-    private static FxProperty readOnly(String name, String displayName, Object value) {
+    private static Property readOnly(String name, String displayName, Object value) {
         return new SimpleFxProperty(name, displayName, null, String.class, value, false, false, value);
     }
 

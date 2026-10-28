@@ -24,7 +24,7 @@ import com.gluonhq.netbeans.nbfx.api.actions.ActionContext;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
 import com.gluonhq.netbeans.nbfx.api.project.OpenProject;
 import com.gluonhq.netbeans.nbfx.project.context.ProjectContext;
-import com.gluonhq.netbeans.nbfx.statusbar.FxStatusElement;
+import com.gluonhq.netbeans.nbfx.statusbar.StatusElementHolder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ import org.openide.util.RequestProcessor;
  * background thread.
  */
 @StatusRegistration(id = "vcs.branch", alignment = StatusAlignment.RIGHT, position = 100)
-public final class GitBranchStatusElement implements FxStatusElement {
+public final class GitBranchStatusElement implements StatusElementHolder {
 
     private static final RequestProcessor RP = new RequestProcessor("nbfx-git-branch", 1, true, true);
 

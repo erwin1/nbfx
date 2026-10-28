@@ -31,7 +31,7 @@ import org.openide.filesystems.FileObject;
  * @param <R> the result of the panel's scan
  * @since 1.0
  */
-public abstract class TrackedStructurePanel<R> implements FxStructurePanel {
+public abstract class TrackedStructurePanel<R> implements StructurePanel {
 
     private ScanningPanel<R> ui;
     private DocumentTracker<R> tracker;

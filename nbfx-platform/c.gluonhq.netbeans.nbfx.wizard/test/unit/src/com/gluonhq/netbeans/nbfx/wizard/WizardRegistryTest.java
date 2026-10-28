@@ -70,8 +70,8 @@ public class WizardRegistryTest {
         return FileUtil.createFolder(fs.getRoot(), "NbFx/Wizards");
     }
 
-    private static FxWizard wizard(String id) {
-        return new FxWizard() {
+    private static Wizard wizard(String id) {
+        return new Wizard() {
             @Override
             public String getId() {
                 return id;
@@ -83,7 +83,7 @@ public class WizardRegistryTest {
             }
 
             @Override
-            public List<FxWizardPanel> getPages() {
+            public List<WizardPanelHost> getPages() {
                 return List.of();
             }
 

@@ -1,5 +1,5 @@
 package com.gluonhq.netbeans.nbfx.project.ui.ant;
-import com.gluonhq.netbeans.nbfx.project.customizer.FxProjectCustomizerPanel;
+import com.gluonhq.netbeans.nbfx.project.customizer.CustomizerPanel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,7 @@ import org.openide.util.lookup.ServiceProvider;
  * The Ant / NetBeans-module "API Versioning" category: the public packages, stored in
  * {@code nbproject/project.xml}.
  */
-@ServiceProvider(service = FxProjectCustomizerPanel.class)
+@ServiceProvider(service = CustomizerPanel.class)
 public final class AntVersioningCustomizerPanel extends AntModuleCustomizerPanel {
 
     private TextArea publicPackages;

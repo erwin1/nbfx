@@ -5,8 +5,8 @@ import javafx.scene.control.TextField;
 import org.openide.util.lookup.ServiceProvider;
 
 /** The editor for {@link String} values. */
-@ServiceProvider(service = FxPropertyEditor.class)
-public final class TextPropertyEditor implements FxPropertyEditor {
+@ServiceProvider(service = PropertyEditor.class)
+public final class TextPropertyEditor implements PropertyEditor {
 
     @Override
     public Class<?> valueType() {
@@ -14,8 +14,8 @@ public final class TextPropertyEditor implements FxPropertyEditor {
     }
 
     @Override
-    public Node createEditor(FxProperty property) {
-        TextField field = new TextField(FxPropertyEditors.display(property.getValue()));
+    public Node createEditor(Property property) {
+        TextField field = new TextField(PropertyEditors.display(property.getValue()));
         field.setEditable(property.isWritable());
         field.textProperty().addListener((observable, old, now) -> {
             if (property.isWritable()) {

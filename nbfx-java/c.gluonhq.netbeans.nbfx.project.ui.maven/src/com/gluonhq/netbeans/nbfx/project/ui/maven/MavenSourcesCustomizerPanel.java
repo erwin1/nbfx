@@ -1,6 +1,6 @@
 package com.gluonhq.netbeans.nbfx.project.ui.maven;
 
-import com.gluonhq.netbeans.nbfx.project.customizer.FxProjectCustomizerPanel;
+import com.gluonhq.netbeans.nbfx.project.customizer.CustomizerPanel;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -15,8 +15,8 @@ import org.openide.util.lookup.ServiceProvider;
 /**
  * The Maven "Sources" category: the POM's {@code <build>} source and test-source directories.
  */
-@ServiceProvider(service = FxProjectCustomizerPanel.class)
-public final class MavenSourcesCustomizerPanel implements FxProjectCustomizerPanel {
+@ServiceProvider(service = CustomizerPanel.class)
+public final class MavenSourcesCustomizerPanel implements CustomizerPanel {
 
     private TextField sourceDirectory;
     private TextField testSourceDirectory;

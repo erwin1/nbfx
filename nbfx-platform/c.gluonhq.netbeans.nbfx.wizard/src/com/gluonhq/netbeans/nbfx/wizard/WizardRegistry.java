@@ -29,7 +29,7 @@ import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
 /**
- * Discovers the {@link FxWizard}s registered under {@code NbFx/Wizards} in the module layer.
+ * Discovers the {@link Wizard}s registered under {@code NbFx/Wizards} in the module layer.
  *
  * @since 1.0
  */
@@ -49,11 +49,11 @@ public final class WizardRegistry {
     public static List<WizardEntry> discover() {
         Lookup lookup = Lookups.forPath(LayerPaths.WIZARDS);
         FileObject folder = FileUtil.getConfigFile(LayerPaths.WIZARDS);
-        return read(folder, lookup.lookupAll(FxWizard.class));
+        return read(folder, lookup.lookupAll(Wizard.class));
     }
 
     /** The registered wizard with {@code id}, or {@code null} if none. */
-    public static FxWizard find(String id) {
+    public static Wizard find(String id) {
         return discover().stream()
                 .filter(registration -> registration.id().equals(id))
                 .map(WizardEntry::wizard)
@@ -62,9 +62,9 @@ public final class WizardRegistry {
     }
 
     /** Reads the registrations of {@code wizards}, taking metadata from {@code folder}'s attributes. */
-    static List<WizardEntry> read(FileObject folder, Iterable<? extends FxWizard> wizards) {
+    static List<WizardEntry> read(FileObject folder, Iterable<? extends Wizard> wizards) {
         List<WizardEntry> registrations = new ArrayList<>();
-        for (FxWizard wizard : wizards) {
+        for (Wizard wizard : wizards) {
             String id = wizard.getId();
             FileObject file = folder == null ? null : folder.getFileObject(id, "instance");
             String displayName = stringAttribute(file, "displayName", wizard.getDisplayName());

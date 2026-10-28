@@ -19,7 +19,7 @@
 package com.gluonhq.netbeans.nbfx.ui.shell;
 
 import com.gluonhq.netbeans.nbfx.api.editor.CaretInfo;
-import com.gluonhq.netbeans.nbfx.statusbar.FxStatusElement;
+import com.gluonhq.netbeans.nbfx.statusbar.StatusElementHolder;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -34,7 +34,7 @@ import org.openide.util.NbBundle;
  * Shows the caret position of the document being edited. Created and driven by the main window; not
  * an exported API.
  */
-public final class CaretStatusElement implements FxStatusElement {
+public final class CaretStatusElement implements StatusElementHolder {
 
     private final Label caretPosition = new Label();
     private final HBox group;
