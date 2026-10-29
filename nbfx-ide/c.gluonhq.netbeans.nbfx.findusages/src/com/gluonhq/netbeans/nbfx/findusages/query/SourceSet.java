@@ -22,7 +22,9 @@ import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.classpath.GlobalPathRegistry;
 import org.netbeans.api.java.source.ClasspathInfo;
 import org.netbeans.api.java.source.CompilationInfo;
+import com.gluonhq.netbeans.nbfx.findusages.query.MemorySources;
 import org.netbeans.api.java.source.JavaSource;
+
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;

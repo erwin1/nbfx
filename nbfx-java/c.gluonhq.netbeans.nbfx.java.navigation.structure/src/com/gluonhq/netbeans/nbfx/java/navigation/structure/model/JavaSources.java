@@ -18,6 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.java.navigation.structure.model;
 
+import com.gluonhq.netbeans.nbfx.java.model.InMemorySources;
 import java.io.IOException;
 import org.netbeans.api.java.source.ClasspathInfo;
 import org.netbeans.api.java.source.JavaSource;
@@ -38,7 +39,7 @@ record JavaSources(ClasspathInfo classpath, JavaSource source) {
     /** The compilation of {@code text} as the content of {@code file}, or {@code null} when none can be made. */
     static JavaSources of(FileObject file, String text) throws IOException {
         ClasspathInfo classpath = ClasspathInfo.create(file);
-        JavaSource source = JavaSource.create(classpath, MemorySources.copyOf(file, text));
+        JavaSource source = JavaSource.create(classpath, InMemorySources.copyOf(file, text));
         return source == null ? null : new JavaSources(classpath, source);
     }
 

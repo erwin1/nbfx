@@ -18,6 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.java.navigation.structure.model;
 
+import com.gluonhq.netbeans.nbfx.java.model.InMemorySources;
 import com.gluonhq.netbeans.nbfx.api.progress.Cancellation;
 import com.gluonhq.netbeans.nbfx.api.elements.SourceModifiers;
 import com.gluonhq.netbeans.nbfx.java.navigation.structure.model.MemberNode.Segment;
@@ -147,7 +148,7 @@ public final class MembersScanner {
             boolean atName) throws IOException {
         JavaSource source = text == null
                 ? JavaSource.forFileObject(file)
-                : JavaSource.create(ClasspathInfo.create(file), MemorySources.copyOf(file, text));
+                : JavaSource.create(ClasspathInfo.create(file), InMemorySources.copyOf(file, text));
         if (source == null) {
             return -1;
         }

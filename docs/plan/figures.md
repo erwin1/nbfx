@@ -6,10 +6,10 @@ Every number the plan states is derived here from the tree. Regenerate with
 
 | Figure | Value |
 |---|---|
-| nbfx modules | 50 |
+| nbfx modules | 51 |
 | nbfx source files | 585 |
-| modules exporting packages (`<public-packages>`) | 39 |
-| of those, subtree exports (`<subpackages>`) | 22 |
+| modules exporting packages (`<public-packages>`) | 40 |
+| of those, subtree exports (`<subpackages>`) | 23 |
 | modules with `arch.xml` | 19 |
 | modules with `apichanges.xml` | 9 |
 | distinct `OpenIDE-Module-Specification-Version` values | 1: 1.0 |
@@ -21,11 +21,11 @@ Every number the plan states is derived here from the tree. Regenerate with
 | files mentioning `dispose()` | 22 |
 | modules importing `org.netbeans.api.java.source` | 4: c.gluonhq.netbeans.nbfx.editor, c.gluonhq.netbeans.nbfx.findusages, c.gluonhq.netbeans.nbfx.java.navigation, c.gluonhq.netbeans.nbfx.java.navigation.structure |
 | files importing `org.netbeans.api.java.source` | 43 |
-| files touching the Java semantic surface (`java.source`, `api.java.*`, `com.sun.source`, `libs.javacapi`) | 62 |
+| files touching the Java semantic surface (`java.source`, `api.java.*`, `com.sun.source`, `libs.javacapi`) | 61 |
 | files using `NbBundle` | 152 |
-| `Bundle.properties` files | 56 |
+| `Bundle.properties` files | 57 |
 | test files | 33 |
-| modules with tests | 24 of 50 |
+| modules with tests | 24 of 51 |
 | upstream editor/Java modules (ide/editor*, java/java.source*, java.java.hints*) | 50 |
 | of their source files, Swing/AWT-touching | 847 of 1647 |
 | upstream modules depending on `org.openide.nodes` | 388 |

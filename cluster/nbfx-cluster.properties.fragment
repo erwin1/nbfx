@@ -102,5 +102,6 @@ nb.cluster.nbfx-java=\
         c.gluonhq.netbeans.nbfx.java.j2seproject,\
         c.gluonhq.netbeans.nbfx.java.maven,\
         c.gluonhq.netbeans.nbfx.java.maven.structure,\
+        c.gluonhq.netbeans.nbfx.java.model,\
         c.gluonhq.netbeans.nbfx.java.navigation,\
         c.gluonhq.netbeans.nbfx.java.navigation.structure

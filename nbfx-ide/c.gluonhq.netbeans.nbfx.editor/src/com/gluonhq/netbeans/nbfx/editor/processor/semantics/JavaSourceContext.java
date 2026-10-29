@@ -15,6 +15,8 @@ import org.netbeans.api.lexer.InputAttributes;
 import org.netbeans.api.lexer.Language;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.openide.filesystems.FileObject;
+import org.openide.util.Lookup;
+import com.gluonhq.netbeans.nbfx.api.editor.InMemorySourceFactory;
 
 /**
  * A {@link SourceContext} for Java sources that adds the semantic artifacts on top of
@@ -87,8 +89,12 @@ public final class JavaSourceContext extends SourceContext {
             return null;
         }
         if (javaSource == null) {
+            InMemorySourceFactory factory = inMemorySourceFactory();
+            if (factory == null) {
+                return null;
+            }
             try {
-                inMemoryFo = InMemoryFileSystem.createFileObject(fileObject(), source);
+                inMemoryFo = factory.copy(fileObject(), source);
                 javaSource = JavaSource.create(cpInfo, inMemoryFo);
             } catch (IOException ex) {
                 LOG.log(Level.WARNING, "Could not create in-memory JavaSource", ex);
@@ -166,4 +172,13 @@ public final class JavaSourceContext extends SourceContext {
         }
         return true;
     }
+
+    private static InMemorySourceFactory inMemorySourceFactory() {
+        InMemorySourceFactory factory = Lookup.getDefault().lookup(InMemorySourceFactory.class);
+        if (factory == null) {
+            LOG.warning("No InMemorySourceFactory available; semantic analysis is disabled");
+        }
+        return factory;
+    }
+
 }
