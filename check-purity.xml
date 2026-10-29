@@ -70,10 +70,10 @@
     <target name="check-dependencies">
         <resourcecount property="dep.violations">
             <fileset dir="${basedir}" includes="${nbfx.deps.pattern}">
-                <!-- The UI module still bridges open/close to the platform via
+                <!-- The project module still bridges open/close to the platform via
                      OpenProjects (projectuiapi.base); to be replaced by the nbfx-native project
                      model in the project-consolidation slice. -->
-                <exclude name="nbfx-ide/c.gluonhq.netbeans.nbfx.ui/nbproject/project.xml"/>
+                <exclude name="nbfx-ide/c.gluonhq.netbeans.nbfx.project/nbproject/project.xml"/>
                 <or>
                     <contains text="org.openide.awt"/>
                     <contains text="org.openide.nodes"/>

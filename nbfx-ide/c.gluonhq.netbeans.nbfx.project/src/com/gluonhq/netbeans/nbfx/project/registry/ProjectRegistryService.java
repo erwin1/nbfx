@@ -1,4 +1,4 @@
-package com.gluonhq.netbeans.nbfx.ui.project;
+package com.gluonhq.netbeans.nbfx.project.registry;
 
 import com.gluonhq.netbeans.nbfx.api.project.OpenProject;
 import com.gluonhq.netbeans.nbfx.api.project.ProjectRegistry;

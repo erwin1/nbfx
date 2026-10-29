@@ -7,7 +7,7 @@ import com.gluonhq.netbeans.nbfx.ui.context.FileSelectionContextService;
 import com.gluonhq.netbeans.nbfx.ui.context.ActiveComponentContextService;
 import com.gluonhq.netbeans.nbfx.ui.project.FileSystemRefresher;
 import com.gluonhq.netbeans.nbfx.ui.project.ProjectLoads;
-import com.gluonhq.netbeans.nbfx.ui.project.ProjectRegistryService;
+import com.gluonhq.netbeans.nbfx.project.registry.ProjectRegistryService;
 import com.gluonhq.netbeans.nbfx.ui.project.ProjectRootWatcher;
 import com.gluonhq.netbeans.nbfx.ui.project.ProjectSwitcher;
 import com.gluonhq.netbeans.nbfx.ui.session.AppState;
