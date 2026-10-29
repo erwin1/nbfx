@@ -70,10 +70,9 @@
     <target name="check-dependencies">
         <resourcecount property="dep.violations">
             <fileset dir="${basedir}" includes="${nbfx.deps.pattern}">
-                <!-- The launcher and the UI module still bridge open/close to the platform via
+                <!-- The UI module still bridges open/close to the platform via
                      OpenProjects (projectuiapi.base); to be replaced by the nbfx-native project
-                     model. The launcher depends on the whole application to pull it in. -->
-                <exclude name="nbfx-ide/c.gluonhq.netbeans.nbfx.launcher/nbproject/project.xml"/>
+                     model in the project-consolidation slice. -->
                 <exclude name="nbfx-ide/c.gluonhq.netbeans.nbfx.ui/nbproject/project.xml"/>
                 <or>
                     <contains text="org.openide.awt"/>
