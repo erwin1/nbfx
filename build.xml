@@ -481,8 +481,11 @@ nbfx-java
         <property name="nbfx.dist.noimport.classes" location="${nbfx.build.dir}/noimport/classes"/>
         <delete dir="${nbfx.dist.noimport.classes}" quiet="true"/>
         <mkdir dir="${nbfx.dist.noimport.classes}"/>
+        <!-- release 17, as core.startup that loads it: on an older JDK than nbfx needs, a class it
+             cannot load makes core.startup exit without a word; NoImport loads and says which JDK
+             was found and how to pick another -->
         <javac srcdir="${basedir}/release/launcher/src" destdir="${nbfx.dist.noimport.classes}"
-               release="25" includeantruntime="false" encoding="UTF-8"/>
+               release="17" includeantruntime="false" encoding="UTF-8"/>
         <jar destfile="${nbfx.sub.dir}/nbbuild/netbeans/nbfx-platform/core/nbfx-noimport.jar"
              basedir="${nbfx.dist.noimport.classes}"/>
         <replaceregexp file="${nbfx.sub.dir}/nbbuild/netbeans/etc/netbeans.conf" byline="true"
