@@ -1,5 +1,5 @@
 diff --git a/nbbuild/build.properties b/nbbuild/build.properties
-index 692f477ba5..4cfd85548a 100644
+index 2311f404f1..75dfcaec0b 100644
 --- a/nbbuild/build.properties
 +++ b/nbbuild/build.properties
 @@ -73,7 +73,8 @@ test.unit.cp=\
@@ -12,3 +12,11 @@ index 692f477ba5..4cfd85548a 100644
  
  # List of modules that provide stable javadoc
  config.javadoc.stable=\
+@@ -183,7 +184,6 @@ config.javadoc.forwarded.devel=\
+ # List of javadocs under development
+ config.javadoc.devel=\
+     junit,\
+-    core.multitabs,\
+     core.netigso,\
+     gradle,\
+     gradle.java,\

@@ -107,7 +107,7 @@ hooks.
 | `0001-friend-core-startup` | `platform/core.startup/nbproject/project.xml` | `<friend>com.gluonhq.netbeans.nbfx.launcher</friend>` (RunLevel SPI) |
 | `0002-friend-maven` | `java/maven/nbproject/project.xml` | `<friend>` for `com.gluonhq.netbeans.nbfx.project.ui.maven` and `com.gluonhq.netbeans.nbfx.structure.maven` |
 | `0003-friend-maven-embedder` | `java/maven.embedder/nbproject/project.xml` | `<friend>` for `com.gluonhq.netbeans.nbfx.project.ui.maven` and `com.gluonhq.netbeans.nbfx.structure.maven` |
-| `0010-launcher-clusters` | `nb/ide.launcher/netbeans.clusters` | add `nbfx-platform`, `nbfx-ide`, `nbfx-java` |
+| `0010-launcher-clusters` | `nb/ide.launcher/netbeans.clusters` | add `nbfx-libs`, `nbfx-api`, `nbfx-platform`, `nbfx-ide`, `nbfx-java` |
 | `0011-tryme-clusters` | `nbbuild/build.xml` | `tryme` passes `--clusters` from `clusters.config.nbfx.list` + JMS flags |
 | `0012-ignored-binaries` | `nbbuild/antsrc/…/extlibs/ignored-binaries` | allow the bundled JavaFX jars **and native libs** |
 | `0013-rat-exclusions` | `nbbuild/rat-exclusions.txt` | exclude the nbfx dirs from Rat |
