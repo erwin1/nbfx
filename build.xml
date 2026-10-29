@@ -193,13 +193,35 @@
         </condition>
     </target>
 
+    <!-- Git for Windows defaults break the fresh clone: the 260-character path limit refuses some
+         NetBeans test fixtures (core.longpaths), and core.autocrlf=true checks the submodule's XML
+         files out as CRLF (upstream pins eol=lf for Java/properties, not for XML), which the LF patch
+         set then no longer matches. Clone with LF + long paths and persist both in the submodule's
+         own config, so the later checkout/clean/apply steps see the same tree on every OS. -->
     <target name="-submodule-init" depends="-submodule-present,-submodule-fetch" unless="nbfx.submodule.present">
         <exec executable="git" dir="${basedir}" failonerror="true">
+            <arg value="-c"/><arg value="core.longpaths=true"/>
+            <arg value="-c"/><arg value="core.autocrlf=false"/>
+            <arg value="-c"/><arg value="core.eol=lf"/>
             <arg value="submodule"/>
             <arg value="update"/>
             <arg value="--init"/>
         </exec>
+        <nbfx-submodule-config key="core.longpaths" value="true"/>
+        <nbfx-submodule-config key="core.autocrlf" value="false"/>
+        <nbfx-submodule-config key="core.eol" value="lf"/>
     </target>
+
+    <macrodef name="nbfx-submodule-config">
+        <attribute name="dir" default="${nbfx.sub.dir}"/>
+        <attribute name="key"/>
+        <attribute name="value"/>
+        <sequential>
+            <exec executable="git" dir="@{dir}" failonerror="true">
+                <arg value="config"/><arg value="@{key}"/><arg value="@{value}"/>
+            </exec>
+        </sequential>
+    </macrodef>
 
     <target name="-submodule-fetch" if="nbfx.submodule.fetch">
         <echo message="[nbfx] no git checkout: fetching ${nbfx.submodule.url} @ ${nbfx.submodule.commit}"/>
@@ -211,6 +233,10 @@
         <exec executable="git" dir="${nbfx.sub.fetch.dir}" failonerror="true">
             <arg line="init --quiet"/>
         </exec>
+        <!-- the same LF + long-path settings as a cloned submodule (-submodule-init) -->
+        <nbfx-submodule-config dir="${nbfx.sub.fetch.dir}" key="core.longpaths" value="true"/>
+        <nbfx-submodule-config dir="${nbfx.sub.fetch.dir}" key="core.autocrlf" value="false"/>
+        <nbfx-submodule-config dir="${nbfx.sub.fetch.dir}" key="core.eol" value="lf"/>
         <exec executable="git" dir="${nbfx.sub.fetch.dir}" failonerror="true">
             <arg line="fetch --quiet --depth 1 ${nbfx.submodule.url} ${nbfx.submodule.commit}"/>
         </exec>

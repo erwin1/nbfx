@@ -17,3 +17,7 @@
 
 # Kept out of the source release (git archive, see release/release.xml)
 .github export-ignore
+
+# The upstream patch set is applied with `git apply`, which matches context lines byte for byte
+# against the (LF) NetBeans sources: never convert the patches' line endings on checkout.
+*.patch -text

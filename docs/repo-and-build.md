@@ -117,6 +117,11 @@ Patch hygiene: the submodule is pinned; `ant patches` applies with `git apply --
 revision. `ant patches-check` verifies every patch still applies, and `ant update-upstream` bumps the
 revision and re-applies. `-Dforce.patches=true` forces re-application.
 
+The patches are LF and must stay byte-exact (`.gitattributes`: `*.patch -text`); `git apply` matches
+their context lines literally. After changing a patch that is already applied locally, reset the
+submodule before the next build (`git -C netbeans reset --hard`): `-patches-apply` cannot move an
+already-patched file from the old to the new version of a patch and leaves it unmerged.
+
 ## 5. Build commands
 
 ```sh
@@ -141,6 +146,32 @@ be overridden with `-Dname=value` (e.g. `-Dnbfx.overlay=symlink`).
 `build` and `run` depend on `bootstrap`, so they re-run the overlay first: edits in the outer
 `nbfx-platform/`, `nbfx-ide/` and `nbfx-java/` directories are synced into `netbeans/` automatically on
 every build. `run` does not depend on `build`: it launches whatever is in the dist.
+
+### Windows
+
+A fresh clone needs nothing configured: `-submodule-init` clones the submodule with
+`core.longpaths=true` (NetBeans has test fixtures beyond the 260-character path limit),
+`core.autocrlf=false` and `core.eol=lf` (upstream pins `eol=lf` for Java and properties files but not
+for XML, and the patch set matches LF context), and persists the three in the submodule's config; the
+outer `.gitattributes` keeps `patches/*.patch` unconverted. The committed overlay default (`sync`) copies
+the clusters into the submodule.
+
+A clone made before these settings existed is fixed once, from the repository root:
+
+```bat
+git config core.autocrlf false
+del patches\*.patch
+git checkout -- patches
+git -C netbeans config core.longpaths true
+git -C netbeans config core.autocrlf false
+git -C netbeans config core.eol lf
+git -C netbeans rm --cached -r -q .
+git -C netbeans reset --hard -q
+ant bootstrap
+```
+
+A submodule clone that stopped with `Filename too long` is incomplete and has to go first:
+`git submodule deinit -f netbeans`, then delete `netbeans\` and `.git\modules\netbeans`.
 
 ### Fast loop: one module
 
