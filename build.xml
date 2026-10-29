@@ -513,7 +513,32 @@ nbfx-java
         </sync>
     </target>
 
-    <target name="bootstrap" depends="submodule,patches,cluster-config,-prune-excluded,javafx-fetch,overlay"
+    <target name="-nbbuild-gitinfo" depends="submodule"
+            description="Write the branch and hash nbbuild stamps into the build">
+        <!-- nbbuild looks for .git/HEAD from nbbuild/ upwards; in a submodule .git is a file, so it
+             reads this repository's branch. A name starting with "release" is then taken for an
+             Apache release branch and fails the build ("No Release Information found for branch"),
+             and nbbuild caches what it found in nbbuild/build/gitinfo.properties, so a later build
+             keeps the branch and hash of the first one. Write the file on every build instead:
+             a fixed branch (master: upstream's dev branding) and the current commit. -->
+        <property name="nbfx.nbbuild.branch" value="master"/>
+        <exec executable="git" dir="${basedir}" outputproperty="nbfx.nbbuild.hash"
+              failifexecutionfails="false" resultproperty="nbfx.nbbuild.hash.result" errorproperty="nbfx.nbbuild.hash.error">
+            <arg line="rev-parse HEAD"/>
+        </exec>
+        <condition property="nbfx.nbbuild.hash.found">
+            <equals arg1="${nbfx.nbbuild.hash.result}" arg2="0"/>
+        </condition>
+        <mkdir dir="${nbfx.sub.dir}/nbbuild/build"/>
+        <!-- a source release has no .git: the branch only, as upstream writes it without a hash -->
+        <echo unless:set="nbfx.nbbuild.hash.found" file="${nbfx.sub.dir}/nbbuild/build/gitinfo.properties">metabuild.branch=${nbfx.nbbuild.branch}
+</echo>
+        <echo if:set="nbfx.nbbuild.hash.found" file="${nbfx.sub.dir}/nbbuild/build/gitinfo.properties">metabuild.branch=${nbfx.nbbuild.branch}
+metabuild.hash=${nbfx.nbbuild.hash}
+</echo>
+    </target>
+
+    <target name="bootstrap" depends="submodule,patches,cluster-config,-prune-excluded,javafx-fetch,overlay,-nbbuild-gitinfo"
             description="Bring a clean checkout to a buildable state"/>
 
     <target name="build" depends="bootstrap" description="Build the nbfx cluster config">
