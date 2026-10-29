@@ -1,0 +1,73 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+# JDK 25 + a pinned Ant + the external-binaries cache, for the nbfx Ant harness. The cache is
+# restored, and seeded, as ci.yml does it; save it at the end of the job with
+# ./.github/actions/save-build-cache (if: always()). Restore after the NetBeans submodule is
+# checked out where there is one: the key hashes its binaries-list files.
+name: Set up the nbfx build
+description: JDK 25, Ant (checksum-verified) and the external-binaries cache
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: '25'
+
+    - name: Install Ant
+      shell: bash
+      env:
+        ANT_VERSION: 1.10.17
+        ANT_SHA512: a96ca6455ec9af5e702df7d1ed5a2ec1cfb381eac3e9a767ecb6be1706e826941045e8fd7ca663ba101bc47bfa18351f540dd27e9e7af57908ac78e65268eee7
+      run: |
+        cd "$RUNNER_TEMP"
+        curl -sfLO "https://archive.apache.org/dist/ant/binaries/apache-ant-$ANT_VERSION-bin.tar.gz"
+        echo "$ANT_SHA512  apache-ant-$ANT_VERSION-bin.tar.gz" | sha512sum -c -
+        tar xzf "apache-ant-$ANT_VERSION-bin.tar.gz"
+        echo "$RUNNER_TEMP/apache-ant-$ANT_VERSION/bin" >> "$GITHUB_PATH"
+        # as ci.yml: IPv4 and a connect timeout for the external-binaries downloads
+        echo "ANT_OPTS=-Xmx4g -Djava.net.preferIPv4Stack=true -DdownloadBinaries.connectTimeoutMs=30000" >> "$GITHUB_ENV"
+
+    # Apache NetBeans fetches external binaries (jhall, RAT, sigtest, junit, ...) from
+    # netbeans.osuosl.org, and javafx-fetch the OpenJFX SDKs, into ~/.hgexternalcache. As ci.yml:
+    # restore the newest cache for this binaries-list revision (the run id forces a restore-key
+    # lookup); without the submodule the hash is empty and any newer cache of this OS is taken.
+    - name: Restore external binary cache
+      uses: actions/cache/restore@v6
+      with:
+        path: ~/.hgexternalcache
+        key: ${{ runner.os }}-${{ hashFiles('netbeans/**/external/binaries-list') }}-${{ github.run_id }}
+        restore-keys: |
+          ${{ runner.os }}-${{ hashFiles('netbeans/**/external/binaries-list') }}-
+          ${{ runner.os }}-
+
+    # As ci.yml: the platform's only non-Maven external binary; the OSUOSL mirror is not reachable
+    # from GitHub runners, Maven Central hosts the identical jar (same SHA-1).
+    - name: Seed jhall external binary
+      shell: bash
+      run: |
+        cache="${HOME}/.hgexternalcache"
+        jhall="${cache}/CA70822C47A67FC3A11670270567C2D01566DAE1-jhall-2.0_05.jar"
+        mkdir -p "$cache"
+        if [ ! -f "$jhall" ]; then
+          curl --fail --location --retry 5 --retry-all-errors \
+            --output "$jhall" \
+            https://repo.maven.apache.org/maven2/javax/help/javahelp/2.0.05/javahelp-2.0.05.jar
+        fi
+        echo "ca70822c47a67fc3a11670270567c2d01566dae1  ${jhall}" | sha1sum -c -

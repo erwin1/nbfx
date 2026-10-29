@@ -1,11 +1,13 @@
 diff --git a/nb/ide.launcher/netbeans.clusters b/nb/ide.launcher/netbeans.clusters
-index 343c4c8aba..3d5ed0218a 100644
+index 343c4c8aba..cbc3875cef 100644
 --- a/nb/ide.launcher/netbeans.clusters
 +++ b/nb/ide.launcher/netbeans.clusters
-@@ -19,6 +19,9 @@
+@@ -19,6 +19,11 @@
  platform
  # application cluster second
  nb
++nbfx-libs
++nbfx-api
 +nbfx-platform
 +nbfx-ide
 +nbfx-java

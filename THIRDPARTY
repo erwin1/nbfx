@@ -1,0 +1,23 @@
+Third-party components of nbfx
+==============================
+
+The nbfx source release bundles no third-party artefacts. The build downloads
+the component below; the binary zip (nbfx-<version>-bin.zip) has its own
+THIRDPARTY listing exactly the files it bundles. The rules are in
+docs/plan/appendix/G-licences-and-notices.md.
+
+--------------------------------------------------------------------------------
+OpenJFX (JavaFX)
+--------------------------------------------------------------------------------
+Version:   27 (nbfx-libs/c.gluonhq.netbeans.nbfx.libs.javafx/javafx-sdk.properties)
+Licence:   GNU General Public License, version 2, with the Classpath Exception
+Upstream:  https://openjfx.io/ - source: https://github.com/openjdk/jfx
+Download:  the OpenJFX SDK of the platform, https://download2.gluonhq.com/openjfx/,
+           pinned by SHA-256 in javafx-sdk.properties
+Module:    nbfx-libs/c.gluonhq.netbeans.nbfx.libs.javafx
+
+The build bundles javafx.base, javafx.graphics, javafx.controls, javafx.fxml,
+jfx.incubator.richtext and jfx.incubator.input with their native libraries and
+licence texts. javafx.web (WebKit), javafx.media, javafx.swing and javafx-swt
+are NOT bundled. The Windows SDK also brings the Microsoft Visual C++ /
+Universal C runtime DLLs (Microsoft redistributable runtime).

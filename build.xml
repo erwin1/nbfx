@@ -56,6 +56,9 @@
          survive `ant clean` and CI's cache of it covers them -->
     <property name="nbfx.download.cache" location="${user.home}/.hgexternalcache"/>
 
+    <!-- release targets: rat, release-src, release-bin, release-sign, release-verify, release -->
+    <import file="release/release.xml"/>
+
     <!-- list of the cluster dirs, also as ${nbfx.cluster.1}..${nbfx.cluster.N} is not
          available in plain Ant, so the macros below are invoked explicitly. -->
 
@@ -181,6 +184,13 @@
         <condition property="nbfx.submodule.present">
             <available file="${nbfx.sub.dir}/.git"/>
         </condition>
+        <!-- a source release (git archive) has no .git: the pinned revision is fetched instead -->
+        <condition property="nbfx.submodule.fetch">
+            <and>
+                <not><isset property="nbfx.submodule.present"/></not>
+                <not><available file="${basedir}/.git"/></not>
+            </and>
+        </condition>
     </target>
 
     <!-- Git for Windows defaults break the fresh clone: the 260-character path limit refuses some
@@ -188,7 +198,7 @@
          files out as CRLF (upstream pins eol=lf for Java/properties, not for XML), which the LF patch
          set then no longer matches. Clone with LF + long paths and persist both in the submodule's
          own config, so the later checkout/clean/apply steps see the same tree on every OS. -->
-    <target name="-submodule-init" depends="-submodule-present" unless="nbfx.submodule.present">
+    <target name="-submodule-init" depends="-submodule-present,-submodule-fetch" unless="nbfx.submodule.present">
         <exec executable="git" dir="${basedir}" failonerror="true">
             <arg value="-c"/><arg value="core.longpaths=true"/>
             <arg value="-c"/><arg value="core.autocrlf=false"/>
@@ -203,14 +213,41 @@
     </target>
 
     <macrodef name="nbfx-submodule-config">
+        <attribute name="dir" default="${nbfx.sub.dir}"/>
         <attribute name="key"/>
         <attribute name="value"/>
         <sequential>
-            <exec executable="git" dir="${nbfx.sub.dir}" failonerror="true">
+            <exec executable="git" dir="@{dir}" failonerror="true">
                 <arg value="config"/><arg value="@{key}"/><arg value="@{value}"/>
             </exec>
         </sequential>
     </macrodef>
+
+    <target name="-submodule-fetch" if="nbfx.submodule.fetch">
+        <echo message="[nbfx] no git checkout: fetching ${nbfx.submodule.url} @ ${nbfx.submodule.commit}"/>
+        <!-- fetched into a temporary dir that only replaces ${nbfx.sub.dir} when complete: a failed
+             fetch must not leave a .git behind, or later runs would take it for a checkout -->
+        <property name="nbfx.sub.fetch.dir" location="${nbfx.sub.dir}.fetch"/>
+        <delete dir="${nbfx.sub.fetch.dir}" quiet="true"/>
+        <mkdir dir="${nbfx.sub.fetch.dir}"/>
+        <exec executable="git" dir="${nbfx.sub.fetch.dir}" failonerror="true">
+            <arg line="init --quiet"/>
+        </exec>
+        <!-- the same LF + long-path settings as a cloned submodule (-submodule-init) -->
+        <nbfx-submodule-config dir="${nbfx.sub.fetch.dir}" key="core.longpaths" value="true"/>
+        <nbfx-submodule-config dir="${nbfx.sub.fetch.dir}" key="core.autocrlf" value="false"/>
+        <nbfx-submodule-config dir="${nbfx.sub.fetch.dir}" key="core.eol" value="lf"/>
+        <exec executable="git" dir="${nbfx.sub.fetch.dir}" failonerror="true">
+            <arg line="fetch --quiet --depth 1 ${nbfx.submodule.url} ${nbfx.submodule.commit}"/>
+        </exec>
+        <exec executable="git" dir="${nbfx.sub.fetch.dir}" failonerror="true">
+            <arg line="checkout --quiet FETCH_HEAD"/>
+        </exec>
+        <!-- the source release has an empty netbeans/ (the gitlink) -->
+        <delete dir="${nbfx.sub.dir}"/>
+        <move file="${nbfx.sub.fetch.dir}" tofile="${nbfx.sub.dir}"/>
+        <property name="nbfx.submodule.present" value="true"/>
+    </target>
 
     <target name="submodule" depends="-submodule-init"
             description="Check out the pinned netbeans revision (initialises the submodule if needed)">
@@ -265,7 +302,34 @@
     <!-- cluster configuration                                                    -->
     <!-- ======================================================================== -->
 
-    <target name="cluster-config" depends="submodule"
+    <target name="-exclude-init">
+        <!-- ${nbfx.cluster.exclude} (nbfx.properties) as two regex alternations: the module dir
+             names as they appear in cluster.properties (dots escaped), and the same names with
+             dots turned into dashes, which is how they end up in the built jar/config file names
+             (org.netbeans.modules.core.kit -> org-netbeans-modules-core-kit.jar). -->
+        <loadresource property="nbfx.cluster.exclude.re">
+            <string value="${nbfx.cluster.exclude}"/>
+            <filterchain>
+                <tokenfilter>
+                    <deletecharacters chars=" \t"/>
+                    <replacestring from="." to="\."/>
+                    <replacestring from="," to="|"/>
+                </tokenfilter>
+            </filterchain>
+        </loadresource>
+        <loadresource property="nbfx.cluster.exclude.dashed.re">
+            <string value="${nbfx.cluster.exclude}"/>
+            <filterchain>
+                <tokenfilter>
+                    <deletecharacters chars=" \t"/>
+                    <replacestring from="." to="-"/>
+                    <replacestring from="," to="|"/>
+                </tokenfilter>
+            </filterchain>
+        </loadresource>
+    </target>
+
+    <target name="cluster-config" depends="submodule,-exclude-init"
             description="Generate the nbfx cluster configuration and install it into the submodule">
         <mkdir dir="${nbfx.build.dir}"/>
         <!-- The harness reads ${nb_all}/nbbuild/cluster.properties directly in several places
@@ -289,14 +353,17 @@
         <replace file="${nbfx.cluster.file}"
                  token="clusters.config.full.list=\"
                  value="clusters.config.full.list=\&#10;        nb.cluster.nbfx-libs,\&#10;        nb.cluster.nbfx-api,\&#10;        nb.cluster.nbfx-platform,\&#10;        nb.cluster.nbfx-ide,\&#10;        nb.cluster.nbfx-java,\"/>
-        <!-- pure-JavaFX: the Swing window system (core.windows) is dropped from the platform
-             cluster, as in the nbfx source configuration (remove the module + its line ending so
-             the backslash-continued property stays valid) -->
-        <replace file="${nbfx.cluster.file}" token="core.windows,\&#10;" value=""/>
-        <!-- pure-JavaFX: the Swing progress UI (progress.ui) is replaced by the nbfx FX
-             progress worker (com.gluonhq.netbeans.nbfx.progress); drop it from the platform cluster
-             so only the FX environment/worker is registered. -->
-        <replace file="${nbfx.cluster.file}" token="progress.ui,\&#10;" value=""/>
+        <!-- drop the modules listed in ${nbfx.cluster.exclude} (nbfx.properties) from the upstream
+             cluster lists. The lists are backslash-continued, one "        name,\" per line, so an
+             entry is removed together with its line ending; the last entry of a list has no
+             trailing ",\" and is removed together with the continuation of the line before it. -->
+        <replaceregexp file="${nbfx.cluster.file}" flags="gm"
+                       match="^[ \t]*(?:${nbfx.cluster.exclude.re})[ \t]*,\\[ \t]*\r?\n" replace=""/>
+        <replaceregexp file="${nbfx.cluster.file}" flags="gm"
+                       match=",\\[ \t]*\r?\n[ \t]*(?:${nbfx.cluster.exclude.re})[ \t]*$" replace=""/>
+        <!-- a single-entry list (validation.nb.cluster.ide=\ + ide.kit) becomes an empty one -->
+        <replaceregexp file="${nbfx.cluster.file}" flags="gm"
+                       match="=\\[ \t]*\r?\n[ \t]*(?:${nbfx.cluster.exclude.re})[ \t]*$" replace="="/>
         <concat destfile="${nbfx.cluster.file}" append="true" fixlastline="yes">
             <fileset file="${nbfx.fragment}"/>
         </concat>
@@ -377,22 +444,83 @@ nbfx-java
     <!-- main targets                                                             -->
     <!-- ======================================================================== -->
 
-    <target name="-prune-excluded" depends="submodule"
+    <target name="-prune-excluded" depends="submodule,-exclude-init"
             description="Remove previously built jars of modules excluded from the cluster config">
         <!-- Removing a module from the cluster config does not delete its previously built jar, and
-             the launcher loads every module present in the cluster dir. Prune the excluded modules
-             (core.windows, the Swing progress UI) so only the nbfx implementations are loaded. -->
+             the launcher loads (and the release zips) every module present in a cluster dir. Prune
+             the jar, branding jars, module status file and update tracking of every excluded module
+             (${nbfx.cluster.exclude}) so a build dir from before the exclusion matches a clean one. -->
         <delete quiet="true" failonerror="false">
-            <fileset dir="${nbfx.sub.dir}/nbbuild/netbeans" includes="
-                platform/modules/org-netbeans-core-windows*.jar,
-                platform/modules/locale/org-netbeans-core-windows*.jar,
-                platform/config/Modules/org-netbeans-core-windows.xml,
-                platform/update_tracking/org-netbeans-core-windows.xml,
-                platform/modules/org-netbeans-modules-progress-ui*.jar,
-                platform/modules/locale/org-netbeans-modules-progress-ui*.jar,
-                platform/config/Modules/org-netbeans-modules-progress-ui.xml,
-                platform/update_tracking/org-netbeans-modules-progress-ui.xml"/>
+            <fileset dir="${nbfx.sub.dir}/nbbuild/netbeans" erroronmissingdir="false">
+                <filename regex="^[^/\\]+[/\\](modules[/\\][^/\\]+-(?:${nbfx.cluster.exclude.dashed.re})\.jar|modules[/\\]locale[/\\][^/\\]+-(?:${nbfx.cluster.exclude.dashed.re})_[^/\\]+\.jar|config[/\\]Modules[/\\][^/\\]+-(?:${nbfx.cluster.exclude.dashed.re})\.xml|update_tracking[/\\][^/\\]+-(?:${nbfx.cluster.exclude.dashed.re})\.xml)$"/>
+            </fileset>
         </delete>
+    </target>
+
+    <target name="-dist-launcher"
+            description="Adjust the launcher of the built distribution (nbbuild/netbeans) for nbfx">
+        <!-- upstream build-nozip re-copies bin/ and etc/ from nb/ide.launcher on every run, so this
+             must run after the build and before the zip -->
+        <!-- own user/cache dir: upstream's conf points bin/netbeans at ${DEFAULT_USERDIR_ROOT}/dev,
+             the userdir a regular Apache NetBeans dev build uses. Sharing it leaks its Swing
+             window-system state and its persisted module status: nbfx modules once recorded there
+             as disabled stay disabled, and the FX launcher never starts. -->
+        <replaceregexp file="${nbfx.sub.dir}/nbbuild/netbeans/etc/netbeans.conf" byline="true"
+                       match="^(netbeans_default_(user|cache)dir=&quot;\$\{DEFAULT_(USER|CACHE)DIR_ROOT\})/[^/&quot;]+&quot;"
+                       replace="\1/${nbfx.dist.userdir}&quot;"/>
+        <!-- no settings import on first start: both launchers pass
+             -J-Dnetbeans.importclass=org.netbeans.upgrade.AutoUpgrade (a Swing wizard in the nb
+             cluster, which nbfx does not ship). core.startup runs that class on every userdir
+             without var/imported and exits silently when it cannot be loaded. netbeans64.exe has
+             the flag compiled in, so instead of removing it, override it: both launchers put
+             netbeans_default_options after their own flags and the last -D wins. The override
+             names a no-op class (release/launcher), which must be on the startup classpath (the
+             import runs before the module system): core/*.jar of every cluster is. Using the
+             same path on every OS means a test on macOS/Linux covers the Windows launcher too. -->
+        <property name="nbfx.dist.importclass" value="com.gluonhq.netbeans.nbfx.startup.NoImport"/>
+        <property name="nbfx.dist.noimport.classes" location="${nbfx.build.dir}/noimport/classes"/>
+        <delete dir="${nbfx.dist.noimport.classes}" quiet="true"/>
+        <mkdir dir="${nbfx.dist.noimport.classes}"/>
+        <!-- release 17, as core.startup that loads it: on an older JDK than nbfx needs, a class it
+             cannot load makes core.startup exit without a word; NoImport loads and says which JDK
+             was found and how to pick another -->
+        <javac srcdir="${basedir}/release/launcher/src" destdir="${nbfx.dist.noimport.classes}"
+               release="17" includeantruntime="false" encoding="UTF-8"/>
+        <jar destfile="${nbfx.sub.dir}/nbbuild/netbeans/nbfx-platform/core/nbfx-noimport.jar"
+             basedir="${nbfx.dist.noimport.classes}"/>
+        <replaceregexp file="${nbfx.sub.dir}/nbbuild/netbeans/etc/netbeans.conf" byline="true"
+                       match="^(netbeans_default_options=&quot;(?!.*netbeans\.importclass=).*)&quot;\s*$"
+                       replace="\1 -J-Dnetbeans.importclass=${nbfx.dist.importclass}&quot;"/>
+        <!-- bin/netbeans tells the platform cluster apart from the rest with a substring match
+             ("grep -v platform" / "grep platform" on etc/netbeans.clusters), which also throws
+             away nbfx-platform: every nbfx-ide module then fails with "nbfx.api was needed and
+             not found". Match the whole line instead. -->
+        <replace file="${nbfx.sub.dir}/nbbuild/netbeans/bin/netbeans">
+            <replacefilter token="| grep -v platform |" value="| grep -v &quot;^platform$&quot; |"/>
+            <replacefilter token="| grep platform |" value="| grep &quot;^platform$&quot; |"/>
+        </replace>
+        <!-- the edits are silent no-ops when upstream changes the launcher; fail instead of
+             shipping a release that exits on its first start -->
+        <loadfile property="nbfx.dist.launcher" srcFile="${nbfx.sub.dir}/nbbuild/netbeans/bin/netbeans"/>
+        <loadfile property="nbfx.dist.conf" srcFile="${nbfx.sub.dir}/nbbuild/netbeans/etc/netbeans.conf"/>
+        <fail message="bin/netbeans matches 'platform' as a substring; upstream launcher changed, update build.xml:-dist-launcher">
+            <condition>
+                <or>
+                    <contains string="${nbfx.dist.launcher}" substring="grep platform"/>
+                    <contains string="${nbfx.dist.launcher}" substring="grep -v platform"/>
+                </or>
+            </condition>
+        </fail>
+        <fail message="etc/netbeans.conf does not override netbeans.importclass with ${nbfx.dist.importclass}; upstream conf changed, update build.xml:-dist-launcher">
+            <condition>
+                <not><matches string="${nbfx.dist.conf}" pattern="(?m)^netbeans_default_options=&quot;.* -J-Dnetbeans\.importclass=\Q${nbfx.dist.importclass}\E&quot;\s*$"/></not>
+            </condition>
+        </fail>
+        <fail message="etc/netbeans.conf does not use the '${nbfx.dist.userdir}' userdir; upstream conf changed, update build.xml:-dist-launcher">
+            <condition>
+                <not><contains string="${nbfx.dist.conf}" substring="DIR_ROOT}/${nbfx.dist.userdir}&quot;"/></not>
+            </condition>
+        </fail>
     </target>
 
     <target name="javafx-fetch"
@@ -414,7 +542,32 @@ nbfx-java
         </sync>
     </target>
 
-    <target name="bootstrap" depends="submodule,patches,cluster-config,-prune-excluded,javafx-fetch,overlay"
+    <target name="-nbbuild-gitinfo" depends="submodule"
+            description="Write the branch and hash nbbuild stamps into the build">
+        <!-- nbbuild looks for .git/HEAD from nbbuild/ upwards; in a submodule .git is a file, so it
+             reads this repository's branch. A name starting with "release" is then taken for an
+             Apache release branch and fails the build ("No Release Information found for branch"),
+             and nbbuild caches what it found in nbbuild/build/gitinfo.properties, so a later build
+             keeps the branch and hash of the first one. Write the file on every build instead:
+             a fixed branch (master: upstream's dev branding) and the current commit. -->
+        <property name="nbfx.nbbuild.branch" value="master"/>
+        <exec executable="git" dir="${basedir}" outputproperty="nbfx.nbbuild.hash"
+              failifexecutionfails="false" resultproperty="nbfx.nbbuild.hash.result" errorproperty="nbfx.nbbuild.hash.error">
+            <arg line="rev-parse HEAD"/>
+        </exec>
+        <condition property="nbfx.nbbuild.hash.found">
+            <equals arg1="${nbfx.nbbuild.hash.result}" arg2="0"/>
+        </condition>
+        <mkdir dir="${nbfx.sub.dir}/nbbuild/build"/>
+        <!-- a source release has no .git: the branch only, as upstream writes it without a hash -->
+        <echo unless:set="nbfx.nbbuild.hash.found" file="${nbfx.sub.dir}/nbbuild/build/gitinfo.properties">metabuild.branch=${nbfx.nbbuild.branch}
+</echo>
+        <echo if:set="nbfx.nbbuild.hash.found" file="${nbfx.sub.dir}/nbbuild/build/gitinfo.properties">metabuild.branch=${nbfx.nbbuild.branch}
+metabuild.hash=${nbfx.nbbuild.hash}
+</echo>
+    </target>
+
+    <target name="bootstrap" depends="submodule,patches,cluster-config,-prune-excluded,javafx-fetch,overlay,-nbbuild-gitinfo"
             description="Bring a clean checkout to a buildable state"/>
 
     <target name="build" depends="bootstrap" description="Build the nbfx cluster config">
@@ -557,6 +710,16 @@ nbfx build harness — targets:
   update-upstream  fetch a new submodule revision and re-apply patches
   clean            remove overlay + generated files + submodule build outputs
   print-config     print the effective configuration
+
+release (RELEASING.md):
+  rat              licence headers of the sources (Apache Rat)
+  headers          add the missing licence headers (-Ddry.run=true lists them only)
+  release          release-src + release-bin + release-sign + release-verify
+                   -Dnbfx.rc=rc1 -Dnbfx.gpg.key=&lt;fingerprint&gt; (-Dnbfx.release.dryrun=true)
+  release-src      build/release/nbfx-${nbfx.version}-src.tar.gz (git archive of the tag)
+  release-bin      build/release/nbfx-${nbfx.version}-bin.zip (the nbfx cluster config)
+  release-sign     .asc + .sha512 for every artefact
+  release-verify   signatures against KEYS, checksums, licence files, Rat
 
 Override properties on the command line, e.g.
   ant build -Dnbfx.overlay=symlink -Dnbfx.submodule.commit=&lt;sha&gt;
