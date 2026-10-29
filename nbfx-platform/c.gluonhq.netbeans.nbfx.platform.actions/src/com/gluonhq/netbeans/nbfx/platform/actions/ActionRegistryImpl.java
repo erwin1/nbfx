@@ -1,4 +1,4 @@
-package com.gluonhq.netbeans.nbfx.actions;
+package com.gluonhq.netbeans.nbfx.platform.actions;
 
 import com.gluonhq.netbeans.nbfx.api.actions.ActionRegistry;
 import com.gluonhq.netbeans.nbfx.api.actions.Command;

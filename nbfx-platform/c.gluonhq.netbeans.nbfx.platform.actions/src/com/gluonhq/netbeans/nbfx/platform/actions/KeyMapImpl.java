@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.gluonhq.netbeans.nbfx.actions;
+package com.gluonhq.netbeans.nbfx.platform.actions;
 
 import com.gluonhq.netbeans.nbfx.api.actions.KeyMap;
 import java.util.HashMap;

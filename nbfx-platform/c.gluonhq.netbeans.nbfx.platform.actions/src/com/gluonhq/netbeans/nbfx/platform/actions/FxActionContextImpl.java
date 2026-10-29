@@ -1,4 +1,4 @@
-package com.gluonhq.netbeans.nbfx.context;
+package com.gluonhq.netbeans.nbfx.platform.actions;
 
 import com.gluonhq.netbeans.nbfx.api.actions.ActionContext;
 

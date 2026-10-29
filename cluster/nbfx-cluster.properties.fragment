@@ -49,9 +49,8 @@ nb.cluster.nbfx-platform.depends=\
         nb.cluster.platform,\
         nb.cluster.nbfx-api
 nb.cluster.nbfx-platform=\
-        c.gluonhq.netbeans.nbfx.actions,\
-        c.gluonhq.netbeans.nbfx.context,\
         c.gluonhq.netbeans.nbfx.docking,\
+        c.gluonhq.netbeans.nbfx.platform.actions,\
         c.gluonhq.netbeans.nbfx.platform.macos,\
         c.gluonhq.netbeans.nbfx.platform.menus,\
         c.gluonhq.netbeans.nbfx.platform.options,\
