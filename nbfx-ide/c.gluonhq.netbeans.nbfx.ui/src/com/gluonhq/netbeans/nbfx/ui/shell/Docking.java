@@ -2,8 +2,8 @@ package com.gluonhq.netbeans.nbfx.ui.shell;
 
 import com.gluonhq.netbeans.nbfx.api.view.DockLocation;
 import com.gluonhq.netbeans.nbfx.api.view.ViewArea;
-import com.gluonhq.netbeans.nbfx.docking.DockArea;
-import com.gluonhq.netbeans.nbfx.docking.DockHost;
+import com.gluonhq.netbeans.nbfx.platform.workspace.DockArea;
+import com.gluonhq.netbeans.nbfx.platform.workspace.DockHost;
 import com.gluonhq.netbeans.nbfx.ui.shell.NbfxTabPane.PaneKind;
 import com.gluonhq.netbeans.nbfx.ui.shell.NbfxTabPane.PaneRole;
 import java.util.ArrayList;

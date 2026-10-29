@@ -1,7 +1,7 @@
 package com.gluonhq.netbeans.nbfx.ui.shell;
 
-import com.gluonhq.netbeans.nbfx.docking.DockArea;
-import com.gluonhq.netbeans.nbfx.docking.DropTarget;
+import com.gluonhq.netbeans.nbfx.platform.workspace.DockArea;
+import com.gluonhq.netbeans.nbfx.platform.workspace.DropTarget;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;

@@ -23,7 +23,7 @@ import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
 import com.gluonhq.netbeans.nbfx.api.view.NavigatorRevealer;
 import com.gluonhq.netbeans.nbfx.ui.actions.ActionBars;
 import com.gluonhq.netbeans.nbfx.ui.project.ProjectSwitcher;
-import com.gluonhq.netbeans.nbfx.windows.WindowEnvironment;
+import com.gluonhq.netbeans.nbfx.platform.workspace.WindowEnvironment;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;

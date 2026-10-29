@@ -1,9 +1,9 @@
 package com.gluonhq.netbeans.nbfx.ui.session;
 
-import com.gluonhq.netbeans.nbfx.docking.DockArea;
-import com.gluonhq.netbeans.nbfx.docking.DockArea.Anchor;
-import com.gluonhq.netbeans.nbfx.docking.DockTree;
-import com.gluonhq.netbeans.nbfx.docking.DockTrees;
+import com.gluonhq.netbeans.nbfx.platform.workspace.DockArea;
+import com.gluonhq.netbeans.nbfx.platform.workspace.DockArea.Anchor;
+import com.gluonhq.netbeans.nbfx.platform.workspace.DockTree;
+import com.gluonhq.netbeans.nbfx.platform.workspace.DockTrees;
 import com.gluonhq.netbeans.nbfx.ui.shell.Docking;
 import com.gluonhq.netbeans.nbfx.ui.shell.EditorSplit;
 import com.gluonhq.netbeans.nbfx.ui.shell.NbfxTabPane;

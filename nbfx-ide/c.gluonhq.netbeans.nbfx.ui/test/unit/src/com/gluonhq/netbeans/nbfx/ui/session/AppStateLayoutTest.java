@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.ui.session;
 
-import com.gluonhq.netbeans.nbfx.docking.DockTrees;
+import com.gluonhq.netbeans.nbfx.platform.workspace.DockTrees;
 import com.gluonhq.netbeans.nbfx.ui.session.AppState.Layout;
 import com.gluonhq.netbeans.nbfx.ui.session.AppState.PaneLayout;
 import com.gluonhq.netbeans.nbfx.ui.session.AppState.PaneLayout.Minimized;

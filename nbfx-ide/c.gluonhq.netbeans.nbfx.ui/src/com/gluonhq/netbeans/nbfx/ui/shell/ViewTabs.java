@@ -1,8 +1,8 @@
 package com.gluonhq.netbeans.nbfx.ui.shell;
 
 import com.gluonhq.netbeans.nbfx.api.view.ViewProvider;
-import com.gluonhq.netbeans.nbfx.windows.ViewSpec;
-import com.gluonhq.netbeans.nbfx.windows.ViewRegistry;
+import com.gluonhq.netbeans.nbfx.platform.workspace.ViewSpec;
+import com.gluonhq.netbeans.nbfx.platform.workspace.ViewRegistry;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;

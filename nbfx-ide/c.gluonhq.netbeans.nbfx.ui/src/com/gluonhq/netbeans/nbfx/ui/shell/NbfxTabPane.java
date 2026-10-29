@@ -23,9 +23,9 @@ import com.gluonhq.netbeans.nbfx.api.editor.EditorContext;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
 import com.gluonhq.netbeans.nbfx.api.file.FileTypes;
 import com.gluonhq.netbeans.nbfx.api.view.ViewProvider;
-import com.gluonhq.netbeans.nbfx.windows.WindowEnvironment;
-import com.gluonhq.netbeans.nbfx.docking.DockArea;
-import com.gluonhq.netbeans.nbfx.docking.DropTarget;
+import com.gluonhq.netbeans.nbfx.platform.workspace.WindowEnvironment;
+import com.gluonhq.netbeans.nbfx.platform.workspace.DockArea;
+import com.gluonhq.netbeans.nbfx.platform.workspace.DropTarget;
 import com.gluonhq.netbeans.nbfx.ide.file.FileDragAndDrop;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -1283,7 +1283,7 @@ public final class NbfxTabPane extends TabPane {
      * {@link DockArea#leaves()}, then any permanent pane hidden for being empty or minimized, then
      * the minimized docked panes and the detached panes in creation order. Layout persistence relies
      * on this order, since docked panes have no identity beyond their position in the area's
-     * {@link com.gluonhq.netbeans.nbfx.docking.DockTree} and detached windows none beyond their
+     * {@link com.gluonhq.netbeans.nbfx.platform.workspace.DockTree} and detached windows none beyond their
      * position in the list.
      */
     public static List<TabPane> panesByRole() {

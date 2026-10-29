@@ -1,7 +1,7 @@
 package com.gluonhq.netbeans.nbfx.ui.session;
 
-import com.gluonhq.netbeans.nbfx.docking.DockTree;
-import com.gluonhq.netbeans.nbfx.docking.DockTrees;
+import com.gluonhq.netbeans.nbfx.platform.workspace.DockTree;
+import com.gluonhq.netbeans.nbfx.platform.workspace.DockTrees;
 import com.gluonhq.netbeans.nbfx.ui.shell.NbfxTabPane;
 import com.gluonhq.netbeans.nbfx.ui.shell.ToolBarContainer;
 
