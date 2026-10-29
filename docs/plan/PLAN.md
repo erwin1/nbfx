@@ -102,10 +102,9 @@ com.gluonhq.netbeans.nbfx.libs.<library>              bundled external library  
 **Forbidden in public API:** `Fx*`/`Sw*` names, `*Impl` names, `Object`-typed factories,
 `Map`-parameters with string keys. The only permitted shared constant class is `LayerPaths` (§3.3).
 The current tree has **4 public `Fx*` types**, all implementation types in non-exported packages
-(`nbfx.progress`/`nbfx.context`, where C.1 allows the prefix — [`figures.md`](figures.md)); the annotations,
+(`nbfx.progress`/`platform.actions`, where C.1 allows the prefix — [`figures.md`](figures.md)); the annotations,
 `api.*` and implementation renames have landed, `LayerPaths` lives in `api.layer`, and `check-naming` is green.
-The writer/reader contract test remains a slice of
-[Appendix C](appendix/C-naming-and-rename-table.md) (`refactor/api-naming`, W1).
+The writer/reader contract test landed in PR #33.
 
 ### 3.3 Layer paths
 
@@ -425,9 +424,10 @@ launcher's `--add-exports` list is empty today and lives in one file.
 
 ## 9. Guardrails (structural, in the build)
 
-The rule is [Appendix A](appendix/A-toolkit-policy.md); this is the implementation. **Status is honest**: eight
+The rule is [Appendix A](appendix/A-toolkit-policy.md); this is the implementation. **Status is honest**: ten
 checks exist today (`check-purity.xml` has `check-sources`, `check-java-source`, `check-naming`,
-`check-dependencies`, `check-jars`, `check-packaging`, `check-figures`, `check-budget`), the rest are `pending` with the step that lands them — a pending check is
+`check-dependencies`, `check-jars`, `check-packaging`, `check-figures`, `check-budget`, `check-baseline`,
+`check-logging`), the rest are `pending` with the step that lands them — a pending check is
 not a guardrail until `feature/ci` runs it (§11 W0/W12).
 
 | Target | Status | Mechanism | Fails when |
@@ -441,9 +441,9 @@ not a guardrail until `feature/ci` runs it (§11 W0/W12).
 | `check-languages` | pending (W1/W11) | core has no `LanguageId`/content-type branch; an unregistered MIME resolves to **plain text**; providers are language-scoped (Appendix I.3/I.4) | an `if (java)` in the core, or an unknown language falling back to Java |
 | `check-api` | pending (W2) | exported set ⊆ `arch.xml` set; dependant spec versions exist | a subtree export, a missing `arch.xml` `<api>` entry |
 | `check-naming` | **exists** (W1) | no `Fx*`/`Impl`/`Object`-factory in public API; `LayerPaths` is the only shared constants class | a forbidden public name |
-| `check-baseline` | pending (W1) | one `javac.release`; no `javafx.web`; one `--add-exports` file (§8.1) | a drifting JDK/FX/class-file baseline |
+| `check-baseline` | **exists** (W1) | one `javac.release`; no `javafx.web`; one `--add-exports` file (§8.1) | a drifting JDK/FX/class-file baseline |
 | `check-i18n` | pending (W4) | every user-visible string is an `NbBundle` key in `Bundle.properties` | a missing key, a hardcoded string |
-| `check-logging` | pending (W1) | no `System.out`/`printStackTrace`; `Logger` named after the module | a stray print |
+| `check-logging` | **exists** (W1) | no `System.out`/`printStackTrace`; `Logger` named after the module | a stray print |
 | `check-lookup` | pending (W3) | the `Lookups.forPath` invocation count is constant across N user actions (Appendix E.5) | a per-action layer lookup |
 | leak test | pending (W3) | open/close a view N times; listener count returns to baseline and the view is weakly reachable (Appendix E.2) | a leaked subscription |
 | `check-licences` | pending (W10) | every bundled jar/native has a `NOTICE` entry; `javafx.web` absent (`LICENSE`/`THIRDPARTY` present) ([Appendix G](appendix/G-licences-and-notices.md)) | an unnotified bundle |
@@ -508,11 +508,11 @@ Not cuttable: the walking skeleton, the guards, the API split, the editor core, 
   a test-only module); platform modules keep service tests. `<test-dependency>` may cross layers, is never a
   run dependency and the test artefact is not shipped; the graph guard treats test edges separately. If
   scenarios multiply, move them to a test-only `nbfx-qa` cluster.
-- **Harness**: NetBeans `nbjunit` (already used: 26 test classes today) + `nbbuild` `sigtest` targets for the
+- **Harness**: NetBeans `nbjunit` (already used: 33 test files today) + `nbbuild` `sigtest` targets for the
   governed API modules.
 - **Required test types**: unit (model, `M` modules), contract (threading per SPI, layer writer/reader), leak
   (open/close, Appendix E.2), budget (startup/usable/first completion, `check-budget`), smoke
-  (walking skeleton, W0). Baseline to beat: **32 test classes, zero signature tests, zero FX tests** — state
+  (walking skeleton, W0). Baseline to beat: **33 test files, zero signature tests, zero FX tests** — state
   the number in the W2 acceptance.
 - **Fast loop**: `nbfx.overlay=symlink` and `ant module -Dmodule=<cluster>/<module>` (PR #8) build one module in
   seconds; CI and the W0 smoke test use the same targets, so the loop and the gate cannot diverge.
@@ -581,21 +581,22 @@ else keeps the trunk green (§11.0.6).
 
 **W1 — Containment, naming and API split.** `refactor/guard-java-source` (denylist/allowlist guard over the
 current 4-module allowlist; [Appendix B.5](appendix/B-java-source-isolation.md)) → `refactor/api-naming`
-([Appendix C](appendix/C-naming-and-rename-table.md): drop `Fx*` from the remaining 24 exported types, move processors
-out of exported packages, introduce `api.layer.LayerPaths`; no behaviour change) →
+`refactor/guard-java-source` (**landed**, PR #20) → `refactor/api-naming` (**landed**, PRs #21, #30 and #32: drop
+`Fx*` from the remaining exported types, move processors out of exported packages, introduce
+`api.layer.LayerPaths`; no behaviour change) →
 `refactor/java-plumbing` (`java.model` bridge; dedupe the three in-memory-file helpers and the position
 conversions) → `refactor/editor-split` (`platform.editor` / `java.editor` / `ide.editor.{xml,css}`; delivers the
 `api.editor` decoration SPI + `api.language`, acceptance: XML/CSS are modules and the core contains no
 language branch) →
-`refactor/usages-split` (`api.usages` + `ide.usages` + `java.usages`) → `refactor/cluster-layout` (**landed**:
-`nbfx-libs` and `nbfx-api` created; `check-jars`/`${nbfx.dist.dir}` scans cover five clusters. `nbfx-javafx`
-is deferred until its first module lands) →
-`refactor/module-names` (rename to
-§3.1; settings/layer round-trip test) → `refactor/api-split` (create the `api.*` modules; move packages
-**wholesale** — same package names, consumers update only their `project.xml`; topological order:
-elements/file/project → editor → actions/views → root last; no shims) →
+`refactor/usages-split` (`api.usages` + `ide.usages` + `java.usages`) → `refactor/cluster-layout` (**landed**,
+PRs #31 and #42: `nbfx-libs` and `nbfx-api` created; `nbfx.actions`/`nbfx.context` merged into
+`platform.actions`; `nbfx.docking`/`nbfx.windows` merged into `platform.workspace`; `check-jars`/`${nbfx.dist.dir}`
+scans cover five clusters. `nbfx-javafx` is deferred until its first module lands) →
+`refactor/module-names` (**landed**, PRs #34–#38) → `refactor/api-split` (**landed**, PRs #22–#28: create the
+`api.*` modules; move packages **wholesale** — same package names, consumers update only their `project.xml`;
+topological order: elements/file/project → editor → actions/views → root last; no shims) →
 `refactor/objects-not-statics` (services with lifecycles; typed contracts; no `Lookup.forPath` per call).
-The writer/reader layer contract test belongs to `api-split`.
+The writer/reader layer contract test landed in PR #33.
 
 **W2 — API governance.** `feature/api-governance`: `arch.xml`/`apichanges`/signature tests for every
 T1/T2-FX/M module, the version baseline (1.0 + bump rule) and the spec-version guard; the audit/guard
@@ -806,3 +807,18 @@ add a row when a PR lands and update the affected chapter in the same change.
 | #8 | symlink overlay and single-module builds (`ant module -Dmodule=…`) | the fast loop for every step (§10.3, W12) |
 | #11 | progress-bar styling | theme only |
 | #12 | early `Node` initialization to avoid the startup deadlock | **debt**: the real fix is D.2.1 / H.4.1; keep until `openide.nodes` leaves the runtime |
+| #18 | `check-budget` and cold/windowed startup baselines | W0 budget baseline recorded |
+| #20 | `guard-java-source` | Java-source containment guard and module policy files |
+| #21, #30, #32 | `api-naming` | `Fx*` dropped from exported types; `LayerPaths` moved to `api.layer` |
+| #22–#28 | `api-split` | `api.project`, `api.elements`/`api.file`, `api.progress`/`api.search`, `api.editor`, `api.actions`, `api.views`, `api.dialogs`; `nbfx.api` retired |
+| #29 | CI external-binary cache | CI build speedup |
+| #31, #42 | `cluster-layout` | `nbfx-libs` and `nbfx-api`; `platform.actions`; `platform.workspace` |
+| #33 | writer/reader layer contract test | lands the W1 layer contract |
+| #34–#38 | `module-names` | module renames for libs, platform, IDE and Java modules |
+| #39 | `check-baseline` + `check-logging` | both guards landed |
+| #40 | `platform.actions` | action/context classes moved into the merged package |
+| #43 | `lib.javafx` | pinned OpenJFX SDK fetched by `ant javafx-fetch` |
+| #44 | scenario fixture cleanup | project closed before committing the fixture |
+| #46 | bundle updates | progress bundle and structure bundle |
+| #48 | restore removed icons | view icons restored |
+| #50 | update patches | patch paths and RAT exclusions updated |
