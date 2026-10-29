@@ -64,7 +64,7 @@ import static org.netbeans.api.java.project.JavaProjectConstants.SOURCES_TYPE_RE
     @ServiceProvider(service = ProjectIconProvider.class, position = 10)
 })
 @ViewRegistration(displayName = "Projects",
-        iconName = "com/gluonhq/netbeans/nbfx/project/ui/java/projectTab.png",
+        iconName = "com/gluonhq/netbeans/nbfx/java/navigation/projectTab.png",
         location = ViewLocation.LEFT, position = 10, navigator = true)
 public class ProjectNavigator extends AbstractNavigatorProvider<ProjectEntry> implements ProjectIconProvider {
 

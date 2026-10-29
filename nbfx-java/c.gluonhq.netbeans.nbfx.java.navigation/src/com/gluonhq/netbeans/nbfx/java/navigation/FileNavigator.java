@@ -33,7 +33,7 @@ import org.openide.util.lookup.ServiceProvider;
 
 @ServiceProvider(service = ViewProvider.class, position=20)
 @ViewRegistration(displayName = "Files",
-        iconName = "com/gluonhq/netbeans/nbfx/project/ui/java/filesTab.png",
+        iconName = "com/gluonhq/netbeans/nbfx/java/navigation/filesTab.png",
         location = ViewLocation.LEFT, position = 20, navigator = true)
 public class FileNavigator extends AbstractNavigatorProvider<FileObject> {
 
