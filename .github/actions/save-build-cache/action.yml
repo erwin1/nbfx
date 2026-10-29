@@ -1,0 +1,44 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+# Saves ~/.hgexternalcache as ci.yml does, under a key with the fingerprint of its content: a run
+# that downloaded more saves a fuller cache instead of being blocked by an immutable partial key.
+# Use it at the end of a job, with if: always(): DownloadBinaries and javafx-fetch only leave
+# complete, verified files, so the cache is a valid seed even after a failed build.
+name: Save the nbfx build cache
+description: Save the external-binaries cache under a content-addressed key
+
+runs:
+  using: composite
+  steps:
+    - name: Fingerprint external binary cache
+      id: external-cache-key
+      shell: bash
+      run: |
+        cache="${HOME}/.hgexternalcache"
+        if [ -d "${cache}" ] && [ -n "$(find "${cache}" -type f -print -quit)" ]; then
+          fingerprint=$(cd "${cache}" && find . -type f -printf '%P %s\n' | sort | sha256sum | cut -d' ' -f1)
+          echo "key=${{ runner.os }}-${{ hashFiles('netbeans/**/external/binaries-list') }}-${fingerprint}" >> "${GITHUB_OUTPUT}"
+        fi
+
+    - name: Save external binary cache
+      if: steps.external-cache-key.outputs.key != ''
+      continue-on-error: true
+      uses: actions/cache/save@v6
+      with:
+        path: ~/.hgexternalcache
+        key: ${{ steps.external-cache-key.outputs.key }}
