@@ -1,5 +1,7 @@
 # nbfx build outputs (per module)
 /*/build/
+# the JavaFX SDK, unpacked by `ant javafx-fetch` (javafx-sdk.properties)
+/nbfx-libs/c.gluonhq.netbeans.nbfx.libs.javafx/release/
 /*/*/build/
 # generated at bootstrap (own cluster configuration)
 /build/

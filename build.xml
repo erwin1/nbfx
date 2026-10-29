@@ -17,11 +17,13 @@
       ant update-upstream -Dnbfx.submodule.commit=<sha>
       ant clean
 -->
-<project name="nbfx" default="help" basedir=".">
+<project name="nbfx" default="help" basedir="." xmlns:if="ant:if" xmlns:unless="ant:unless">
 
     <!-- local overrides first: Ant keeps the first value a property gets -->
     <property file="nbfx-local.properties"/>
     <property file="nbfx.properties"/>
+    <property name="nbfx.javafx.module" location="nbfx-libs/c.gluonhq.netbeans.nbfx.libs.javafx"/>
+    <property file="${nbfx.javafx.module}/javafx-sdk.properties"/>
 
     <!-- ==== derived properties ==== -->
     <property name="nbfx.sub.dir" location="${nbfx.submodule.dir}"/>
@@ -36,6 +38,23 @@
     <condition property="nbfx.overlay.symlink">
         <equals arg1="${nbfx.overlay}" arg2="symlink"/>
     </condition>
+    <!-- the JavaFX SDK `ant bootstrap` puts into libs.javafx: the build machine's platform, unless
+         -Dnbfx.javafx.platform=<id> (an id of javafx-sdk.properties) says otherwise -->
+    <condition property="nbfx.javafx.platform" value="macos-aarch64">
+        <and><os family="mac"/><os arch="aarch64"/></and>
+    </condition>
+    <condition property="nbfx.javafx.platform" value="macos-x64">
+        <and><os family="mac"/><os arch="x86_64"/></and>
+    </condition>
+    <condition property="nbfx.javafx.platform" value="windows-x64">
+        <and><os family="windows"/><os arch="amd64"/></and>
+    </condition>
+    <condition property="nbfx.javafx.platform" value="linux-x64">
+        <and><os name="Linux"/><os arch="amd64"/></and>
+    </condition>
+    <!-- the downloaded SDK zips; the same cache the NetBeans build keeps its binaries in, so they
+         survive `ant clean` and CI's cache of it covers them -->
+    <property name="nbfx.download.cache" location="${user.home}/.hgexternalcache"/>
 
     <!-- list of the cluster dirs, also as ${nbfx.cluster.1}..${nbfx.cluster.N} is not
          available in plain Ant, so the macros below are invoked explicitly. -->
@@ -83,6 +102,74 @@
             <delete file="${nbfx.sub.dir}/@{cluster}" quiet="true"/>
             <symlink link="${nbfx.sub.dir}/@{cluster}"
                      resource="${basedir}/@{cluster}" overwrite="true"/>
+        </sequential>
+    </macrodef>
+
+    <!-- Unpacks the OpenJFX SDK of @{platform} (javafx-sdk.properties) into @{dest} in the layout of
+         libs.javafx's release dir: modules/ext/*.jar, the natives flat in modules/lib/, the licence
+         texts in legal/javafx/. Only the modules nbfx bundles: no javafx.web/WebKit, media, swing or
+         swt (Appendix G). Skipped when @{stamp} records the same platform and SDK already. -->
+    <macrodef name="nbfx-javafx-unpack">
+        <attribute name="platform"/>
+        <attribute name="dest"/>
+        <attribute name="stamp"/>
+        <sequential>
+            <fail message="Unknown JavaFX platform '@{platform}'; use one of the ids in ${nbfx.javafx.module}/javafx-sdk.properties (-Dnbfx.javafx.platform=...)">
+                <condition>
+                    <not><isset property="nbfx.javafx.sha256.@{platform}"/></not>
+                </condition>
+            </fail>
+            <local name="sdk.name"/>
+            <local name="sdk.file"/>
+            <local name="sdk.ok"/>
+            <local name="stamp.text"/>
+            <local name="stamp.current"/>
+            <property name="sdk.name" value="openjfx-${nbfx.javafx.version}_${nbfx.javafx.sdk.@{platform}}_bin-sdk.zip"/>
+            <!-- named after its checksum, as the NetBeans build names its downloads: a re-pin never
+                 reuses a stale file -->
+            <property name="sdk.file" location="${nbfx.download.cache}/${nbfx.javafx.sha256.@{platform}}-${sdk.name}"/>
+            <loadfile property="stamp.text" srcFile="@{stamp}" failonerror="false" quiet="true"/>
+            <condition property="stamp.current">
+                <and>
+                    <equals arg1="${stamp.text}" arg2="@{platform} ${nbfx.javafx.sha256.@{platform}}" trim="true"/>
+                    <available file="@{dest}/modules/ext/javafx.graphics.jar"/>
+                </and>
+            </condition>
+            <sequential unless:set="stamp.current">
+                <mkdir dir="${nbfx.download.cache}"/>
+                <get src="${nbfx.javafx.url}/${sdk.name}" dest="${sdk.file}" skipexisting="true"/>
+                <checksum file="${sdk.file}" algorithm="SHA-256" property="${nbfx.javafx.sha256.@{platform}}" verifyproperty="sdk.ok"/>
+                <fail message="${sdk.file} does not match nbfx.javafx.sha256.@{platform}; delete it and retry">
+                    <condition><isfalse value="${sdk.ok}"/></condition>
+                </fail>
+                <delete dir="@{dest}/modules/ext"/>
+                <delete dir="@{dest}/modules/lib"/>
+                <delete dir="@{dest}/legal/javafx"/>
+                <unzip src="${sdk.file}" dest="@{dest}/modules/ext">
+                    <patternset includes="*/lib/javafx.base.jar,*/lib/javafx.controls.jar,*/lib/javafx.fxml.jar,*/lib/javafx.graphics.jar,*/lib/jfx.incubator.input.jar,*/lib/jfx.incubator.richtext.jar"/>
+                    <flattenmapper/>
+                </unzip>
+                <!-- natives: lib/ on macOS and Linux, bin/ on Windows (with its MSVC/UCRT runtime) -->
+                <unzip src="${sdk.file}" dest="@{dest}/modules/lib">
+                    <patternset includes="*/lib/*.dylib,*/lib/*.so,*/bin/*.dll"
+                                excludes="**/*jfxwebkit*,**/*jfxmedia*,**/*gstreamer*,**/*glib-lite*,**/*fxplugins*,**/*avplugin*"/>
+                    <flattenmapper/>
+                </unzip>
+                <!-- the texts of the bundled modules; LICENSE, ADDITIONAL_LICENSE_INFO and
+                     ASSEMBLY_EXCEPTION are the same file in each, so flattening is safe -->
+                <unzip src="${sdk.file}" dest="@{dest}/legal/javafx">
+                    <patternset includes="*/legal/javafx.base/*,*/legal/javafx.controls/*,*/legal/javafx.fxml/*,*/legal/javafx.graphics/*,*/legal/jfx.incubator.input/*,*/legal/jfx.incubator.richtext/*"/>
+                    <flattenmapper/>
+                </unzip>
+                <!-- unzip keeps the SDK's dates, older than any earlier build's copies; the harness
+                     copies release/ by date, so make them new or a platform switch would not reach
+                     the cluster -->
+                <touch>
+                    <fileset dir="@{dest}" includes="modules/ext/**,modules/lib/**,legal/javafx/**"/>
+                </touch>
+                <echo file="@{stamp}" message="@{platform} ${nbfx.javafx.sha256.@{platform}}"/>
+                <echo message="[nbfx] JavaFX ${nbfx.javafx.version} @{platform} -> @{dest}"/>
+            </sequential>
         </sequential>
     </macrodef>
 
@@ -287,7 +374,26 @@ nbfx-java
         </delete>
     </target>
 
-    <target name="bootstrap" depends="submodule,patches,cluster-config,-prune-excluded,overlay"
+    <target name="javafx-fetch"
+            description="Download (pinned, checksum-verified) and unpack the JavaFX SDK into libs.javafx (-Dnbfx.javafx.platform=...)">
+        <fail unless="nbfx.javafx.platform"
+              message="No JavaFX SDK for ${os.name}/${os.arch}; pass -Dnbfx.javafx.platform=&lt;id&gt; (ids in ${nbfx.javafx.module}/javafx-sdk.properties)"/>
+        <mkdir dir="${nbfx.build.dir}"/>
+        <nbfx-javafx-unpack platform="${nbfx.javafx.platform}" dest="${nbfx.javafx.module}/release"
+                            stamp="${nbfx.build.dir}/javafx-sdk.stamp"/>
+        <!-- the harness copies release/ into the cluster but never deletes from it, so a built
+             cluster would keep the natives and licence texts of another platform (or of the old
+             lib/amd64, lib/amd64/linux layout): mirror the two dirs that only libs.javafx fills -->
+        <available property="nbfx.javafx.cluster.built" file="${nbfx.sub.dir}/nbbuild/netbeans/nbfx-platform/modules" type="dir"/>
+        <sync todir="${nbfx.sub.dir}/nbbuild/netbeans/nbfx-libs/modules/lib" if:set="nbfx.javafx.cluster.built">
+            <fileset dir="${nbfx.javafx.module}/release/modules/lib"/>
+        </sync>
+        <sync todir="${nbfx.sub.dir}/nbbuild/netbeans/nbfx-libs/legal/javafx" if:set="nbfx.javafx.cluster.built">
+            <fileset dir="${nbfx.javafx.module}/release/legal/javafx"/>
+        </sync>
+    </target>
+
+    <target name="bootstrap" depends="submodule,patches,cluster-config,-prune-excluded,javafx-fetch,overlay"
             description="Bring a clean checkout to a buildable state"/>
 
     <target name="build" depends="bootstrap" description="Build the nbfx cluster config">
@@ -405,13 +511,15 @@ nbfx-java
         <echo message="nbfx.cluster.config     = ${nbfx.cluster.config}"/>
         <echo message="nbfx.cluster.file       = ${nbfx.cluster.file}"/>
         <echo message="nbfx.patches.dir        = ${nbfx.patches.dir}"/>
+        <echo message="nbfx.javafx.version     = ${nbfx.javafx.version}"/>
+        <echo message="nbfx.javafx.platform    = ${nbfx.javafx.platform}"/>
     </target>
 
     <target name="help" description="Show the available targets">
         <echo>
 nbfx build harness — targets:
 
-  bootstrap        submodule + patches + cluster config + overlay
+  bootstrap        submodule + patches + cluster config + JavaFX SDK + overlay
   build            build the '${nbfx.cluster.config}' cluster config
   run              launch the FX app (lean cluster set)
   module           build one module only: -Dmodule=nbfx-platform/c.gluonhq.netbeans.nbfx.progress
@@ -421,6 +529,8 @@ nbfx build harness — targets:
   patches          apply the upstream patch set (patches/*.patch)
   patches-check    verify the patches still apply (after an upstream bump)
   cluster-config   regenerate build/cluster.properties
+  javafx-fetch     download + unpack the pinned JavaFX SDK into libs.javafx
+                   (build platform, or -Dnbfx.javafx.platform=macos-aarch64|macos-x64|windows-x64|linux-x64)
   overlay          sync/symlink the nbfx clusters into the submodule
   unoverlay        remove the overlay
   update-upstream  fetch a new submodule revision and re-apply patches
