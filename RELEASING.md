@@ -132,6 +132,12 @@ found", `NoClassDefFoundError` or glass/prism errors. macOS x64 can be tried on 
 Rosetta 2 with an x64 JDK 25. On macOS, test a zip downloaded through the browser, not the local file:
 quarantine and Gatekeeper treat the bundled dylibs differently.
 
+Without `--userdir` the binary uses `nbfx-<version>` under the platform's default roots
+(`~/Library/Application Support/NetBeans/nbfx-<version>` and `~/Library/Caches/NetBeans/nbfx-<version>` on
+macOS), shared by every build of that version: dry runs, earlier candidates and pre-release tryouts. Their
+saved state does not always fit a later build; a window layout naming a view that has since been renamed,
+for instance, restores as an empty window. Remove both directories before testing a candidate.
+
 ### 4. Publish the candidate
 
 > **Apache:** upload to `https://dist.apache.org/repos/dist/dev/<project>/` (svn) ·
