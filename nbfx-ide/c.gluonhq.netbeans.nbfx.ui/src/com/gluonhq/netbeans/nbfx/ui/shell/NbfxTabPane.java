@@ -902,7 +902,7 @@ public final class NbfxTabPane extends TabPane {
      */
     private static void addFileDropHandlers(TabPane tabPane) {
         tabPane.addEventFilter(DragEvent.DRAG_OVER, e -> {
-            if (openableFilesOf(e).isEmpty()) {
+            if (openableFilesOf(e, tabPane).isEmpty()) {
                 return;
             }
             e.acceptTransferModes(TransferMode.COPY);
@@ -919,7 +919,7 @@ public final class NbfxTabPane extends TabPane {
             }
         });
         tabPane.addEventFilter(DragEvent.DRAG_DROPPED, e -> {
-            List<FileObject> files = openableFilesOf(e);
+            List<FileObject> files = openableFilesOf(e, tabPane);
             if (files.isEmpty()) {
                 return;
             }
@@ -955,14 +955,15 @@ public final class NbfxTabPane extends TabPane {
     /**
      * The files carried by {@code event} that can be opened in an editor, or an empty list when it
      * carries none, when none of them is openable (a folder or a binary file), or when the drop is
-     * aimed at a node that handles files itself.
+     * aimed at a node that handles files itself. The pane keeps the last resolution, since it asks
+     * for it on every drag-over event.
      */
-    private static List<FileObject> openableFilesOf(DragEvent event) {
+    private static List<FileObject> openableFilesOf(DragEvent event, TabPane tabPane) {
         if (!FileDragAndDrop.hasFiles(event.getDragboard())
                 || FileDragAndDrop.isWithinDropTarget(event.getTarget())) {
             return List.of();
         }
-        return FileDragAndDrop.filesFrom(event.getDragboard()).stream()
+        return FileDragAndDrop.filesFrom(event.getDragboard(), tabPane).stream()
                 .filter(FileTypes::isOpenable)
                 .toList();
     }

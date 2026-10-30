@@ -65,7 +65,7 @@ final class SessionCommand implements Command {
 
     @Override
     public void run() {
-        DebugSession session = DebugSession.current();
+        DebugSession session = DebugSessionRegistry.getDefault().current();
         if (session != null) {
             action.accept(session);
         }

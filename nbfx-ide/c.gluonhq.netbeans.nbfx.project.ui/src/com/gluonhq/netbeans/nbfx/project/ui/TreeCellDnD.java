@@ -44,10 +44,7 @@ public final class TreeCellDnD {
     private static final PseudoClass DROP_BELOW = PseudoClass.getPseudoClass("drop-below");
     private static final Duration AUTO_EXPAND_DELAY = Duration.millis(700);
 
-    /** The files being dragged in the current gesture. */
-    private static List<FileObject> dragged;
-
-    private static PauseTransition autoExpand;
+    private static final Object AUTO_EXPAND_KEY = new Object();
 
     private enum Mode { INTO, ABOVE, BELOW }
     private record Target(FileObject folder, Mode mode) {}
@@ -89,7 +86,6 @@ public final class TreeCellDnD {
             if (files.isEmpty()) {
                 return;
             }
-            dragged = files;
             Dragboard db = cell.startDragAndDrop(TransferMode.COPY_OR_MOVE);
             ClipboardContent content = new ClipboardContent();
             // Published so that other drop targets (the editor tab panes) can open the files; the
@@ -101,11 +97,11 @@ public final class TreeCellDnD {
 
         cell.setOnDragOver(e -> {
             boolean external = FileDragAndDrop.isExternal(e.getDragboard());
-            List<FileObject> sources = sourcesOf(e.getDragboard());
+            List<FileObject> sources = sourcesOf(cell, e.getDragboard());
             Target target = sources.isEmpty() ? null : resolve(cell, toFile, e.getY(), sources, external);
             if (target == null) {
                 clearVisuals(cell);
-                cancelAutoExpand();
+                cancelAutoExpand(cell);
                 return;
             }
             e.acceptTransferModes(external ? TransferMode.COPY : TransferMode.MOVE);
@@ -116,13 +112,13 @@ public final class TreeCellDnD {
 
         cell.setOnDragExited(e -> {
             clearVisuals(cell);
-            cancelAutoExpand();
+            cancelAutoExpand(cell);
         });
 
         cell.setOnDragDropped(e -> {
             boolean handled = false;
             boolean external = FileDragAndDrop.isExternal(e.getDragboard());
-            List<FileObject> sources = sourcesOf(e.getDragboard());
+            List<FileObject> sources = sourcesOf(cell, e.getDragboard());
             if (!sources.isEmpty()) {
                 Target target = resolve(cell, toFile, e.getY(), sources, external);
                 if (target != null) {
@@ -143,27 +139,24 @@ public final class TreeCellDnD {
                 }
             }
             clearVisuals(cell);
-            cancelAutoExpand();
+            cancelAutoExpand(cell);
             e.setDropCompleted(handled);
             e.consume();
         });
 
         cell.setOnDragDone(e -> {
-            dragged = null;
             clearVisuals(cell);
-            cancelAutoExpand();
+            cancelAutoExpand(cell);
         });
     }
 
     /**
      * The files of the current gesture: the ones dragged from the tree, or those of a drag coming
-     * from outside the application; an empty list if the drag carries no file.
+     * from outside the application; an empty list if the drag carries no file. The tree keeps the
+     * last resolution, since every cell asks for it on each drag-over event.
      */
-    private static List<FileObject> sourcesOf(Dragboard dragboard) {
-        if (FileDragAndDrop.isExternal(dragboard)) {
-            return FileDragAndDrop.filesFrom(dragboard);
-        }
-        return dragged == null ? List.of() : dragged;
+    private static List<FileObject> sourcesOf(TreeCell<?> cell, Dragboard dragboard) {
+        return FileDragAndDrop.filesFrom(dragboard, cell.getTreeView());
     }
 
     /** Resolves the drop target folder and indicator mode for the cursor position, or {@code null}. */
@@ -200,29 +193,27 @@ public final class TreeCellDnD {
     private static <T> void scheduleAutoExpand(TreeCell<T> cell, boolean external) {
         TreeItem<T> item = cell.getTreeItem();
         if (item == null || item.isLeaf() || item.isExpanded()) {
-            cancelAutoExpand();
+            cancelAutoExpand(cell);
             return;
         }
-        if (autoExpand != null) {
+        if (cell.getProperties().get(AUTO_EXPAND_KEY) != null) {
             return;
         }
         PauseTransition pause = new PauseTransition(AUTO_EXPAND_DELAY);
         pause.setOnFinished(a -> {
-            // A drag coming from outside the application has no files of ours being dragged; that
-            // it is still hovering the same row (it is cancelled on exit) is all there is to check.
-            if ((external || dragged != null) && cell.getTreeItem() == item) {
+            if (cell.getTreeItem() == item) {
                 item.setExpanded(true);
             }
-            autoExpand = null;
+            cell.getProperties().remove(AUTO_EXPAND_KEY);
         });
-        autoExpand = pause;
+        cell.getProperties().put(AUTO_EXPAND_KEY, pause);
         pause.playFromStart();
     }
 
-    private static void cancelAutoExpand() {
-        if (autoExpand != null) {
-            autoExpand.stop();
-            autoExpand = null;
+    private static void cancelAutoExpand(TreeCell<?> cell) {
+        PauseTransition pause = (PauseTransition) cell.getProperties().remove(AUTO_EXPAND_KEY);
+        if (pause != null) {
+            pause.stop();
         }
     }
 

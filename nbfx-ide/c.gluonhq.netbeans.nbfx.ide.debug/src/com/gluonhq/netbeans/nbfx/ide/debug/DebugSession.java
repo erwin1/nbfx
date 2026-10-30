@@ -65,7 +65,6 @@ public final class DebugSession {
     private static final Logger LOG = Logger.getLogger(DebugSession.class.getName());
     private static final String CONSOLE_PREFIX = "Debug ";
 
-    private static volatile DebugSession current;
 
     private final JPDADebugger debugger;
     private final Process process;
@@ -95,11 +94,6 @@ public final class DebugSession {
         });
     }
 
-    /** The current session, or {@code null} when no debug session is active. */
-    public static DebugSession current() {
-        return current;
-    }
-
     /**
      * Starts and attaches to a debug session for {@code request}.
      *
@@ -124,7 +118,7 @@ public final class DebugSession {
         if (request.mainFile() != null && request.breakpointLine() > 0) {
             session.addBreakpoint(request.mainFile(), request.breakpointLine());
         }
-        current = session;
+        DebugSessionRegistry.getDefault().setCurrent(session);
         DebugStatus.ACTIVE.set(true);
         session.refresh();
         return session;
@@ -188,8 +182,9 @@ public final class DebugSession {
         if (process.isAlive()) {
             process.destroy();
         }
-        if (current == this) {
-            current = null;
+        DebugSessionRegistry registry = DebugSessionRegistry.getDefault();
+        if (registry.current() == this) {
+            registry.setCurrent(null);
             DebugStatus.ACTIVE.set(false);
         }
     }

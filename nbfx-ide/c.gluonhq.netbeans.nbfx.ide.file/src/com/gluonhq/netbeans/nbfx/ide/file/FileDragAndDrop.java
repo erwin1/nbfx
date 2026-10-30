@@ -33,9 +33,8 @@ public final class FileDragAndDrop {
     /** Key marking a node that handles file drops itself (so ancestors must not intercept them). */
     private static final Object DROP_TARGET_KEY = new Object();
 
-    /** The last files resolved by {@link #filesFrom}, and their resolution; see there. */
-    private static List<File> cachedFiles = List.of();
-    private static List<FileObject> cachedFileObjects = List.of();
+    /** Key of the per-drop-target resolution cache in {@link Node#getProperties()}. */
+    private static final Object FILES_CACHE_KEY = new Object();
 
     private FileDragAndDrop() {}
 
@@ -63,8 +62,6 @@ public final class FileDragAndDrop {
     /**
      * The existing files carried by {@code dragboard}, from an internal drag ({@link #putFiles})
      * or from an external one (Finder/Explorer), or an empty list if it carries no file.
-     * <p>
-     * The last resolution is cached, since drop targets ask for it on every mouse move of a drag.
      */
     public static List<FileObject> filesFrom(Dragboard dragboard) {
         if (dragboard == null) {
@@ -80,9 +77,6 @@ public final class FileDragAndDrop {
         } else if (dragboard.hasFiles()) {
             files.addAll(dragboard.getFiles());
         }
-        if (files.equals(cachedFiles) && cachedFileObjects.stream().allMatch(FileObject::isValid)) {
-            return cachedFileObjects;
-        }
         List<FileObject> fileObjects = new ArrayList<>();
         for (File file : files) {
             FileObject fo = FileUtil.toFileObject(FileUtil.normalizeFile(file));
@@ -90,9 +84,43 @@ public final class FileDragAndDrop {
                 fileObjects.add(fo);
             }
         }
-        cachedFiles = List.copyOf(files);
-        cachedFileObjects = List.copyOf(fileObjects);
-        return cachedFileObjects;
+        return List.copyOf(fileObjects);
+    }
+
+    /**
+     * The existing files carried by {@code dragboard}, caching the resolution on {@code owner}.
+     * Drop targets ask for this on every mouse move of a drag, so the tree view or tab pane keeps
+     * the last resolution until the dragboard changes or a file becomes invalid.
+     */
+    public static List<FileObject> filesFrom(Dragboard dragboard, Node owner) {
+        if (dragboard == null) {
+            return List.of();
+        }
+        if (owner == null) {
+            return filesFrom(dragboard);
+        }
+        Cache cache = (Cache) owner.getProperties().get(FILES_CACHE_KEY);
+        if (cache == null) {
+            cache = new Cache();
+            owner.getProperties().put(FILES_CACHE_KEY, cache);
+        }
+        return cache.filesFrom(dragboard);
+    }
+
+    /** The last resolution for one drop target; mutable, but owned by that target's node. */
+    private static final class Cache {
+
+        private Dragboard dragboard;
+        private List<FileObject> files = List.of();
+
+        List<FileObject> filesFrom(Dragboard dragboard) {
+            if (dragboard == this.dragboard && files.stream().allMatch(FileObject::isValid)) {
+                return files;
+            }
+            files = FileDragAndDrop.filesFrom(dragboard);
+            this.dragboard = dragboard;
+            return files;
+        }
     }
 
     /** Whether {@code dragboard} carries files dragged from outside the application. */

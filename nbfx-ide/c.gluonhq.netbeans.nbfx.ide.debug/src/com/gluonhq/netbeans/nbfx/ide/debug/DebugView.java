@@ -110,7 +110,7 @@ final class DebugView extends BorderPane {
 
     /** Re-binds to the current session, following sessions as they start and stop. */
     private void bind() {
-        session = DebugSession.current();
+        session = DebugSessionRegistry.getDefault().current();
         status.textProperty().unbind();
         if (session == null) {
             threads.setItems(FXCollections.observableArrayList());
@@ -143,7 +143,7 @@ final class DebugView extends BorderPane {
         Button button = new Button(message(key));
         button.setFocusTraversable(false);
         button.setOnAction(event -> {
-            DebugSession current = DebugSession.current();
+            DebugSession current = DebugSessionRegistry.getDefault().current();
             if (current != null) {
                 action.accept(current);
             }

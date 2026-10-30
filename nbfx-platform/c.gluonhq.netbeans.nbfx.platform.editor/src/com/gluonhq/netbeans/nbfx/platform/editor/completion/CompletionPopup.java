@@ -74,7 +74,6 @@ final class CompletionPopup extends PopupControl {
     private static final double MAX_WIDTH = 800;
     private static final ResourceBundle BUNDLE =
             ResourceBundle.getBundle("com.gluonhq.netbeans.nbfx.platform.editor.completion.CompletionUI");
-    private static volatile int cachedFooterWidth = -1;
 
     private final PopupListView listView;
     private final Label footerLabel;
@@ -336,9 +335,6 @@ final class CompletionPopup extends PopupControl {
     }
 
     private static int measureFooterWidth() {
-        if (cachedFooterWidth > 0) {
-            return cachedFooterWidth;
-        }
         Label label = new Label(BUNDLE.getString("completion.popup.instance.members.hint"));
         label.getStyleClass().add("completion-popup-footer");
         label.setWrapText(false);
@@ -348,8 +344,7 @@ final class CompletionPopup extends PopupControl {
                 Objects.requireNonNull(CompletionPopup.class.getResource("completion-popup.css")).toExternalForm());
         group.applyCss();
         group.layout();
-        cachedFooterWidth = (int) Math.ceil(group.getLayoutBounds().getWidth());
-        return cachedFooterWidth;
+        return (int) Math.ceil(group.getLayoutBounds().getWidth());
     }
 
     private static class PopupListView extends ListView<CompletionItem> {
