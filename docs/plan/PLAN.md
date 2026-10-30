@@ -277,7 +277,7 @@ consumer lands — the word *proposed* does not appear in a tier column (Decisio
 | `ide.project.actions` | project commands/menus | replaces `nbfx.project.actions` |
 | `ide.project.customizer` | customizer host + built-in categories | on `api.project.customizer` |
 | `ide.build` | build/run orchestration on `api.build` + `api.execution` | replaces `nbfx.run` |
-| `ide.editor.xml`, `ide.editor.css` | XML/CSS syntax decoration and breadcrumbs (language modules, not core) | from `nbfx.editor` |
+| `ide.editor.xml`, `ide.editor.css` | XML/CSS syntax decoration, breadcrumbs and the CSS Find Usages provider (language modules, not core) | from `nbfx.editor` |
 | `ide.editor.intelligence` | UI for goto/search, usages, hierarchies, hints, refactoring preview, codegen, Javadoc | new; engines/SPIs are `api.editor.intelligence` (M) |
 | `ide.javadoc` | Javadoc viewing/index/completion | new |
 | `ide.structure` | structure/navigator view on `api.nodes` | replaces `nbfx.structure` |

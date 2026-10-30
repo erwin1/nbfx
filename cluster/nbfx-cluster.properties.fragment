@@ -41,6 +41,7 @@ nb.cluster.nbfx-api=\
         c.gluonhq.netbeans.nbfx.api.progress,\
         c.gluonhq.netbeans.nbfx.api.project,\
         c.gluonhq.netbeans.nbfx.api.search,\
+        c.gluonhq.netbeans.nbfx.api.usages,\
         c.gluonhq.netbeans.nbfx.api.views
 
 # --- nbfx-platform: FX replacements for platform/ -----------------------------
@@ -72,7 +73,6 @@ nb.cluster.nbfx-ide.depends=\
         nb.cluster.java
 nb.cluster.nbfx-ide=\
         c.gluonhq.netbeans.nbfx.editor.actions,\
-        c.gluonhq.netbeans.nbfx.findusages,\
         c.gluonhq.netbeans.nbfx.ide.build,\
         c.gluonhq.netbeans.nbfx.ide.debug,\
         c.gluonhq.netbeans.nbfx.ide.editor.css,\
@@ -85,6 +85,7 @@ nb.cluster.nbfx-ide=\
         c.gluonhq.netbeans.nbfx.ide.structure,\
         c.gluonhq.netbeans.nbfx.ide.structure.css,\
         c.gluonhq.netbeans.nbfx.ide.structure.xml,\
+        c.gluonhq.netbeans.nbfx.ide.usages,\
         c.gluonhq.netbeans.nbfx.ide.vcs,\
         c.gluonhq.netbeans.nbfx.launcher,\
         c.gluonhq.netbeans.nbfx.project,\
@@ -111,4 +112,5 @@ nb.cluster.nbfx-java=\
         c.gluonhq.netbeans.nbfx.java.maven.structure,\
         c.gluonhq.netbeans.nbfx.java.model,\
         c.gluonhq.netbeans.nbfx.java.navigation,\
-        c.gluonhq.netbeans.nbfx.java.navigation.structure
+        c.gluonhq.netbeans.nbfx.java.navigation.structure,\
+        c.gluonhq.netbeans.nbfx.java.usages

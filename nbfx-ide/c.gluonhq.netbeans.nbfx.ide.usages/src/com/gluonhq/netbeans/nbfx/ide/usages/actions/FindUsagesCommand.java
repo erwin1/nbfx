@@ -1,0 +1,93 @@
+package com.gluonhq.netbeans.nbfx.ide.usages.actions;
+
+import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
+import com.gluonhq.netbeans.nbfx.api.dialogs.ErrorReporter;
+import com.gluonhq.netbeans.nbfx.api.actions.AbstractCommand;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionIds;
+import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
+import com.gluonhq.netbeans.nbfx.ide.usages.model.UsagesModel;
+import com.gluonhq.netbeans.nbfx.ide.usages.query.UsagesQuery;
+import com.gluonhq.netbeans.nbfx.ide.usages.ui.UsagesViewProvider;
+import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.application.Platform;
+import javafx.beans.value.ObservableValue;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.util.Subscription;
+import org.openide.filesystems.FileObject;
+import org.openide.util.NbBundle;
+
+/**
+ * Edit ▸ Find Usages (Ctrl+F7): finds the usages of the element at the caret of the active
+ * document, then shows them in a new tab of the Usages view. Enabled while a usages provider
+ * handles the active file. Its code editor context menu entry
+ * ({@code NbFx/ContextMenus/Editor/findUsages.ref}) is registered here.
+ */
+@ActionReference(id = ActionIds.FIND_USAGES, path = "ContextMenus/Editor", position = 140, separatorBefore = true)
+final class FindUsagesCommand extends AbstractCommand {
+
+    private static final Logger LOG = Logger.getLogger(FindUsagesCommand.class.getName());
+    static final KeyCombination SHORTCUT = new KeyCodeCombination(KeyCode.F7, KeyCombination.CONTROL_DOWN);
+
+    private final ObservableValue<EditorDocument> activeDocument;
+    private final UsagesModel model;
+    private final Subscription subscription;
+
+    FindUsagesCommand(ObservableValue<EditorDocument> activeDocument, UsagesModel model) {
+        super(ActionIds.FIND_USAGES, NbBundle.getMessage(FindUsagesCommand.class, "CTL_FindUsagesCommand"),
+                SHORTCUT);
+        this.activeDocument = activeDocument;
+        this.model = model;
+        this.subscription = activeDocument.subscribe(doc -> setDisabled(!isSearchable(doc)));
+    }
+
+    /** Whether a usages provider handles {@code document}'s file. */
+    private boolean isSearchable(EditorDocument document) {
+        FileObject file = document == null ? null : document.getFileObject();
+        return model.handles(file);
+    }
+
+    @Override
+    public void run() {
+        EditorDocument document = activeDocument.getValue();
+        if (!isSearchable(document)) {
+            return;
+        }
+        FileObject file = document.getFileObject();
+        show(model.findUsages(file, document.getCaretOffset()),
+                NbBundle.getMessage(FindUsagesCommand.class, "ERR_NoElementAtCaret"));
+    }
+
+    /**
+     * Shows the query {@code pending} resolves to in the Usages view, or reports why there is none:
+     * {@code noTarget} when nothing searchable was found, the failure otherwise.
+     */
+    static void show(CompletableFuture<UsagesQuery> pending, String noTarget) {
+        pending.whenComplete((query, failure) -> Platform.runLater(() -> onResolved(query, failure, noTarget)));
+    }
+
+    private static void onResolved(UsagesQuery query, Throwable failure, String noTarget) {
+        if (failure != null) {
+            LOG.log(Level.WARNING, "Find Usages failed", failure);
+            ErrorReporter.report(NbBundle.getMessage(FindUsagesCommand.class, "CTL_FindUsagesCommand"),
+                    NbBundle.getMessage(FindUsagesCommand.class, "ERR_FindUsages"), null, failure);
+            return;
+        }
+        if (query == null) {
+            ErrorReporter.report(NbBundle.getMessage(FindUsagesCommand.class, "CTL_FindUsagesCommand"), null, noTarget);
+            return;
+        }
+        UsagesViewProvider view = UsagesViewProvider.instance();
+        if (view != null) {
+            view.show(query);
+        }
+    }
+
+    @Override
+    public void dispose() {
+        subscription.unsubscribe();
+    }
+}

@@ -6,9 +6,9 @@ Every number the plan states is derived here from the tree. Regenerate with
 
 | Figure | Value |
 |---|---|
-| nbfx modules | 54 |
-| nbfx source files | 591 |
-| modules exporting packages (`<public-packages>`) | 44 |
+| nbfx modules | 56 |
+| nbfx source files | 602 |
+| modules exporting packages (`<public-packages>`) | 45 |
 | of those, subtree exports (`<subpackages>`) | 26 |
 | modules with `arch.xml` | 19 |
 | modules with `apichanges.xml` | 9 |
@@ -19,13 +19,13 @@ Every number the plan states is derived here from the tree. Regenerate with
 | files mentioning a TreeView/TreeTableView/TableView/ListView | 32 |
 | `.subscribe(` call sites | 134 |
 | files mentioning `dispose()` | 22 |
-| modules importing `org.netbeans.api.java.source` | 4: c.gluonhq.netbeans.nbfx.findusages, c.gluonhq.netbeans.nbfx.java.editor, c.gluonhq.netbeans.nbfx.java.navigation, c.gluonhq.netbeans.nbfx.java.navigation.structure |
-| files importing `org.netbeans.api.java.source` | 43 |
-| files touching the Java semantic surface (`java.source`, `api.java.*`, `com.sun.source`, `libs.javacapi`) | 60 |
+| modules importing `org.netbeans.api.java.source` | 4: c.gluonhq.netbeans.nbfx.java.editor, c.gluonhq.netbeans.nbfx.java.navigation, c.gluonhq.netbeans.nbfx.java.navigation.structure, c.gluonhq.netbeans.nbfx.java.usages |
+| files importing `org.netbeans.api.java.source` | 44 |
+| files touching the Java semantic surface (`java.source`, `api.java.*`, `com.sun.source`, `libs.javacapi`) | 59 |
 | files using `NbBundle` | 152 |
-| `Bundle.properties` files | 60 |
-| test files | 33 |
-| modules with tests | 24 of 54 |
+| `Bundle.properties` files | 61 |
+| test files | 34 |
+| modules with tests | 25 of 56 |
 | upstream editor/Java modules (ide/editor*, java/java.source*, java.java.hints*) | 50 |
 | of their source files, Swing/AWT-touching | 847 of 1647 |
 | upstream modules depending on `org.openide.nodes` | 388 |
