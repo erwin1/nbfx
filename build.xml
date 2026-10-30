@@ -42,7 +42,7 @@
     <!-- local overrides first: Ant keeps the first value a property gets -->
     <property file="nbfx-local.properties"/>
     <property file="nbfx.properties"/>
-    <property name="nbfx.javafx.module" location="nbfx-libs/c.gluonhq.netbeans.nbfx.libs.javafx"/>
+    <property name="nbfx.javafx.module" location="nbfx-libs/nbfx.libs.javafx"/>
     <property file="${nbfx.javafx.module}/javafx-sdk.properties"/>
 
     <!-- ==== derived properties ==== -->
@@ -472,7 +472,7 @@ nbfx-java
              (${nbfx.cluster.exclude}) so a build dir from before the exclusion matches a clean one.
              Only upstream cluster dirs are pruned: the exclusions name upstream module dirs, and the
              dashed name is only a suffix match (java.navigation would otherwise also prune
-             nbfx-java/modules/com-gluonhq-netbeans-nbfx-java-navigation.jar). -->
+             nbfx-java/modules/org-netbeans-modules-nbfx-java-navigation.jar). -->
         <delete quiet="true" failonerror="false">
             <fileset dir="${nbfx.sub.dir}/nbbuild/netbeans" erroronmissingdir="false">
                 <filename regex="^(?!nbfx-)[^/\\]+[/\\](modules[/\\][^/\\]+-(?:${nbfx.cluster.exclude.dashed.re})\.jar|modules[/\\]locale[/\\][^/\\]+-(?:${nbfx.cluster.exclude.dashed.re})_[^/\\]+\.jar|config[/\\]Modules[/\\][^/\\]+-(?:${nbfx.cluster.exclude.dashed.re})\.xml|update_tracking[/\\][^/\\]+-(?:${nbfx.cluster.exclude.dashed.re})\.xml)$"/>
@@ -500,7 +500,7 @@ nbfx-java
              names a no-op class (release/launcher), which must be on the startup classpath (the
              import runs before the module system): core/*.jar of every cluster is. Using the
              same path on every OS means a test on macOS/Linux covers the Windows launcher too. -->
-        <property name="nbfx.dist.importclass" value="com.gluonhq.netbeans.nbfx.startup.NoImport"/>
+        <property name="nbfx.dist.importclass" value="org.netbeans.modules.nbfx.startup.NoImport"/>
         <property name="nbfx.dist.noimport.classes" location="${nbfx.build.dir}/noimport/classes"/>
         <delete dir="${nbfx.dist.noimport.classes}" quiet="true"/>
         <mkdir dir="${nbfx.dist.noimport.classes}"/>
@@ -615,8 +615,8 @@ metabuild.hash=${nbfx.nbbuild.hash}
 
     <target name="-module-check">
         <fail unless="module">Set -Dmodule=&lt;cluster dir&gt;/&lt;module dir&gt;, e.g.
-  ant module -Dmodule=nbfx-platform/c.gluonhq.netbeans.nbfx.progress</fail>
-        <fail message="no module at ${basedir}/${module} (expected &lt;cluster dir&gt;/&lt;module dir&gt;, e.g. nbfx-platform/c.gluonhq.netbeans.nbfx.progress)">
+  ant module -Dmodule=nbfx-platform/nbfx.platform.progress</fail>
+        <fail message="no module at ${basedir}/${module} (expected &lt;cluster dir&gt;/&lt;module dir&gt;, e.g. nbfx-platform/nbfx.platform.progress)">
             <condition><not><available file="${basedir}/${module}/build.xml"/></not></condition>
         </fail>
         <fail message="${nbfx.sub.dir}/${module} is not overlaid; run `ant bootstrap` once">
@@ -719,7 +719,7 @@ nbfx build harness — targets:
   bootstrap        submodule + patches + cluster config + JavaFX SDK + overlay
   build            build the '${nbfx.cluster.config}' cluster config
   run              launch the FX app (lean cluster set)
-  module           build one module only: -Dmodule=nbfx-platform/c.gluonhq.netbeans.nbfx.progress
+  module           build one module only: -Dmodule=nbfx-platform/nbfx.platform.progress
                    (-Dmodule.target=netbeans|clean|test ...); seconds instead of a full build
   check-purity     purity/guardrail checks
   submodule        init/update the netbeans submodule at the pinned revision

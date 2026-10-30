@@ -6,7 +6,7 @@ index 825b6b5d75..f3e29d4ad9 100644
                  <friend>org.netbeans.modules.modulemanager</friend>
                  <friend>org.netbeans.modules.options.api</friend>
                  <friend>org.netbeans.modules.settings</friend>
-+                <friend>com.gluonhq.netbeans.nbfx.launcher</friend>
++                <friend>org.netbeans.modules.nbfx.launcher</friend>
                  <friend>com.oracle.jdeveloper.extcache</friend>
                  <package>org.netbeans.core.startup</package>
                  <package>org.netbeans.core.startup.layers</package>

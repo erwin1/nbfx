@@ -9,12 +9,12 @@ docs/plan/appendix/G-licences-and-notices.md.
 --------------------------------------------------------------------------------
 OpenJFX (JavaFX)
 --------------------------------------------------------------------------------
-Version:   27 (nbfx-libs/c.gluonhq.netbeans.nbfx.libs.javafx/javafx-sdk.properties)
+Version:   27 (nbfx-libs/nbfx.libs.javafx/javafx-sdk.properties)
 Licence:   GNU General Public License, version 2, with the Classpath Exception
 Upstream:  https://openjfx.io/ - source: https://github.com/openjdk/jfx
 Download:  the OpenJFX SDK of the platform, https://download2.gluonhq.com/openjfx/,
            pinned by SHA-256 in javafx-sdk.properties
-Module:    nbfx-libs/c.gluonhq.netbeans.nbfx.libs.javafx
+Module:    nbfx-libs/nbfx.libs.javafx
 
 The build bundles javafx.base, javafx.graphics, javafx.controls, javafx.fxml,
 jfx.incubator.richtext and jfx.incubator.input with their native libraries and

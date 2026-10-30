@@ -27,7 +27,7 @@ Windows x64, Linux x64**.
 ## 1. Why
 
 The single `nbfx-<version>-bin.zip` bundles one set of JavaFX jars plus native libraries for three
-platforms (`nbfx-libs/c.gluonhq.netbeans.nbfx.libs.javafx/release/modules/`, committed to git):
+platforms (`nbfx-libs/nbfx.libs.javafx/release/modules/`, committed to git):
 
 | Path (under `modules/`) | Content | Platform |
 |---|---|---|
@@ -113,7 +113,7 @@ Each step builds and is reviewable on its own.
 
 ### Step 1 — JavaFX out of git, fetched and pinned (done)
 
-- `nbfx-libs/c.gluonhq.netbeans.nbfx.libs.javafx/javafx-sdk.properties` pins the SDK: the version
+- `nbfx-libs/nbfx.libs.javafx/javafx-sdk.properties` pins the SDK: the version
   (replacing `javafx.version`) and, per platform, the SDK's platform id and the zip's SHA-256 (the values
   Gluon publishes as `<zip>.sha256`).
 - Target `javafx-fetch` in `build.xml` (`bootstrap` runs it before `overlay`), via the macro

@@ -101,7 +101,7 @@ The split moves the annotations into their `api.*` modules, but the folder names
 …) are shared by every processor and every reader. Duplicating them per module (the previous plan) is
 rejected (PLAN §3.3): no test can compare two privates. So there is **one** owner:
 
-- module `com.gluonhq.netbeans.nbfx.api.layer` (cluster `nbfx-api`), tier **T1** (nbfx-internal, versioned,
+- module `org.netbeans.modules.nbfx.api.layer` (cluster `nbfx-api`), tier **T1** (nbfx-internal, versioned,
   not part of the published plugin API);
 - class `LayerPaths` with the folder constants (`ACTIONS`, `MENUS`, `TOOLBARS`, `CONTEXT_MENUS`, `VIEWS`,
   `STATUS`, `PROPERTY_EDITORS`, `OPTIONS`, `PROJECTS`, `WIZARDS`, `REF_SUFFIX`);

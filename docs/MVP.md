@@ -80,7 +80,7 @@ The branch already contains a working **JavaFX shell over the NetBeans Runtime**
   `VersioningOptOut` and `manifest.mf` registers it as `OpenIDE-Module-Install`.
 - The Swing main window is gone, not hidden: `core.windows` was removed from the platform cluster
   (M9.2/M9.4); `SwingWindowSuppressor` deleted.
-- JavaFX is bundled as class-path extensions in `nbfx-libs/c.gluonhq.netbeans.nbfx.libs.javafx`
+- JavaFX is bundled as class-path extensions in `nbfx-libs/nbfx.libs.javafx`
   (JavaFX 27; `javafx.version`), placed under `release/modules/ext/*.jar`; **`javafx.swing` is not bundled**.
 - Registration today is `@ServiceProvider` (28 occurrences) plus heavy manual wiring in
   `JavaFXLaunchApp.start()` (`:123-259`) and `ActionBars`; there are **no** `layer.xml`,
@@ -151,7 +151,7 @@ reuse the layer substrate and write **our own** processors (§4).
 
 ## 4. Registration substrate — nbfx annotation processors
 
-New module `c.gluonhq.netbeans.nbfx.annotations`:
+New module `nbfx.annotations`:
 
 - Depends only on `org.openide.filesystems` (headless) + `java.compiler`.
 - Provides `AbstractProcessor`s extending `LayerGeneratingProcessor`, using `LayerBuilder` to emit
@@ -383,9 +383,9 @@ public interface FxOptionsDisplayer {   // mirrors org.netbeans.api.options.Opti
 
 Current gaps in `nbfx`:
 
-- `nbfx-platform/c.gluonhq.netbeans.nbfx.api/apichanges.xml` is a stub (8 lines, no `<changes>`) and its
+- `nbfx-platform/nbfx.api/apichanges.xml` is a stub (8 lines, no `<changes>`) and its
   `xml-stylesheet` href is malformed: `CHANGE../../nbbuild/javadoctools/apichanges.xsl`.
-- `nbfx-platform/c.gluonhq.netbeans.nbfx.api/arch.xml` is full of `XXX no answer` placeholders.
+- `nbfx-platform/nbfx.api/arch.xml` is full of `XXX no answer` placeholders.
 - Only `nbfx.api` sets `javadoc.arch` in `project.properties`; no `sigtest` anywhere.
 - Module spec versions exist (`OpenIDE-Module-Specification-Version: 1.0`) but dependency versions
   are pinned without a documented policy.
@@ -777,7 +777,7 @@ type, with full read/write persistence.
 ## 17. Global action context and command refactor
 
 **Problem (evidence).** Build commands live in `nbfx.run`
-(`c.gluonhq.netbeans.nbfx.run`); their enablement uses a separate `BuildActions` default-Lookup
+(`nbfx.run`); their enablement uses a separate `BuildActions` default-Lookup
 mechanism and is effectively always true; commands reach into
 `ProjectRegistry`/`FileSelectionContext`/`EditorContext` directly instead of a single context; there
 is no unified observable context.
@@ -911,7 +911,7 @@ declared default weights (only `DEFAULT_NAVIGATOR_SHARE = 0.22`).
 
 ### 19.1 Properties window (`nbfx.propertysheet`, renamed from `nbfx.properties`)
 
-- Rename the module `c.gluonhq.netbeans.nbfx.properties` → `c.gluonhq.netbeans.nbfx.propertysheet`
+- Rename the module `nbfx.properties` → `nbfx.propertysheet`
   (update the nbfx cluster module lists, dependencies, `apichanges.xml`/`arch.xml`, refs).
 - The window is the FX `NbSheet` analogue: a dockable view hosting `FxPropertySheet`, driven by
   `FxActionContext` (current global selection: project/file/editor document) via `FxPropertiesProvider`s;
@@ -1045,7 +1045,7 @@ root from the selected project/file/document.
   supersedes `SELECT_STRUCTURE` under IDE Tools. Rebase the planned `NbFx/Structure/<mime>` →
   `NbFx/Navigators/<mime>`; the Part B mime context root becomes `ContextMenus/Navigator`.
 - Window **Debug → Debugging**; window **Git → Versioning** (NetBeans has no Git window; versioning
-  lives in Output/status bar). `NbFx` prefix + `com.gluonhq` codes stay as documented product
+  lives in Output/status bar). `NbFx` prefix + `org.netbeans.modules.nbfx` code names stay as documented product
   deviations.
 - De-SPI the left column: delete `NavigatorProvider`; Projects/Files become plain `ViewProvider`s —
   the `@FxViewRegistration(navigator = true)` flag already carries the marker
@@ -1079,7 +1079,7 @@ root from the selected project/file/document.
   the persisted state and on load the **persisted overrides the layer**, stale modes/components whose
   declaring module vanished are pruned, corrupt `.settings` falls back to the module file, and
   `save()` writes only the local folder. M9.0 mirrors this: `ViewStateStore` (NbPreferences
-  `com/gluonhq/netbeans/nbfx/window`) = local folder; `FxWindowSystem.defaultState()` (areas from
+  `org/netbeans/modules/nbfx/window`) = local folder; `FxWindowSystem.defaultState()` (areas from
   `FxArea.defaults()`, view order/start-up tabs from `ViewRegistry` + `openAtStartup`/`navigator`,
   `NEVER` views never attached) = module folder; merge prunes stale area ids + uninstalled/N-EVER
   views; corrupt/absent → defaults. `AppState`/`SessionRestorer` are NOT rehoused (they own the
@@ -1113,7 +1113,7 @@ root from the selected project/file/document.
   (`@ServiceProvider(service=RunLevel.class)`, `nbfx.launcher`) launches JavaFX from the `RunLevel`
   SPI (`Main:317`, after module enable), exactly like the stock `GuiRunLevel` — access to the
   friend-restricted `org.netbeans.core.startup` package is granted by adding
-  `com.gluonhq.netbeans.nbfx.launcher` to `core.startup`'s `<friend-packages>` (the same mechanism
+  `org.netbeans.modules.nbfx.launcher` to `core.startup`'s `<friend-packages>` (the same mechanism
   that lets `org.netbeans.core` use `RunLevel`). `JavaFXLauncher` ModuleInstall shrinks to
   `LauncherInstall` (validate-only: `VersioningOptOut`, which must run before module restore);
   `SwingWindowSuppressor` deleted. `nbfx.launcher` drops `openide.windows` (keeps `core.startup`
@@ -1731,11 +1731,11 @@ in a module of its own next to `nbfx.structure.java` (§23):
   `platform/core.windows/src/org/netbeans/core/windows/view/DefaultView.java:89` (`guessSlideSide`),
   `platform/o.n.swing.tabcontrol/src/org/netbeans/swing/tabcontrol/plaf/AquaViewTabDisplayerUI.java:249-273`
   (minimize / pin / restore-group buttons), `.../plaf/Bundle.properties` (`Tip_Minimize_Window_Group`,
-  `Tip_Restore_Window_Group`, `Tip_Pin`); nbfx: `nbfx-platform/c.gluonhq.netbeans.nbfx.docking/src/.../DockArea.java`
-  (`minimize`/`restore`/`Anchor`), `nbfx-ide/c.gluonhq.netbeans.nbfx.ui/src/.../shell/{SlidingArea,SlideBar}.java`.
+  `Tip_Restore_Window_Group`, `Tip_Pin`); nbfx: `nbfx-platform/nbfx.docking/src/.../DockArea.java`
+  (`minimize`/`restore`/`Anchor`), `nbfx-ide/nbfx.ui/src/.../shell/{SlidingArea,SlideBar}.java`.
 - Swing Java navigator (§23 reference): `java/java.navigation/src/org/netbeans/modules/java/navigation/`
   (`ClassMemberPanel.java`, `ClassMemberPanelUI.java`, `actions/`), `java/beans/src/org/netbeans/modules/beans/BeanPanel.java`;
-  nbfx port (done): `nbfx-java/c.gluonhq.netbeans.nbfx.structure.java/src/.../structure/java/{ui,model,actions}/`.
+  nbfx port (done): `nbfx-java/nbfx.structure.java/src/.../structure/java/{ui,model,actions}/`.
 - Swing `@ProjectServiceProvider`/`ActionProvider`:
   `ide/projectapi/src/org/netbeans/spi/project/{ActionProvider,ProjectServiceProvider}.java`.
 - Swing global context / active-component lookup (§22):
@@ -1756,7 +1756,7 @@ in a module of its own next to `nbfx.structure.java` (§23):
   `platform/openide.windows/.../TopComponent.java:1467` (`@Registration(mode, openAtStartup,
   persistenceType)`), `.../persistence/ModuleChangeHandler.java`.
 - nbfx launcher (M9.2, done): `nbfx-ide/.../launcher/{FxGuiRunLevel,LauncherInstall}.java` replaced
-  `JavaFXLauncher`/`SwingWindowSuppressor`; `core.startup` now lists `com.gluonhq.netbeans.nbfx.launcher`
+  `JavaFXLauncher`/`SwingWindowSuppressor`; `core.startup` now lists `org.netbeans.modules.nbfx.launcher`
   as a friend so it can implement `RunLevel` (patch `0001`).
 - nbfx view/mode substrate: `nbfx-platform/.../api/view/{ViewProvider,ViewManager,DockLocation}.java`,
   `nbfx-ide/.../ui/shell/Docking.java`, `nbfx-platform/.../windows/ViewRegistry.java`.

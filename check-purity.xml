@@ -37,7 +37,7 @@
     <property name="nbfx.purity.strict" value="false"/>
     <property name="nbfx.src.pattern" value="nbfx-libs/*/src/**/*.java,nbfx-api/*/src/**/*.java,nbfx-platform/*/src/**/*.java,nbfx-ide/*/src/**/*.java,nbfx-java/*/src/**/*.java"/>
     <property name="nbfx.deps.pattern" value="nbfx-libs/*/nbproject/project.xml,nbfx-api/*/nbproject/project.xml,nbfx-platform/*/nbproject/project.xml,nbfx-ide/*/nbproject/project.xml,nbfx-java/*/nbproject/project.xml"/>
-    <property name="nbfx.jar.pattern" value="com-gluonhq-netbeans-nbfx-*.jar"/>
+    <property name="nbfx.jar.pattern" value="org-netbeans-modules-nbfx-*.jar"/>
     <property name="nbfx.dist.dir" value="netbeans/nbbuild/netbeans"/>
 
     <!-- Forbidden imports in nbfx sources. -->
@@ -73,7 +73,7 @@
                 <!-- The project module still bridges open/close to the platform via
                      OpenProjects (projectuiapi.base); to be replaced by the nbfx-native project
                      model in the project-consolidation slice. -->
-                <exclude name="nbfx-ide/c.gluonhq.netbeans.nbfx.project/nbproject/project.xml"/>
+                <exclude name="nbfx-ide/nbfx.project/nbproject/project.xml"/>
                 <or>
                     <contains text="org.openide.awt"/>
                     <contains text="org.openide.nodes"/>

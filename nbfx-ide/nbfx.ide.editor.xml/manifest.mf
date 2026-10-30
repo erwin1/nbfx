@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.nbfx.ide.editor.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/nbfx/ide/editor/xml/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Java-Dependencies: Java > 25
+

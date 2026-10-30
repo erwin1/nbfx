@@ -244,7 +244,7 @@
         <nbfx-javafx-universal dir="${nbfx.release.tmp}/javafx"/>
         <property name="nbfx.release.javafx" location="${nbfx.release.tmp}/javafx/universal"/>
         <!-- libs.javafx's update_tracking lists every file of the module with its CRC-32 -->
-        <property name="nbfx.release.tracking" value="nbfx-libs/update_tracking/com-gluonhq-netbeans-nbfx-libs-javafx.xml"/>
+        <property name="nbfx.release.tracking" value="nbfx-libs/update_tracking/org-netbeans-modules-nbfx-libs-javafx.xml"/>
         <java sourcefile="${basedir}/release/tools/UpdateTracking.java" fork="true" failonerror="true">
             <arg file="${nbfx.dist.dir}/${nbfx.release.tracking}"/>
             <arg file="${nbfx.release.javafx}/nbfx-libs"/>

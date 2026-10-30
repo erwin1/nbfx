@@ -1,0 +1,98 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.netbeans.modules.nbfx.api.actions;
+
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.scene.Node;
+import javafx.scene.input.KeyCombination;
+
+/**
+ * A single, context-aware application action (for example {@code Save} or {@code Save All}).
+ * <p>
+ * Commands are the unit of behavior held by the {@link ActionRegistry}. UI controls (menu
+ * items, toolbar buttons) are built from commands: their action invokes {@link #run()} and
+ * their enabled state is bound to {@link #disabledProperty()}, so enablement is driven by
+ * context rather than by each individual UI control.
+ */
+public interface Command {
+
+    /**
+     * Returns the stable identifier of this command (see {@link ActionIds}).
+     *
+     * @return the command id, never {@code null}
+     */
+    String getId();
+
+    /**
+     * Returns the human-readable display text for this command.
+     *
+     * @return the display text
+     */
+    String getText();
+
+    /**
+     * Returns the preferred keyboard accelerator (shortcut) for this command, so the shortcut
+     * travels with the command definition instead of being configured on each UI control.
+     *
+     * @return the accelerator, or {@code null} if the command has no default shortcut
+     */
+    default KeyCombination getAccelerator() {
+        return null;
+    }
+
+    /**
+     * A new icon node for the menu items and buttons built from this command, or {@code null} for
+     * a command shown by its text alone. A new node is built on each call, as a scene graph node has
+     * a single parent. The application shell's own commands get their icons from the shell instead,
+     * so this is for the commands other modules contribute (e.g. a view's Window-menu entry).
+     *
+     * @return a new icon node, or {@code null}
+     */
+    default Node getIcon() {
+        return null;
+    }
+
+    /**
+     * Indicates whether the command is currently disabled (not executable in the current
+     * context).
+     *
+     * @return {@code true} if the command cannot be run right now
+     */
+    boolean isDisabled();
+
+    /**
+     * The observable disabled state of this command. UI controls should bind their own
+     * {@code disable} property to this so enablement follows context automatically.
+     *
+     * @return the read-only disabled property
+     */
+    ReadOnlyBooleanProperty disabledProperty();
+
+    /**
+     * Executes the command. Implementations must not fail silently: any error is surfaced to
+     * the user. Invoked on the JavaFX Application Thread.
+     */
+    void run();
+
+    /**
+     * Releases any listeners this command installed.
+     */
+    default void dispose() {
+    }
+}

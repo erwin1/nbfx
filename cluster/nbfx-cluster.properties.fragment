@@ -40,7 +40,7 @@ clusters.config.nbfx.list=\
 nb.cluster.nbfx-libs.dir=nbfx-libs
 nb.cluster.nbfx-libs.depends=
 nb.cluster.nbfx-libs=\
-        c.gluonhq.netbeans.nbfx.libs.javafx
+        nbfx.libs.javafx
 
 # --- nbfx-api: published/shared APIs ------------------------------------------
 nb.cluster.nbfx-api.dir=nbfx-api
@@ -48,21 +48,21 @@ nb.cluster.nbfx-api.depends=\
         nb.cluster.platform,\
         nb.cluster.nbfx-libs
 nb.cluster.nbfx-api=\
-        c.gluonhq.netbeans.nbfx.api.actions,\
-        c.gluonhq.netbeans.nbfx.api.dialogs,\
-        c.gluonhq.netbeans.nbfx.api.editor,\
-        c.gluonhq.netbeans.nbfx.api.elements,\
-        c.gluonhq.netbeans.nbfx.api.file,\
-        c.gluonhq.netbeans.nbfx.api.layer,\
-        c.gluonhq.netbeans.nbfx.api.options,\
-        c.gluonhq.netbeans.nbfx.api.progress,\
-        c.gluonhq.netbeans.nbfx.api.project,\
-        c.gluonhq.netbeans.nbfx.api.property,\
-        c.gluonhq.netbeans.nbfx.api.search,\
-        c.gluonhq.netbeans.nbfx.api.status,\
-        c.gluonhq.netbeans.nbfx.api.usages,\
-        c.gluonhq.netbeans.nbfx.api.views,\
-        c.gluonhq.netbeans.nbfx.api.wizard
+        nbfx.api.actions,\
+        nbfx.api.dialogs,\
+        nbfx.api.editor,\
+        nbfx.api.elements,\
+        nbfx.api.file,\
+        nbfx.api.layer,\
+        nbfx.api.options,\
+        nbfx.api.progress,\
+        nbfx.api.project,\
+        nbfx.api.property,\
+        nbfx.api.search,\
+        nbfx.api.status,\
+        nbfx.api.usages,\
+        nbfx.api.views,\
+        nbfx.api.wizard
 
 # --- nbfx-platform: FX replacements for platform/ -----------------------------
 nb.cluster.nbfx-platform.dir=nbfx-platform
@@ -74,16 +74,16 @@ nb.cluster.nbfx-platform.depends=\
         nb.cluster.nbfx-api,\
         nb.cluster.ide
 nb.cluster.nbfx-platform=\
-        c.gluonhq.netbeans.nbfx.platform.actions,\
-        c.gluonhq.netbeans.nbfx.platform.editor,\
-        c.gluonhq.netbeans.nbfx.platform.macos,\
-        c.gluonhq.netbeans.nbfx.platform.menus,\
-        c.gluonhq.netbeans.nbfx.platform.options,\
-        c.gluonhq.netbeans.nbfx.platform.output,\
-        c.gluonhq.netbeans.nbfx.platform.progress,\
-        c.gluonhq.netbeans.nbfx.platform.status,\
-        c.gluonhq.netbeans.nbfx.platform.wizard,\
-        c.gluonhq.netbeans.nbfx.platform.workspace
+        nbfx.platform.actions,\
+        nbfx.platform.editor,\
+        nbfx.platform.macos,\
+        nbfx.platform.menus,\
+        nbfx.platform.options,\
+        nbfx.platform.output,\
+        nbfx.platform.progress,\
+        nbfx.platform.status,\
+        nbfx.platform.wizard,\
+        nbfx.platform.workspace
 
 # --- nbfx-ide: FX replacements for ide/ + the app shell -----------------------
 nb.cluster.nbfx-ide.dir=nbfx-ide
@@ -92,28 +92,28 @@ nb.cluster.nbfx-ide.depends=\
         nb.cluster.ide,\
         nb.cluster.java
 nb.cluster.nbfx-ide=\
-        c.gluonhq.netbeans.nbfx.editor.actions,\
-        c.gluonhq.netbeans.nbfx.ide.build,\
-        c.gluonhq.netbeans.nbfx.ide.debug,\
-        c.gluonhq.netbeans.nbfx.ide.editor.css,\
-        c.gluonhq.netbeans.nbfx.ide.editor.xml,\
-        c.gluonhq.netbeans.nbfx.ide.file,\
-        c.gluonhq.netbeans.nbfx.ide.plugins,\
-        c.gluonhq.netbeans.nbfx.ide.project.actions,\
-        c.gluonhq.netbeans.nbfx.ide.project.customizer,\
-        c.gluonhq.netbeans.nbfx.ide.search,\
-        c.gluonhq.netbeans.nbfx.ide.structure,\
-        c.gluonhq.netbeans.nbfx.ide.structure.css,\
-        c.gluonhq.netbeans.nbfx.ide.structure.xml,\
-        c.gluonhq.netbeans.nbfx.ide.usages,\
-        c.gluonhq.netbeans.nbfx.ide.vcs,\
-        c.gluonhq.netbeans.nbfx.launcher,\
-        c.gluonhq.netbeans.nbfx.project,\
-        c.gluonhq.netbeans.nbfx.project.context,\
-        c.gluonhq.netbeans.nbfx.project.ui,\
-        c.gluonhq.netbeans.nbfx.project.ui.api,\
-        c.gluonhq.netbeans.nbfx.propertysheet,\
-        c.gluonhq.netbeans.nbfx.ui
+        nbfx.editor.actions,\
+        nbfx.ide.build,\
+        nbfx.ide.debug,\
+        nbfx.ide.editor.css,\
+        nbfx.ide.editor.xml,\
+        nbfx.ide.file,\
+        nbfx.ide.plugins,\
+        nbfx.ide.project.actions,\
+        nbfx.ide.project.customizer,\
+        nbfx.ide.search,\
+        nbfx.ide.structure,\
+        nbfx.ide.structure.css,\
+        nbfx.ide.structure.xml,\
+        nbfx.ide.usages,\
+        nbfx.ide.vcs,\
+        nbfx.launcher,\
+        nbfx.project,\
+        nbfx.project.context,\
+        nbfx.project.ui,\
+        nbfx.project.ui.api,\
+        nbfx.propertysheet,\
+        nbfx.ui
 
 # --- nbfx-java: FX replacements for java/ + extide/ project types -------------
 nb.cluster.nbfx-java.dir=nbfx-java
@@ -123,14 +123,14 @@ nb.cluster.nbfx-java.depends=\
         nb.cluster.extide,\
         nb.cluster.apisupport
 nb.cluster.nbfx-java=\
-        c.gluonhq.netbeans.nbfx.java.build.ant,\
-        c.gluonhq.netbeans.nbfx.java.editor,\
-        c.gluonhq.netbeans.nbfx.java.gradle,\
-        c.gluonhq.netbeans.nbfx.java.gradle.structure,\
-        c.gluonhq.netbeans.nbfx.java.j2seproject,\
-        c.gluonhq.netbeans.nbfx.java.maven,\
-        c.gluonhq.netbeans.nbfx.java.maven.structure,\
-        c.gluonhq.netbeans.nbfx.java.model,\
-        c.gluonhq.netbeans.nbfx.java.navigation,\
-        c.gluonhq.netbeans.nbfx.java.navigation.structure,\
-        c.gluonhq.netbeans.nbfx.java.usages
+        nbfx.java.build.ant,\
+        nbfx.java.editor,\
+        nbfx.java.gradle,\
+        nbfx.java.gradle.structure,\
+        nbfx.java.j2seproject,\
+        nbfx.java.maven,\
+        nbfx.java.maven.structure,\
+        nbfx.java.model,\
+        nbfx.java.navigation,\
+        nbfx.java.navigation.structure,\
+        nbfx.java.usages

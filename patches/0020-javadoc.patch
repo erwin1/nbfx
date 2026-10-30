@@ -8,7 +8,7 @@ index 2311f404f1..75dfcaec0b 100644
      org.netbeans.api.*,\
 -    org.netbeans.spi.*
 +    org.netbeans.spi.*,\
-+    com.gluonhq.*
++    org.netbeans.modules.nbfx.*
  
  # List of modules that provide stable javadoc
  config.javadoc.stable=\

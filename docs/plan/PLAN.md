@@ -57,14 +57,14 @@ clusters (build order, dependencies downward only):
 
   nbfx-libs      bundled external libraries            (jline, async-profiler, javafx, jgit, jacoco, jna)
       │
-  nbfx-api       published + shared APIs (T1/T2-FX/M)  com.gluonhq.netbeans.nbfx.api.*
+  nbfx-api       published + shared APIs (T1/T2-FX/M)  org.netbeans.modules.nbfx.api.*
       │
-  nbfx-platform  shell + platform services             com.gluonhq.netbeans.nbfx.platform.*
+  nbfx-platform  shell + platform services             org.netbeans.modules.nbfx.platform.*
       │
-  nbfx-ide       IDE building blocks                   com.gluonhq.netbeans.nbfx.ide.*
+  nbfx-ide       IDE building blocks                   org.netbeans.modules.nbfx.ide.*
       │
-  nbfx-java      Java/JVM usage                        com.gluonhq.netbeans.nbfx.java.*
-  nbfx-javafx    JavaFX usage                          com.gluonhq.netbeans.nbfx.javafx.*
+  nbfx-java      Java/JVM usage                        org.netbeans.modules.nbfx.java.*
+  nbfx-javafx    JavaFX usage                          org.netbeans.modules.nbfx.javafx.*
 ```
 
 **Rules.**
@@ -94,12 +94,12 @@ clusters (build order, dependencies downward only):
 ### 3.1 Modules
 
 ```
-com.gluonhq.netbeans.nbfx.api.<capability>            published/shared API        (cluster nbfx-api)
-com.gluonhq.netbeans.nbfx.platform.<capability>       platform implementation     (cluster nbfx-platform)
-com.gluonhq.netbeans.nbfx.ide.<capability>            IDE implementation          (cluster nbfx-ide)
-com.gluonhq.netbeans.nbfx.java.<capability>           Java/JVM usage              (cluster nbfx-java)
-com.gluonhq.netbeans.nbfx.javafx.<capability>         JavaFX usage                (cluster nbfx-javafx)
-com.gluonhq.netbeans.nbfx.libs.<library>              bundled external library    (cluster nbfx-libs)
+org.netbeans.modules.nbfx.api.<capability>            published/shared API        (cluster nbfx-api)
+org.netbeans.modules.nbfx.platform.<capability>       platform implementation     (cluster nbfx-platform)
+org.netbeans.modules.nbfx.ide.<capability>            IDE implementation          (cluster nbfx-ide)
+org.netbeans.modules.nbfx.java.<capability>           Java/JVM usage              (cluster nbfx-java)
+org.netbeans.modules.nbfx.javafx.<capability>         JavaFX usage                (cluster nbfx-javafx)
+org.netbeans.modules.nbfx.libs.<library>              bundled external library    (cluster nbfx-libs)
 ```
 
 - **Package == module code-name** (NetBeans convention); no extra package prefixes.

@@ -35,7 +35,7 @@ public final class LanguageGuard {
     private static final Pattern LANGUAGE_LITERAL = Pattern.compile(
             "\"(java|css|xml|fxml)\"", Pattern.CASE_INSENSITIVE);
     private static final Path CORE = Path.of(
-            "nbfx-platform", "c.gluonhq.netbeans.nbfx.platform.editor", "src");
+            "nbfx-platform", "nbfx.platform.editor", "src");
 
     public static void main(String[] args) throws IOException {
         Path root = Path.of(args.length > 0 ? args[0] : ".").toAbsolutePath().normalize();
