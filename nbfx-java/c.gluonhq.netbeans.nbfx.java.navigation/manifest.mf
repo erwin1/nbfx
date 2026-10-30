@@ -1,6 +1,0 @@
-Manifest-Version: 1.0
-OpenIDE-Module: com.gluonhq.netbeans.nbfx.java.navigation
-OpenIDE-Module-Localizing-Bundle: com/gluonhq/netbeans/nbfx/java/navigation/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0
-OpenIDE-Module-Java-Dependencies: Java > 25
-OpenIDE-Module-Install: com/gluonhq/netbeans/nbfx/java/navigation/Installer.class

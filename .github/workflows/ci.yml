@@ -97,13 +97,13 @@ jobs:
       - name: API module tests
         run: |
           for module in \
-            c.gluonhq.netbeans.nbfx.api.actions \
-            c.gluonhq.netbeans.nbfx.api.views \
-            c.gluonhq.netbeans.nbfx.api.status \
-            c.gluonhq.netbeans.nbfx.api.options \
-            c.gluonhq.netbeans.nbfx.api.property \
-            c.gluonhq.netbeans.nbfx.api.project \
-            c.gluonhq.netbeans.nbfx.api.wizard
+            nbfx.api.actions \
+            nbfx.api.views \
+            nbfx.api.status \
+            nbfx.api.options \
+            nbfx.api.property \
+            nbfx.api.project \
+            nbfx.api.wizard
           do
             ant -f "netbeans/nbfx-api/$module/build.xml" test-unit \
               -Dnetbeans.dest.dir="$PWD/netbeans/nbbuild/netbeans"
@@ -139,4 +139,4 @@ jobs:
       - name: Scenario test (headless glass)
         run: |
           cd netbeans/nbbuild
-          ant -f ../nbfx-ide/c.gluonhq.netbeans.nbfx.launcher/build.xml test
+          ant -f ../nbfx-ide/nbfx.launcher/build.xml test

@@ -28,10 +28,10 @@ once the numbers are stable.
 
 ```sh
 cd netbeans/nbbuild
-ant -f ../nbfx-ide/c.gluonhq.netbeans.nbfx.launcher/build.xml test
+ant -f ../nbfx-ide/nbfx.launcher/build.xml test
 ```
 
-Artifact: `nbfx-ide/c.gluonhq.netbeans.nbfx.launcher/build/test/unit/work/*/budget.json`
+Artifact: `nbfx-ide/nbfx.launcher/build/test/unit/work/*/budget.json`
 (the exact directory is printed by the test). The test uses **glass headless**
 (`-Dglass.platform=Headless -Dprism.order=sw -Djava.awt.headless=true`).
 

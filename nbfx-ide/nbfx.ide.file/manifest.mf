@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.nbfx.ide.file
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/nbfx/ide/file/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Java-Dependencies: Java > 25
+OpenIDE-Module-Provides: org.netbeans.modules.nbfx.ide.file
+

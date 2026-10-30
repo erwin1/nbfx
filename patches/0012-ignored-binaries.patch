@@ -7,6 +7,6 @@ index 17a7c7a70c..65a2a79a2f 100644
  rust/rust.project/src/org/netbeans/modules/rust/project/templates/RustProjectTemplateProject.zip
  
 +# NetBeansFX: JavaFX SDK fetched into libs.javafx by `ant javafx-fetch` (jars + native libs)
-+nbfx-libs/c.gluonhq.netbeans.nbfx.libs.javafx/release/modules/ext/*.jar
-+nbfx-libs/c.gluonhq.netbeans.nbfx.libs.javafx/release/modules/lib/**
++nbfx-libs/nbfx.libs.javafx/release/modules/ext/*.jar
++nbfx-libs/nbfx.libs.javafx/release/modules/lib/**
 \ No newline at end of file

@@ -26,7 +26,7 @@ Three levels, from fastest to most realistic.
 
 ```sh
 cd netbeans/nbbuild
-ant -f ../nbfx-ide/c.gluonhq.netbeans.nbfx.launcher/build.xml test
+ant -f ../nbfx-ide/nbfx.launcher/build.xml test
 ```
 
 `ScenarioTest` uses the module system, glass headless

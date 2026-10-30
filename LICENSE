@@ -208,9 +208,9 @@ License. They are listed, with their licence texts, in THIRDPARTY.
 In particular, nbfx redistributes the OpenJFX (JavaFX) 27 runtime under the
 GNU General Public License, version 2, with the Classpath Exception:
 
-  nbfx-libs/c.gluonhq.netbeans.nbfx.libs.javafx/release/modules/ext/*.jar
-  nbfx-libs/c.gluonhq.netbeans.nbfx.libs.javafx/release/modules/lib/**
+  nbfx-libs/nbfx.libs.javafx/release/modules/ext/*.jar
+  nbfx-libs/nbfx.libs.javafx/release/modules/lib/**
 
-Licence texts: nbfx-libs/c.gluonhq.netbeans.nbfx.libs.javafx/release/legal/javafx/
+Licence texts: nbfx-libs/nbfx.libs.javafx/release/legal/javafx/
 (in a binary distribution: nbfx-libs/legal/javafx/)
 ********************************************************************************

@@ -1,0 +1,200 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.netbeans.modules.nbfx.ide.build;
+
+import org.netbeans.modules.nbfx.api.progress.Progress;
+import org.netbeans.modules.nbfx.platform.output.ConsolePanel;
+import org.netbeans.modules.nbfx.platform.output.OutputConsole;
+import org.netbeans.modules.nbfx.project.ui.api.BuildActionProvider;
+import org.netbeans.modules.nbfx.project.ui.api.BuildExecution;
+import org.netbeans.modules.nbfx.project.ui.api.BuildOutput;
+import org.netbeans.modules.nbfx.project.ui.api.BuildProgress;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.openide.util.Lookup;
+import org.openide.util.NbBundle;
+
+/**
+ * Runs a build action for a project directory. It first asks the project-type
+ * {@link BuildActionProvider} to run the command in-process (streaming to the Fx console); when the
+ * provider does not support in-process execution, it falls back to the CLI runner. Shared by the
+ * Build menu command and the navigator context menu.
+ *
+ * @since 1.0
+ */
+public final class BuildRunner {
+
+    private static final Logger LOG = Logger.getLogger(BuildRunner.class.getName());
+
+    private BuildRunner() {
+    }
+
+    /**
+     * How an in-process build is started once its console and progress exist; see
+     * {@link #run(Path, String, Starter)}.
+     *
+     * @since 1.0
+     */
+    @FunctionalInterface
+    public interface Starter {
+
+        /** Starts the build, streaming to {@code output} and reporting to {@code progress}; {@code null} when it cannot. */
+        BuildExecution start(BuildOutput output, BuildProgress progress);
+    }
+
+    /**
+     * Runs an in-process build that is not one of the {@code BuildCommands} - a Maven goal picked
+     * in the Navigator - in the console {@code consoleName}, cleared and shown first, with
+     * cancellable progress: what {@link #run(Path, String, String)} does for a command, without the
+     * CLI fallback.
+     *
+     * @since 1.0
+     */
+    public static void run(Path dir, String consoleName, Starter starter) {
+        if (dir == null) {
+            return;
+        }
+        OutputConsole output = Lookup.getDefault().lookup(OutputConsole.class);
+        if (output == null) {
+            LOG.warning("No OutputConsole service; build output cannot be shown");
+            return;
+        }
+        ConsolePanel console = output.console(consoleName);
+        console.clear();
+        console.show();
+        Progress progress = Lookup.getDefault().lookup(Progress.class);
+        try {
+            if (starter.start(output(console), progress(progress, consoleName)) == null) {
+                console.append(NbBundle.getMessage(BuildRunner.class, "BuildCommand.noTool") + "\n");
+            }
+        } catch (RuntimeException | LinkageError t) {
+            LOG.log(Level.WARNING, "In-process build failed", t);
+            console.append("\n[in-process build failed: " + t + "]\n");
+        }
+    }
+
+    public static void run(Path dir, String command, String consoleName) {
+        if (dir == null) {
+            return;
+        }
+        OutputConsole output = Lookup.getDefault().lookup(OutputConsole.class);
+        if (output == null) {
+            LOG.warning("No OutputConsole service; build output cannot be shown");
+            return;
+        }
+        ConsolePanel console = output.console(consoleName);
+        console.clear();
+        console.show();
+
+        Progress progress = Lookup.getDefault().lookup(Progress.class);
+        BuildActionProvider provider = BuildActions.providerFor(dir);
+        LOG.info(() -> "Build " + command + " in " + dir + " via "
+                + (provider == null ? "CLI" : provider.getClass().getName()));
+        if (provider != null) {
+            try {
+                BuildExecution execution = provider.start(dir, command,
+                        output(console), progress(progress, consoleName));
+                if (execution != null) {
+                    return;
+                }
+                LOG.info(() -> provider.getClass().getName() + " has no in-process executor; using CLI");
+            } catch (Throwable t) {
+                LOG.log(Level.WARNING, "In-process build failed; falling back to CLI", t);
+                console.append("\n[in-process build failed: " + t + "]\n");
+            }
+        }
+        runCli(dir, command, consoleName, console, progress);
+    }
+
+    /** The CLI fallback: detect the tool from marker files and run it as a process. */
+    private static void runCli(Path dir, String command, String consoleName, ConsolePanel console, Progress progress) {
+        List<String> commandLine = BuildTool.detect(dir).commandLine(dir, command);
+        if (commandLine == null) {
+            BuildActionProvider provider = BuildActions.providerFor(dir);
+            if (provider != null) {
+                commandLine = provider.commandLine(dir, command);
+            }
+        }
+        if (commandLine == null) {
+            console.append(NbBundle.getMessage(BuildRunner.class, "BuildCommand.noTool") + "\n");
+            return;
+        }
+        AtomicReference<Process> process = new AtomicReference<>();
+        Progress.Handle handle = progress == null ? null : progress.start(consoleName, () -> {
+            Process running = process.get();
+            if (running != null) {
+                running.destroy();
+            }
+        });
+        List<String> line = commandLine;
+        ProcessRunner.run(line, dir, console, process::set, () -> {
+            if (handle != null) {
+                handle.finish();
+            }
+        });
+    }
+
+    private static BuildOutput output(ConsolePanel console) {
+        return new BuildOutput() {
+            @Override
+            public void clear() {
+                console.clear();
+            }
+
+            @Override
+            public void show() {
+                console.show();
+            }
+
+            @Override
+            public void append(String text) {
+                console.append(text);
+            }
+        };
+    }
+
+    private static BuildProgress progress(Progress progress, String name) {
+        return new BuildProgress() {
+            private Progress.Handle handle;
+
+            @Override
+            public void start(String displayName, Runnable cancel) {
+                if (progress == null) {
+                    return;
+                }
+                if (handle != null) {
+                    handle.setMessage(displayName);
+                    return;
+                }
+                handle = progress.start(displayName, cancel);
+            }
+
+            @Override
+            public void finish() {
+                if (handle != null) {
+                    handle.finish();
+                    handle = null;
+                }
+            }
+        };
+    }
+}
