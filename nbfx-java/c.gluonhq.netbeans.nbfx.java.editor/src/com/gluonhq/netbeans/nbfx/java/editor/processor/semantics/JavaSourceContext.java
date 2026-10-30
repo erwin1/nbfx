@@ -17,7 +17,7 @@ import org.netbeans.api.lexer.Language;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
-import com.gluonhq.netbeans.nbfx.api.editor.InMemorySourceFactory;
+import com.gluonhq.netbeans.nbfx.java.model.SourceAnalysis;
 
 /**
  * A {@link SourceContext} for Java sources that adds the semantic artifacts on top of
@@ -48,7 +48,7 @@ public final class JavaSourceContext extends SourceContext {
 
     public JavaSourceContext(FileObject fileObject) {
         super(Objects.requireNonNull(fileObject), JavaTokenId.language());
-        this.cpInfo = ClasspathInfo.create(fileObject);
+        this.cpInfo = newClasspath(fileObject);
         this.lexerAttributes = createLexerAttributes(fileObject);
     }
 
@@ -63,7 +63,7 @@ public final class JavaSourceContext extends SourceContext {
      * ClasspathInfo captured empty or partial classpaths and would keep them forever.
      */
     public synchronized void refreshClasspath() {
-        cpInfo = ClasspathInfo.create(fileObject());
+        cpInfo = newClasspath(fileObject());
         clearArtifacts();
     }
 
@@ -90,12 +90,12 @@ public final class JavaSourceContext extends SourceContext {
             return null;
         }
         if (javaSource == null) {
-            InMemorySourceFactory factory = inMemorySourceFactory();
-            if (factory == null) {
+            SourceAnalysis analysis = sourceAnalysis();
+            if (analysis == null) {
                 return null;
             }
             try {
-                inMemoryFo = factory.copy(fileObject(), source);
+                inMemoryFo = analysis.inMemoryFile(fileObject(), source);
                 javaSource = JavaSource.create(cpInfo, inMemoryFo);
             } catch (IOException ex) {
                 LOG.log(Level.WARNING, "Could not create in-memory JavaSource", ex);
@@ -174,12 +174,17 @@ public final class JavaSourceContext extends SourceContext {
         return true;
     }
 
-    private static InMemorySourceFactory inMemorySourceFactory() {
-        InMemorySourceFactory factory = Lookup.getDefault().lookup(InMemorySourceFactory.class);
-        if (factory == null) {
-            LOG.warning("No InMemorySourceFactory available; semantic analysis is disabled");
+    private static ClasspathInfo newClasspath(FileObject file) {
+        SourceAnalysis analysis = sourceAnalysis();
+        return analysis == null ? ClasspathInfo.create(file) : analysis.classpath(file);
+    }
+
+    private static SourceAnalysis sourceAnalysis() {
+        SourceAnalysis analysis = Lookup.getDefault().lookup(SourceAnalysis.class);
+        if (analysis == null) {
+            LOG.warning("No SourceAnalysis available; semantic analysis is disabled");
         }
-        return factory;
+        return analysis;
     }
 
 }
