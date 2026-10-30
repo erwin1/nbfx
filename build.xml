@@ -449,10 +449,13 @@ nbfx-java
         <!-- Removing a module from the cluster config does not delete its previously built jar, and
              the launcher loads (and the release zips) every module present in a cluster dir. Prune
              the jar, branding jars, module status file and update tracking of every excluded module
-             (${nbfx.cluster.exclude}) so a build dir from before the exclusion matches a clean one. -->
+             (${nbfx.cluster.exclude}) so a build dir from before the exclusion matches a clean one.
+             Only upstream cluster dirs are pruned: the exclusions name upstream module dirs, and the
+             dashed name is only a suffix match (java.navigation would otherwise also prune
+             nbfx-java/modules/com-gluonhq-netbeans-nbfx-java-navigation.jar). -->
         <delete quiet="true" failonerror="false">
             <fileset dir="${nbfx.sub.dir}/nbbuild/netbeans" erroronmissingdir="false">
-                <filename regex="^[^/\\]+[/\\](modules[/\\][^/\\]+-(?:${nbfx.cluster.exclude.dashed.re})\.jar|modules[/\\]locale[/\\][^/\\]+-(?:${nbfx.cluster.exclude.dashed.re})_[^/\\]+\.jar|config[/\\]Modules[/\\][^/\\]+-(?:${nbfx.cluster.exclude.dashed.re})\.xml|update_tracking[/\\][^/\\]+-(?:${nbfx.cluster.exclude.dashed.re})\.xml)$"/>
+                <filename regex="^(?!nbfx-)[^/\\]+[/\\](modules[/\\][^/\\]+-(?:${nbfx.cluster.exclude.dashed.re})\.jar|modules[/\\]locale[/\\][^/\\]+-(?:${nbfx.cluster.exclude.dashed.re})_[^/\\]+\.jar|config[/\\]Modules[/\\][^/\\]+-(?:${nbfx.cluster.exclude.dashed.re})\.xml|update_tracking[/\\][^/\\]+-(?:${nbfx.cluster.exclude.dashed.re})\.xml)$"/>
             </fileset>
         </delete>
     </target>
