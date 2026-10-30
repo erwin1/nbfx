@@ -22,7 +22,7 @@ import java.util.Objects;
 
 /**
  * A registered wizard: the metadata declared with
- * {@link com.gluonhq.netbeans.nbfx.annotations.WizardRegistration} plus the wizard itself.
+ * {@link com.gluonhq.netbeans.nbfx.api.wizard.WizardRegistration} plus the wizard itself.
  *
  * @param id          the wizard id (the layer file's base name)
  * @param displayName the dialog title

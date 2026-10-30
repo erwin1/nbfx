@@ -26,8 +26,8 @@ import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.DEBUG_STEP_OVER;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.DEBUG_STOP;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.TOGGLE_BREAKPOINT;
 
-import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
-import com.gluonhq.netbeans.nbfx.annotations.MenuRegistration;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionReference;
+import com.gluonhq.netbeans.nbfx.api.views.MenuRegistration;
 
 /**
  * Declares the Debug menu entries in the layer.

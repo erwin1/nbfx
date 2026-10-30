@@ -21,7 +21,7 @@ package com.gluonhq.netbeans.nbfx.java.navigation.structure.actions;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.INSPECT_FILE_MEMBERS;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.INSPECT_MEMBERS;
 
-import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionReference;
 import com.gluonhq.netbeans.nbfx.api.actions.AbstractCommand;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionIds;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;

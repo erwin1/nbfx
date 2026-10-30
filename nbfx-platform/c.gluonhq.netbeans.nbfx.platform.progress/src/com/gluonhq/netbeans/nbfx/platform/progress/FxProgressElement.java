@@ -1,7 +1,7 @@
 package com.gluonhq.netbeans.nbfx.platform.progress;
 
-import com.gluonhq.netbeans.nbfx.annotations.StatusAlignment;
-import com.gluonhq.netbeans.nbfx.annotations.StatusRegistration;
+import com.gluonhq.netbeans.nbfx.api.status.StatusAlignment;
+import com.gluonhq.netbeans.nbfx.api.status.StatusRegistration;
 import com.gluonhq.netbeans.nbfx.platform.status.StatusElementHolder;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;

@@ -18,15 +18,15 @@
  */
 package com.gluonhq.netbeans.nbfx.platform.workspace;
 
-import com.gluonhq.netbeans.nbfx.annotations.ViewLocation;
-import com.gluonhq.netbeans.nbfx.annotations.ViewRegistration.PersistenceType;
+import com.gluonhq.netbeans.nbfx.api.views.ViewLocation;
+import com.gluonhq.netbeans.nbfx.api.views.ViewRegistration.PersistenceType;
 import com.gluonhq.netbeans.nbfx.api.view.ViewArea;
 import com.gluonhq.netbeans.nbfx.api.view.ViewProvider;
 import java.util.Objects;
 
 /**
  * A registered view: the metadata declared with
- * {@link com.gluonhq.netbeans.nbfx.annotations.ViewRegistration} plus the view itself.
+ * {@link com.gluonhq.netbeans.nbfx.api.views.ViewRegistration} plus the view itself.
  *
  * @param id               the view id (the layer file's base name)
  * @param displayName      the tab title

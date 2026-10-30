@@ -52,8 +52,8 @@ import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.SELECT_SEARCH_RESU
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.SELECT_USAGES;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.UNDO;
 
-import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
-import com.gluonhq.netbeans.nbfx.annotations.MenuRegistration;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionReference;
+import com.gluonhq.netbeans.nbfx.api.views.MenuRegistration;
 
 /**
  * Declares the application shell's menus and their entries in the layer, so the window is assembled

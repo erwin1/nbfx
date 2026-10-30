@@ -18,9 +18,9 @@
  */
 package com.gluonhq.netbeans.nbfx.ide.structure;
 
-import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
-import com.gluonhq.netbeans.nbfx.annotations.ViewLocation;
-import com.gluonhq.netbeans.nbfx.annotations.ViewRegistration;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionReference;
+import com.gluonhq.netbeans.nbfx.api.views.ViewLocation;
+import com.gluonhq.netbeans.nbfx.api.views.ViewRegistration;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionIds;
 import com.gluonhq.netbeans.nbfx.api.view.DockLocation;
 import com.gluonhq.netbeans.nbfx.api.view.ViewManager;

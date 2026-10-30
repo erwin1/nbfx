@@ -25,8 +25,8 @@ import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.DEBUG_STEP_OUT;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.DEBUG_STEP_OVER;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.DEBUG_STOP;
 
-import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
-import com.gluonhq.netbeans.nbfx.annotations.ToolbarRegistration;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionReference;
+import com.gluonhq.netbeans.nbfx.api.views.ToolbarRegistration;
 
 /**
  * Declares the Debug tool bar contents in the layer, so the global Debug tool bar is assembled from

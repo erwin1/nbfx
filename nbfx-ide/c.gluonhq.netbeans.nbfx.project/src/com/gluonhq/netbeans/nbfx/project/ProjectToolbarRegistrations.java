@@ -21,8 +21,8 @@ package com.gluonhq.netbeans.nbfx.project;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.NEW_PROJECT;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.OPEN_PROJECT;
 
-import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
-import com.gluonhq.netbeans.nbfx.annotations.ToolbarRegistration;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionReference;
+import com.gluonhq.netbeans.nbfx.api.views.ToolbarRegistration;
 
 /**
  * Declares the File tool bar and its project entries in the layer, so the window builds the tool bar

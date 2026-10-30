@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.project;
 
-import com.gluonhq.netbeans.nbfx.annotations.WizardRegistration;
+import com.gluonhq.netbeans.nbfx.api.wizard.WizardRegistration;
 import com.gluonhq.netbeans.nbfx.api.dialogs.ErrorReporter;
 import com.gluonhq.netbeans.nbfx.api.project.ProjectRegistry;
 import com.gluonhq.netbeans.nbfx.platform.wizard.Wizard;

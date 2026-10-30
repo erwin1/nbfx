@@ -1,7 +1,7 @@
 package com.gluonhq.netbeans.nbfx.java.navigation;
 
-import com.gluonhq.netbeans.nbfx.annotations.ViewLocation;
-import com.gluonhq.netbeans.nbfx.annotations.ViewRegistration;
+import com.gluonhq.netbeans.nbfx.api.views.ViewLocation;
+import com.gluonhq.netbeans.nbfx.api.views.ViewRegistration;
 import com.gluonhq.netbeans.nbfx.api.project.ProjectIconProvider;
 import com.gluonhq.netbeans.nbfx.api.project.ProjectOpener;
 import com.gluonhq.netbeans.nbfx.api.view.ViewProvider;

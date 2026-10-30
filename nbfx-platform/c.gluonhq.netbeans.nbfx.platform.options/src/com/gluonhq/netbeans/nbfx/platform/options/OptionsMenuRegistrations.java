@@ -20,7 +20,7 @@ package com.gluonhq.netbeans.nbfx.platform.options;
 
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.SELECT_OPTIONS;
 
-import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionReference;
 
 /**
  * Declares the Tools ▸ Options entry in the layer.

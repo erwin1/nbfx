@@ -23,8 +23,8 @@ import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.GO_TO_IMPLEMENTATI
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.GO_TO_SOURCE;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.GO_TO_SUPER_IMPLEMENTATION;
 
-import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
-import com.gluonhq.netbeans.nbfx.annotations.MenuRegistration;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionReference;
+import com.gluonhq.netbeans.nbfx.api.views.MenuRegistration;
 import com.gluonhq.netbeans.nbfx.api.actions.AbstractCommand;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionIds;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;

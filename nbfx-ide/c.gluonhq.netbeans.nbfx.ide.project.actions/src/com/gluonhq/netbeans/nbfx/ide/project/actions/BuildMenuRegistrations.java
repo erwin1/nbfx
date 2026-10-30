@@ -25,8 +25,8 @@ import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.JAVADOC;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.RUN;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.TEST;
 
-import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
-import com.gluonhq.netbeans.nbfx.annotations.MenuRegistration;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionReference;
+import com.gluonhq.netbeans.nbfx.api.views.MenuRegistration;
 
 /**
  * Declares the Build menu entries in the layer, so the menu is assembled from registrations. The

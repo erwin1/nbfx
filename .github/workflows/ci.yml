@@ -77,6 +77,21 @@ jobs:
           ant -Dbinaries.server=http://netbeans.osuosl.org/binaries/ bootstrap
           ant -Dbinaries.server=http://netbeans.osuosl.org/binaries/ build
 
+      - name: API module tests
+        run: |
+          for module in \
+            c.gluonhq.netbeans.nbfx.api.actions \
+            c.gluonhq.netbeans.nbfx.api.views \
+            c.gluonhq.netbeans.nbfx.api.status \
+            c.gluonhq.netbeans.nbfx.api.options \
+            c.gluonhq.netbeans.nbfx.api.property \
+            c.gluonhq.netbeans.nbfx.api.project \
+            c.gluonhq.netbeans.nbfx.api.wizard
+          do
+            ant -f "netbeans/nbfx-api/$module/build.xml" test-unit \
+              -Dnetbeans.dest.dir="$PWD/netbeans/nbbuild/netbeans"
+          done
+
       # Save even if the build failed: DownloadBinaries only writes complete,
       # hash-verified files, so the inventory is always a valid cache seed. The
       # content fingerprint makes a later run save a fuller cache instead of

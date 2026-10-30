@@ -22,7 +22,7 @@ import java.util.Objects;
 
 /**
  * A registered options panel: the metadata declared with
- * {@link com.gluonhq.netbeans.nbfx.annotations.OptionsRegistration} plus the panel itself.
+ * {@link com.gluonhq.netbeans.nbfx.api.options.OptionsRegistration} plus the panel itself.
  *
  * @param id          the panel id (the layer file's base name)
  * @param displayName the display name

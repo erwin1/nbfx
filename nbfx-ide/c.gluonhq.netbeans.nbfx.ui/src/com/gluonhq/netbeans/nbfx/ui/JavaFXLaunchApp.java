@@ -15,7 +15,7 @@ import com.gluonhq.netbeans.nbfx.ui.session.CloseConfirmation;
 import com.gluonhq.netbeans.nbfx.ui.session.DocumentCloser;
 import com.gluonhq.netbeans.nbfx.ui.session.SessionRestorer;
 import com.gluonhq.netbeans.nbfx.platform.workspace.DockArea;
-import com.gluonhq.netbeans.nbfx.annotations.StatusAlignment;
+import com.gluonhq.netbeans.nbfx.api.status.StatusAlignment;
 import com.gluonhq.netbeans.nbfx.ui.shell.CaretStatusElement;
 import com.gluonhq.netbeans.nbfx.ui.shell.Docking;
 import com.gluonhq.netbeans.nbfx.ui.shell.LineSeparatorStatusElement;

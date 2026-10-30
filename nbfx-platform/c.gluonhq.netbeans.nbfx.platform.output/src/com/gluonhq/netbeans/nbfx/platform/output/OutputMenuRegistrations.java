@@ -20,7 +20,7 @@ package com.gluonhq.netbeans.nbfx.platform.output;
 
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.SELECT_OUTPUT;
 
-import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionReference;
 
 /**
  * Declares the Window ▸ Output entry in the layer, next to the other view-selection entries.

@@ -98,7 +98,7 @@ This replaces the "`api.layer`: not planned" note in the old §6.1 and the "priv
 1. rename the annotation/API types per C.2 and move the processors out of exported packages (C.1) — **landed**;
 2. rename the remaining exported implementation types — **landed**; `check-naming` (PLAN §9) is green;
 3. introduce `api.layer.LayerPaths` and switch all processors/registries to it — **landed**;
-4. add the writer/reader layer contract test — **landed** (`FxAnnotationsProcessorTest`).
+4. add the writer/reader layer contract tests — **landed** (one processor test per owning `api.*` module).
 
 **Watch out.** This changes public type names, so it is source-incompatible for *nbfx-internal* consumers
 (the ~20 modules that use the annotations). Pre-1.0 that is allowed; the rule "code-names and API names

@@ -104,15 +104,15 @@ com.gluonhq.netbeans.nbfx.libs.<library>              bundled external library  
 The current tree has **4 public `Fx*` types**, all implementation types in non-exported packages
 (`nbfx.progress`/`platform.actions`, where C.1 allows the prefix — [`figures.md`](figures.md)); the annotations,
 `api.*` and implementation renames have landed, `LayerPaths` lives in `api.layer`, and `check-naming` is green.
-The writer/reader contract test landed in PR #33.
+The writer/reader contract test landed in PR #33 and was split per owning module in #63.
 
 ### 3.3 Layer paths
 
 Layer folder names are a **contract**, not an implementation detail: the writer (annotation processor) and
 the reader (the shell) must query the same folder. The module `nbfx.api.layer` (cluster `nbfx-api`, tier T1)
-now owns `LayerPaths`; every processor writes through it and every registry reads through it. The writer/reader agreement is asserted by the
-**contract test** in `FxAnnotationsProcessorTest`, which builds a layer from a sample annotated class and
-checks its folders against `LayerPaths`. "Private constant per reader" is rejected: no test can compare two privates, so a typo becomes a
+now owns `LayerPaths`; every processor writes through it and every registry reads through it. The writer/reader agreement is asserted by
+**per-module processor tests**, each of which builds a layer from a sample annotated class and checks
+its emitted folders against `LayerPaths`. "Private constant per reader" is rejected: no test can compare two privates, so a typo becomes a
 silent runtime no-op. See [Appendix C](appendix/C-naming-and-rename-table.md) §C.3.
 
 ## 4. API tiers and governance
@@ -131,12 +131,12 @@ a signature test, and a **starting specification version of 1.0** with the bump 
 incompatible → 2.0. The guard checks that a dependant's `<specification-version>` exists. The
 signature-test harness is the NetBeans `sigtest` support in `nbbuild`; name the target per module.
 
-**Today's reality — the split exists to fix this.** `nbfx.api` and `nbfx.annotations` export their whole
+**Before W1 — the split exists to fix this.** `nbfx.api` and `nbfx.annotations` exported their whole
 subtree (`<subpackages>`, `nbfx.api/nbproject/project.xml:76-78`, `nbfx.annotations/…:47-49`), so every
-class in them — including `ActionLayerReader`, `FxActionRef`, `LayerMenuBuilder` — is public API, and
-`nbfx.api/arch.xml` has no `<api>` entries. The split replaces the subtree export with explicit
+class in them — including `ActionLayerReader`, `FxActionRef`, `LayerMenuBuilder` — was public API, and
+`nbfx.api/arch.xml` had no `<api>` entries. The split replaces the subtree export with explicit
 per-module packages plus real `arch.xml` `<api>` entries, and the guard asserts *exported set ⊆ arch set*.
-Governed set today: `nbfx.api`, `nbfx.annotations`, `nbfx.project.ui.api`, `nbfx.propertysheet`,
+Governed set before the split: `nbfx.api`, `nbfx.annotations`, `nbfx.project.ui.api`, `nbfx.propertysheet`,
 `nbfx.project.customizer`, `nbfx.options`, `nbfx.output`, `nbfx.statusbar`, `nbfx.windows`, `nbfx.wizard`.
 T0 modules carry no specification version.
 
@@ -200,8 +200,8 @@ update centers, pinned SHA-256 for bundled native artifacts, install-time capabi
 
 | Module | Tier | Contents |
 |---|---|---|
-| `api.actions` | T2-FX | `Command`, `CommandsProvider`, `ActionRegistry`, `KeyMap`, `ActionContext`, `@ActionRegistration`, `ActionIds` |
-| `api.views` | T2-FX | `ViewProvider`, `ViewManager`, `DockLocation`, `@ViewRegistration`, `ViewLocation` |
+| `api.actions` | T2-FX | `Command`, `CommandsProvider`, `ActionRegistry`, `KeyMap`, `ActionContext`, `@ActionRegistration`, `@ActionReference(s)`, `ActionIds` |
+| `api.views` | T2-FX | `ViewProvider`, `ViewManager`, `DockLocation`, `@ViewRegistration`, `ViewLocation`, `@MenuRegistration(s)`, `@ToolbarRegistration(s)` |
 | `api.status` | T2-FX | `StatusElement`, `@StatusRegistration`, `StatusAlignment` |
 | `api.dialogs` | T2-FX | `Dialogs`, `DialogDescriptor`, `DialogOption`, `Notification` (notification line, toasts) |
 | `api.options` | T2-FX | `OptionsPanelController`, `@OptionsRegistration`/`Container`/`Sub`, `OptionsDisplayer`, `OptionsKeywords` |
@@ -340,7 +340,7 @@ that needs it starts ([Appendix G](appendix/G-licences-and-notices.md) rule 6).
 | Current module | Target |
 |---|---|
 | `nbfx.api` (61 classes in 12 packages + 4 root classes) | `api.actions`; `api.views` (from `api.view` + `api.icons`); `api.status`; `api.editor` (from `api.editor` + `api.breadcrumbs` + `api.completion`); `api.elements` → `api.language` (neutral `ElementRef`/`SourceLocation`/`ElementIcons`) + `java.elements` (`SourceElementKind`/`SourceTypeKind`/`SourceModifiers`); `api.project`; `api.build`; `api.progress`; `api.search`; `api.file` → `api.editor`/`ide.file`. Root classes: `Cancellation` → `api.progress`, `ContentManager` → `api.editor`, `ErrorReporter` → `api.dialogs`, `FxApplicationMenu` → `api.views`/`platform.menus` |
-| `nbfx.annotations` | dissolved: annotations move into their `api.*` module; path constants private per reader + test |
+| `nbfx.annotations` | dissolved: annotations move into their `api.*` module; path constants are owned by `api.layer.LayerPaths` |
 | `nbfx.actions`, `nbfx.context` | `platform.actions` |
 | `nbfx.docking`, `nbfx.windows` | `platform.workspace` |
 | `nbfx.menus` | `platform.menus` |

@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.platform.options;
 
-import com.gluonhq.netbeans.nbfx.annotations.OptionsRegistration;
+import com.gluonhq.netbeans.nbfx.api.options.OptionsRegistration;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionRegistry;
 import com.gluonhq.netbeans.nbfx.api.actions.Command;
 import com.gluonhq.netbeans.nbfx.api.actions.KeyMap;

@@ -20,7 +20,7 @@ package com.gluonhq.netbeans.nbfx.ide.plugins;
 
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.SELECT_PLUGINS;
 
-import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionReference;
 
 /**
  * Declares the Tools ▸ Plugins entry in the layer.

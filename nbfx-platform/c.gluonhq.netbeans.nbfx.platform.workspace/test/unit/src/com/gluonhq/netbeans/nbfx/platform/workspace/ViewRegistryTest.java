@@ -18,8 +18,8 @@
  */
 package com.gluonhq.netbeans.nbfx.platform.workspace;
 
-import com.gluonhq.netbeans.nbfx.annotations.ViewLocation;
-import com.gluonhq.netbeans.nbfx.annotations.ViewRegistration;
+import com.gluonhq.netbeans.nbfx.api.views.ViewLocation;
+import com.gluonhq.netbeans.nbfx.api.views.ViewRegistration;
 import com.gluonhq.netbeans.nbfx.api.view.ViewArea;
 import com.gluonhq.netbeans.nbfx.api.view.ViewProvider;
 import java.io.IOException;

@@ -18,8 +18,8 @@
  */
 package com.gluonhq.netbeans.nbfx.ide.vcs;
 
-import com.gluonhq.netbeans.nbfx.annotations.StatusAlignment;
-import com.gluonhq.netbeans.nbfx.annotations.StatusRegistration;
+import com.gluonhq.netbeans.nbfx.api.status.StatusAlignment;
+import com.gluonhq.netbeans.nbfx.api.status.StatusRegistration;
 import com.gluonhq.netbeans.nbfx.api.actions.ActionContext;
 import com.gluonhq.netbeans.nbfx.api.editor.EditorDocument;
 import com.gluonhq.netbeans.nbfx.api.project.OpenProject;

@@ -6,14 +6,6 @@
             <code-name-base>com.gluonhq.netbeans.nbfx.ide.project.actions</code-name-base>
             <module-dependencies>
                 <dependency>
-                    <code-name-base>com.gluonhq.netbeans.nbfx.annotations</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <specification-version>1.0</specification-version>
-                    </run-dependency>
-                </dependency>
-                <dependency>
                     <code-name-base>com.gluonhq.netbeans.nbfx.project.context</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -86,6 +78,11 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency><specification-version>1.0</specification-version></run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>com.gluonhq.netbeans.nbfx.api.views</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
                 </dependency>
             </module-dependencies>
             <test-dependencies>

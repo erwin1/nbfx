@@ -31,18 +31,21 @@ nb.cluster.nbfx-api.depends=\
         nb.cluster.platform,\
         nb.cluster.nbfx-libs
 nb.cluster.nbfx-api=\
-        c.gluonhq.netbeans.nbfx.annotations,\
         c.gluonhq.netbeans.nbfx.api.actions,\
         c.gluonhq.netbeans.nbfx.api.dialogs,\
         c.gluonhq.netbeans.nbfx.api.editor,\
         c.gluonhq.netbeans.nbfx.api.elements,\
         c.gluonhq.netbeans.nbfx.api.file,\
         c.gluonhq.netbeans.nbfx.api.layer,\
+        c.gluonhq.netbeans.nbfx.api.options,\
         c.gluonhq.netbeans.nbfx.api.progress,\
         c.gluonhq.netbeans.nbfx.api.project,\
+        c.gluonhq.netbeans.nbfx.api.property,\
         c.gluonhq.netbeans.nbfx.api.search,\
+        c.gluonhq.netbeans.nbfx.api.status,\
         c.gluonhq.netbeans.nbfx.api.usages,\
-        c.gluonhq.netbeans.nbfx.api.views
+        c.gluonhq.netbeans.nbfx.api.views,\
+        c.gluonhq.netbeans.nbfx.api.wizard
 
 # --- nbfx-platform: FX replacements for platform/ -----------------------------
 nb.cluster.nbfx-platform.dir=nbfx-platform

@@ -18,7 +18,7 @@
  */
 package com.gluonhq.netbeans.nbfx.platform.status;
 
-import com.gluonhq.netbeans.nbfx.annotations.StatusAlignment;
+import com.gluonhq.netbeans.nbfx.api.status.StatusAlignment;
 import java.util.Objects;
 
 /**

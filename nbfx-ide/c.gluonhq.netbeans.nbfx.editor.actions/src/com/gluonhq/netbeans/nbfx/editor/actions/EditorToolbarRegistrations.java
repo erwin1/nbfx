@@ -27,8 +27,8 @@ import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.SAVE;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.SAVE_ALL;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.UNDO;
 
-import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
-import com.gluonhq.netbeans.nbfx.annotations.ToolbarRegistration;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionReference;
+import com.gluonhq.netbeans.nbfx.api.views.ToolbarRegistration;
 
 /**
  * Declares the Clipboard and Edit tool bars and their editor entries in the layer, and the save

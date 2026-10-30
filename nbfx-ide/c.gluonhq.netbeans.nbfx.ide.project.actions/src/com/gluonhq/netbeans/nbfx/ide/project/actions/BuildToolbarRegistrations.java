@@ -24,8 +24,8 @@ import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.CLEAN_BUILD;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.RUN;
 import static com.gluonhq.netbeans.nbfx.api.actions.ActionIds.TEST;
 
-import com.gluonhq.netbeans.nbfx.annotations.ActionReference;
-import com.gluonhq.netbeans.nbfx.annotations.ToolbarRegistration;
+import com.gluonhq.netbeans.nbfx.api.actions.ActionReference;
+import com.gluonhq.netbeans.nbfx.api.views.ToolbarRegistration;
 
 /**
  * Declares the Build tool bar contents in the layer, so the bar is assembled from registrations.
