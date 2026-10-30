@@ -438,7 +438,7 @@ not a guardrail until `feature/ci` runs it (§11 W0/W12).
 | `check-packaging` | **exists** (extend to the retirement matrix) | the retirement matrix (absent modules per milestone) | a retired module reappears in the distribution |
 | `check-figures` | **exists** | `ant -f check-purity.xml check-figures` → `java docs/plan/tools/Counts.java --check` | stale figures, a hand-typed count ([`figures.md`](figures.md)) |
 | `check-java-source` | **exists** (W1) | `org.netbeans.api.java.source`/`libs.javacapi` only in the `java.*` semantic modules | imported anywhere else (Appendix B.5) |
-| `check-languages` | pending (W1/W11) | core has no `LanguageId`/content-type branch; an unregistered MIME resolves to **plain text**; providers are language-scoped (Appendix I.3/I.4) | an `if (java)` in the core, or an unknown language falling back to Java |
+| `check-languages` | **exists** (W1) | `LanguageGuard` rejects concrete `java`/`css`/`xml`/`fxml` branches in `platform.editor`; providers are language-scoped through `SyntaxDecoratorFactory`, and unknown extensions get a plain-text decorator (Appendix I.3/I.4) | an `if (java)` in the core, or an unknown language falling back to Java |
 | `check-api` | pending (W2) | exported set ⊆ `arch.xml` set; dependant spec versions exist | a subtree export, a missing `arch.xml` `<api>` entry |
 | `check-naming` | **exists** (W1) | no `Fx*`/`Impl`/`Object`-factory in public API; `LayerPaths` is the only shared constants class | a forbidden public name |
 | `check-baseline` | **exists** (W1) | one `javac.release`; no `javafx.web`; one `--add-exports` file (§8.1) | a drifting JDK/FX/class-file baseline |

@@ -10,7 +10,7 @@ public final class JavaSyntaxDecoratorFactory implements SyntaxDecoratorFactory 
 
     @Override
     public boolean supports(String extension) {
-        return !"css".equals(extension) && !"xml".equals(extension) && !"fxml".equals(extension);
+        return "java".equals(extension);
     }
 
     @Override

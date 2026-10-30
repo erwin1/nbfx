@@ -6,8 +6,9 @@ import java.util.Objects;
 
 /**
  * Factory of the language-specific {@link BaseSyntaxDecorator}s, selected by the
- * file extension: CSS files get the lightweight CSS highlighter, XML/FXML files
- * the XML lexer highlighter, everything else the combined lex + Java analysis
+ * file extension: Java files get the combined lex + Java analysis decorator, CSS
+ * files the lightweight CSS highlighter, and XML/FXML files the XML lexer
+ * highlighter. Files whose language has no registered factory get the plain-text
  * decorator.
  */
 public final class SyntaxDecorators {
@@ -28,6 +29,6 @@ public final class SyntaxDecorators {
                 return factory.create(fo);
             }
         }
-        throw new IllegalStateException("No syntax decorator for ." + ext);
+        return new PlainTextSyntaxDecorator(fo);
     }
 }
